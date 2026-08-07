@@ -84,6 +84,12 @@ poc/results/weights/
 *.tar.gz
 poc/chaincode/**/*.exe
 
+# --- Locally-installed agent skills (managed by skills-lock.json, not project source) ---
+.agents/skills/
+.claude/skills/
+agent/skills/
+skills-lock.json
+
 # --- OS / editor ---
 .DS_Store
 Thumbs.db

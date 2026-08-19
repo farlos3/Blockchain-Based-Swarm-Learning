@@ -1,4 +1,4 @@
-"""เทสต์ของ blockchain + swarm ledger
+"""เทสต์ของ blockchain + Proof of Authority + swarm ledger
 
 รันได้ 2 แบบ:
     python test_swarm_ledger.py     (ไม่ต้องลง pytest)
@@ -7,10 +7,22 @@
 
 from __future__ import annotations
 
+import json
+import tempfile
+from pathlib import Path
+
 import numpy as np
 
-from blockchain import GENESIS_PREV_HASH, Blockchain, ChainError
-from swarm_ledger import LedgerError, SwarmLedger, elect_leader, hash_params
+from blockchain import GENESIS_PREV_HASH, Block, Blockchain, ChainError
+from consensus import AuthoritySet, NodeKey, ProofOfAuthority, ProofOfWork, elect_leader
+from swarm_ledger import (
+    LedgerError,
+    SwarmLedger,
+    audit_chain,
+    hash_params,
+    sign_payload,
+    unsigned_view,
+)
 
 NODES = ["A", "B", "C", "D", "E"]
 
@@ -20,17 +32,20 @@ def params(seed: int) -> tuple[np.ndarray, np.ndarray]:
     return rng.normal(size=(1, 10)), rng.normal(size=(1,))
 
 
-def make_ledger(difficulty: int = 0) -> SwarmLedger:
-    return SwarmLedger(NODES, difficulty=difficulty)
+def make_ledger() -> SwarmLedger:
+    return SwarmLedger.bootstrap(NODES, seed="test")
 
 
 def commit_round(ledger: SwarmLedger, round_num: int, accuracy: float = 0.8):
-    for i, node in enumerate(NODES):
+    for i, node in enumerate(ledger.participants):
         ledger.submit_update(round_num, node, *params(round_num * 100 + i), n_samples=100 + i)
     coef, intercept = params(round_num)
     leader = elect_leader(round_num, ledger.participants)
-    block = ledger.record_aggregation(round_num, leader, coef, intercept, accuracy)
-    return block, coef, intercept
+    return ledger.record_aggregation(round_num, leader, coef, intercept, accuracy), coef, intercept
+
+
+def tmp_file(name: str = "chain.json") -> Path:
+    return Path(tempfile.mkdtemp()) / name
 
 
 # ---------- blockchain ----------
@@ -73,13 +88,10 @@ def test_tampering_breaks_the_link():
     raise AssertionError("การแก้ธุรกรรมย้อนหลังควรถูกจับได้")
 
 
-def test_tampering_last_block_caught_after_reload(tmp_path=None):
-    import tempfile
-    from pathlib import Path
-
+def test_tampering_last_block_caught_after_reload():
     chain = Blockchain()
     chain.add_block([{"type": "t", "v": 1}])
-    target = Path(tmp_path or tempfile.mkdtemp()) / "chain.json"
+    target = tmp_file()
     chain.save(target)
 
     reloaded = Blockchain.load(target)
@@ -93,25 +105,97 @@ def test_tampering_last_block_caught_after_reload(tmp_path=None):
     raise AssertionError("การแก้บล็อกท้ายสุดควรถูกจับได้จาก hash ที่บันทึกไว้")
 
 
-def test_proof_of_work_meets_difficulty():
-    chain = Blockchain(difficulty=2)
+def test_proof_of_work_still_available_for_comparison():
+    chain = Blockchain(consensus=ProofOfWork(difficulty=2))
     block = chain.add_block([{"type": "t", "v": 1}])
     assert block.compute_hash().startswith("00")
     chain.validate()
 
 
-def test_save_load_round_trip():
-    import tempfile
-    from pathlib import Path
+# ---------- proof of authority ----------
 
+def test_block_is_sealed_by_the_round_leader():
+    ledger = make_ledger()
+    block, _, _ = commit_round(ledger, 1)
+    assert block.sealer == elect_leader(1, ledger.participants)
+    assert block.seal  # มีลายเซ็นจริง
+    ledger.chain.validate()
+
+
+def test_seal_by_member_out_of_turn_rejected():
+    ledger = make_ledger()
+    leader = elect_leader(1, ledger.participants)
+    usurper = next(n for n in ledger.participants if n != leader)
+    agg = {"type": "aggregation", "round": 1, "aggregator": usurper,
+           "aggregated_hash": "0" * 64, "participant_count": 1, "total_samples": 1,
+           "accuracy": None, "timestamp": 0.0}
+    agg["signature"] = sign_payload(ledger.keys[usurper], unsigned_view(agg))
+    try:
+        ledger.chain.add_block([agg], sealer=ledger.keys[usurper])
+    except ChainError as exc:
+        assert leader in str(exc)
+        assert ledger.chain.height == 0  # บล็อกต้องไม่ถูกต่อเข้าสาย
+        return
+    raise AssertionError("สมาชิกที่ไม่ใช่คิวของรอบนั้นต้องปิดบล็อกไม่ได้")
+
+
+def test_seal_by_outsider_rejected():
+    ledger = make_ledger()
+    outsider = NodeKey.generate("Z", seed="attacker")
+    try:
+        ledger.chain.add_block([{"type": "t", "v": 1}], sealer=outsider)
+    except ChainError as exc:
+        assert "authority set" in str(exc)
+        return
+    raise AssertionError("คนนอก authority set ต้องปิดบล็อกไม่ได้")
+
+
+def test_unsigned_block_rejected():
+    ledger = make_ledger()
+    try:
+        ledger.chain.add_block([{"type": "t", "v": 1}])  # ไม่ระบุผู้ปิดบล็อก
+    except ChainError:
+        return
+    raise AssertionError("PoA ต้องไม่ยอมรับบล็อกที่ไม่มีผู้ปิดที่ระบุตัวตนได้")
+
+
+def test_recomputed_hash_still_fails_the_seal():
+    """ผู้โจมตีที่ฉลาดพอจะคำนวณ hash ใหม่ ยังปลอมลายเซ็นของ leader ไม่ได้"""
     ledger = make_ledger()
     commit_round(ledger, 1)
-    target = Path(tempfile.mkdtemp()) / "chain.json"
+    target = tmp_file()
     ledger.chain.save(target)
 
-    reloaded = Blockchain.load(target)
-    reloaded.validate()
-    assert reloaded.to_dict() == ledger.chain.to_dict()
+    raw = json.loads(target.read_text(encoding="utf-8"))
+    victim = raw["blocks"][-1]
+    victim["transactions"][0]["n_samples"] = 9999
+    victim["hash"] = Block.from_dict({**victim, "hash": None}).compute_hash()
+
+    try:
+        Blockchain.from_dict(raw).validate()
+    except ChainError as exc:
+        assert "ลายเซ็น" in str(exc)
+        return
+    raise AssertionError("แก้เนื้อหาแล้วคำนวณ hash ใหม่ ต้องยังตกที่ลายเซ็น")
+
+
+def test_authority_set_only_holds_public_keys():
+    ledger = make_ledger()
+    exported = ledger.chain.to_dict()["consensus"]["authorities"]
+    assert set(exported) == set(NODES)
+    assert all(len(pub) == 64 for pub in exported.values())  # ed25519 public key = 32 bytes
+
+
+def test_node_keys_are_deterministic_with_seed():
+    assert NodeKey.generate("A", seed="s").public_hex() == NodeKey.generate("A", seed="s").public_hex()
+    assert NodeKey.generate("A", seed="s").public_hex() != NodeKey.generate("B", seed="s").public_hex()
+
+
+def test_authority_set_rejects_bad_signature():
+    authorities = AuthoritySet.from_keys([NodeKey.generate("A", seed="s")])
+    other = NodeKey.generate("A", seed="different")
+    assert authorities.verify("A", "msg", other.sign("msg")) is False
+    assert authorities.verify("A", "msg", "not-hex") is False
 
 
 # ---------- swarm ledger ----------
@@ -125,13 +209,35 @@ def test_one_round_is_one_block():
     assert ledger.get_aggregation(1)["participant_count"] == len(NODES)
 
 
+def test_every_transaction_is_signed():
+    ledger = make_ledger()
+    commit_round(ledger, 1)
+    for tx in ledger.chain.transactions():
+        assert tx.get("signature"), tx
+
+
+def test_forged_signature_rejected():
+    ledger = make_ledger()
+    outsider = NodeKey.generate("Z", seed="attacker")
+    forged = {"type": "model_update", "round": 1, "node_id": "A", "weight_hash": "0" * 64,
+              "size_bytes": 88, "n_samples": 99999, "timestamp": 0.0}
+    forged["signature"] = sign_payload(outsider, unsigned_view(forged))
+    try:
+        ledger.submit_signed_update(forged)
+    except LedgerError as exc:
+        assert "ลายเซ็น" in str(exc)
+        return
+    raise AssertionError("ธุรกรรมที่อ้างชื่อคนอื่นต้องถูกปฏิเสธ")
+
+
 def test_non_member_rejected():
     ledger = make_ledger()
+    outsider = NodeKey.generate("Z", seed="attacker")
     try:
-        ledger.submit_update(1, "Z", *params(1), n_samples=10)
+        ledger.submit_update(1, "Z", *params(1), n_samples=10, key=outsider)
     except LedgerError:
         return
-    raise AssertionError("โหนดนอก swarm ควรถูกปฏิเสธ")
+    raise AssertionError("โหนดนอก authority set ควรถูกปฏิเสธ")
 
 
 def test_duplicate_update_rejected():
@@ -195,6 +301,31 @@ def test_leader_rotates_across_rounds():
     assert sum(counts.values()) == 10
     assert len([n for n, c in counts.items() if c > 0]) > 1  # ไม่ใช่โหนดเดียวยึดตลอด
     ledger.chain.validate()
+
+
+def test_audit_from_file_only():
+    ledger = make_ledger()
+    commit_round(ledger, 1)
+    commit_round(ledger, 2)
+    target = tmp_file()
+    ledger.chain.save(target)
+
+    report = audit_chain(target)  # คนนอกถือแค่ไฟล์ ก็ตรวจได้ครบ
+    assert report["consensus"] == "poa"
+    assert report["blocks"] == 2
+    assert report["transactions_verified"] == 2 * (len(NODES) + 1)
+    assert report["authorities"] == NODES
+
+
+def test_save_load_round_trip():
+    ledger = make_ledger()
+    commit_round(ledger, 1)
+    target = tmp_file()
+    ledger.chain.save(target)
+
+    reloaded = Blockchain.load(target)
+    reloaded.validate()
+    assert reloaded.to_dict() == ledger.chain.to_dict()
 
 
 def test_hash_params_is_stable_and_sensitive():

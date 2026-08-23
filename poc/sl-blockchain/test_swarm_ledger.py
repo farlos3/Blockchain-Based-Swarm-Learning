@@ -1,7 +1,7 @@
-"""เทสต์ของ blockchain + Proof of Authority + swarm ledger
+"""Tests for the blockchain + Proof of Authority + swarm ledger
 
-รันได้ 2 แบบ:
-    python test_swarm_ledger.py     (ไม่ต้องลง pytest)
+Two ways to run:
+    python test_swarm_ledger.py     (no pytest needed)
     pytest test_swarm_ledger.py
 """
 
@@ -72,20 +72,20 @@ def test_empty_block_rejected():
         Blockchain().add_block([])
     except ValueError:
         return
-    raise AssertionError("บล็อกว่างควรถูกปฏิเสธ")
+    raise AssertionError("an empty block should be rejected")
 
 
 def test_tampering_breaks_the_link():
     chain = Blockchain()
     chain.add_block([{"type": "t", "v": 1}])
     chain.add_block([{"type": "t", "v": 2}])
-    chain.blocks[1].transactions[0]["v"] = 999  # แก้ประวัติกลางสาย
+    chain.blocks[1].transactions[0]["v"] = 999  # rewrite history mid-chain
     try:
         chain.validate()
     except ChainError as exc:
-        assert "block 2" in str(exc)  # บล็อกถัดไปชี้ prev_hash ไม่ตรงแล้ว
+        assert "block 2" in str(exc)  # the next block's prev_hash no longer matches
         return
-    raise AssertionError("การแก้ธุรกรรมย้อนหลังควรถูกจับได้")
+    raise AssertionError("editing a past transaction should be caught")
 
 
 def test_tampering_last_block_caught_after_reload():
@@ -96,13 +96,13 @@ def test_tampering_last_block_caught_after_reload():
 
     reloaded = Blockchain.load(target)
     reloaded.validate()
-    reloaded.blocks[-1].transactions[0]["v"] = 999  # แก้บล็อกท้ายสุด ไม่มีบล็อกถัดไปให้ขัด
+    reloaded.blocks[-1].transactions[0]["v"] = 999  # edit the last block, nothing after it to contradict
     try:
         reloaded.validate()
     except ChainError as exc:
-        assert "ถูกแก้" in str(exc)  # จับได้จาก hash ที่บันทึกไว้ในไฟล์
+        assert "was modified" in str(exc)  # caught by the hash stored in the file
         return
-    raise AssertionError("การแก้บล็อกท้ายสุดควรถูกจับได้จาก hash ที่บันทึกไว้")
+    raise AssertionError("editing the last block should be caught by the stored hash")
 
 
 def test_proof_of_work_still_available_for_comparison():
@@ -118,7 +118,7 @@ def test_block_is_sealed_by_the_round_leader():
     ledger = make_ledger()
     block, _, _ = commit_round(ledger, 1)
     assert block.sealer == elect_leader(1, ledger.participants)
-    assert block.seal  # มีลายเซ็นจริง
+    assert block.seal  # a real signature is present
     ledger.chain.validate()
 
 
@@ -134,9 +134,9 @@ def test_seal_by_member_out_of_turn_rejected():
         ledger.chain.add_block([agg], sealer=ledger.keys[usurper])
     except ChainError as exc:
         assert leader in str(exc)
-        assert ledger.chain.height == 0  # บล็อกต้องไม่ถูกต่อเข้าสาย
+        assert ledger.chain.height == 0  # the block must not join the chain
         return
-    raise AssertionError("สมาชิกที่ไม่ใช่คิวของรอบนั้นต้องปิดบล็อกไม่ได้")
+    raise AssertionError("a member who is not on duty must not be able to seal")
 
 
 def test_seal_by_outsider_rejected():
@@ -147,20 +147,20 @@ def test_seal_by_outsider_rejected():
     except ChainError as exc:
         assert "authority set" in str(exc)
         return
-    raise AssertionError("คนนอก authority set ต้องปิดบล็อกไม่ได้")
+    raise AssertionError("someone outside the authority set must not be able to seal")
 
 
 def test_unsigned_block_rejected():
     ledger = make_ledger()
     try:
-        ledger.chain.add_block([{"type": "t", "v": 1}])  # ไม่ระบุผู้ปิดบล็อก
+        ledger.chain.add_block([{"type": "t", "v": 1}])  # no sealer given
     except ChainError:
         return
-    raise AssertionError("PoA ต้องไม่ยอมรับบล็อกที่ไม่มีผู้ปิดที่ระบุตัวตนได้")
+    raise AssertionError("PoA must not accept a block without an identifiable sealer")
 
 
 def test_recomputed_hash_still_fails_the_seal():
-    """ผู้โจมตีที่ฉลาดพอจะคำนวณ hash ใหม่ ยังปลอมลายเซ็นของ leader ไม่ได้"""
+    """An attacker smart enough to recompute the hash still cannot forge the leader's signature"""
     ledger = make_ledger()
     commit_round(ledger, 1)
     target = tmp_file()
@@ -174,9 +174,9 @@ def test_recomputed_hash_still_fails_the_seal():
     try:
         Blockchain.from_dict(raw).validate()
     except ChainError as exc:
-        assert "ลายเซ็น" in str(exc)
+        assert "signature" in str(exc)
         return
-    raise AssertionError("แก้เนื้อหาแล้วคำนวณ hash ใหม่ ต้องยังตกที่ลายเซ็น")
+    raise AssertionError("editing content and recomputing the hash must still fail at the signature")
 
 
 def test_authority_set_only_holds_public_keys():
@@ -204,7 +204,7 @@ def test_one_round_is_one_block():
     ledger = make_ledger()
     block, _, _ = commit_round(ledger, 1)
     assert ledger.chain.height == 1
-    assert len(block.transactions) == len(NODES) + 1  # update ทุกโหนด + aggregation
+    assert len(block.transactions) == len(NODES) + 1  # one update per node + the aggregation
     assert len(ledger.get_round_updates(1)) == len(NODES)
     assert ledger.get_aggregation(1)["participant_count"] == len(NODES)
 
@@ -225,9 +225,9 @@ def test_forged_signature_rejected():
     try:
         ledger.submit_signed_update(forged)
     except LedgerError as exc:
-        assert "ลายเซ็น" in str(exc)
+        assert "signature" in str(exc)
         return
-    raise AssertionError("ธุรกรรมที่อ้างชื่อคนอื่นต้องถูกปฏิเสธ")
+    raise AssertionError("a transaction claiming someone else's identity must be rejected")
 
 
 def test_non_member_rejected():
@@ -237,7 +237,7 @@ def test_non_member_rejected():
         ledger.submit_update(1, "Z", *params(1), n_samples=10, key=outsider)
     except LedgerError:
         return
-    raise AssertionError("โหนดนอก authority set ควรถูกปฏิเสธ")
+    raise AssertionError("a node outside the authority set should be rejected")
 
 
 def test_duplicate_update_rejected():
@@ -247,7 +247,7 @@ def test_duplicate_update_rejected():
         ledger.submit_update(1, "A", *params(2), n_samples=10)
     except LedgerError:
         return
-    raise AssertionError("ส่ง update ซ้ำในรอบเดิมควรถูกปฏิเสธ")
+    raise AssertionError("a second update in the same round should be rejected")
 
 
 def test_wrong_leader_rejected():
@@ -259,7 +259,7 @@ def test_wrong_leader_rejected():
     except LedgerError as exc:
         assert elect_leader(1, NODES) in str(exc)
         return
-    raise AssertionError("คนที่ไม่ใช่ leader ของรอบนั้นควรรวมพารามิเตอร์ไม่ได้")
+    raise AssertionError("a node that is not the round's leader must not be able to aggregate")
 
 
 def test_aggregation_without_updates_rejected():
@@ -268,7 +268,7 @@ def test_aggregation_without_updates_rejected():
         ledger.record_aggregation(1, elect_leader(1, NODES), *params(1))
     except LedgerError:
         return
-    raise AssertionError("ปิดรอบที่ไม่มี update ควรถูกปฏิเสธ")
+    raise AssertionError("closing a round with no updates should be rejected")
 
 
 def test_closed_round_is_final():
@@ -283,7 +283,7 @@ def test_closed_round_is_final():
             action()
         except LedgerError:
             continue
-        raise AssertionError("รอบที่ปิดแล้วต้องแก้ไม่ได้")
+        raise AssertionError("a closed round must not be modifiable")
 
 
 def test_verify_round_detects_changed_params():
@@ -299,7 +299,7 @@ def test_leader_rotates_across_rounds():
         commit_round(ledger, round_num)
     counts = ledger.leader_counts()
     assert sum(counts.values()) == 10
-    assert len([n for n, c in counts.items() if c > 0]) > 1  # ไม่ใช่โหนดเดียวยึดตลอด
+    assert len([n for n, c in counts.items() if c > 0]) > 1  # not one node holding the role forever
     ledger.chain.validate()
 
 
@@ -310,7 +310,7 @@ def test_audit_from_file_only():
     target = tmp_file()
     ledger.chain.save(target)
 
-    report = audit_chain(target)  # คนนอกถือแค่ไฟล์ ก็ตรวจได้ครบ
+    report = audit_chain(target)  # holding only the file is enough for a full check
     assert report["consensus"] == "poa"
     assert report["blocks"] == 2
     assert report["transactions_verified"] == 2 * (len(NODES) + 1)
@@ -332,7 +332,7 @@ def test_hash_params_is_stable_and_sensitive():
     coef, intercept = params(1)
     assert hash_params(coef, intercept) == hash_params(coef.copy(), intercept.copy())
     assert hash_params(coef, intercept) != hash_params(coef, intercept + 1e-12)
-    # coef/intercept สลับกันต้องไม่ได้ hash เดียวกัน
+    # swapped coef/intercept must not produce the same hash
     flat = np.ones((1, 3))
     assert hash_params(flat, np.ones((1,))) != hash_params(np.ones((1,)), flat)
 
@@ -355,5 +355,5 @@ if __name__ == "__main__":
         except Exception as exc:
             failed += 1
             print(f"  FAIL  {name}: {type(exc).__name__}: {exc}")
-    print(f"\n{len(tests) - failed}/{len(tests)} ผ่าน")
+    print(f"\n{len(tests) - failed}/{len(tests)} passed")
     raise SystemExit(1 if failed else 0)

@@ -1,96 +1,135 @@
 # sl-blockchain
 
-บล็อกเชนขนาดเล็กสำหรับ PoC **Blockchain-Based Swarm Learning** เขียนด้วย Python
-ใช้ **Proof of Authority (PoA)** เป็นกลไกฉันทามติ ไม่ต้องมี Docker ไม่ต้องตั้งเน็ตเวิร์ก
-รันจบในเครื่องเดียว
+A small blockchain for the **Blockchain-Based Swarm Learning** PoC, written in Python.
+It uses **Proof of Authority (PoA)** as its consensus mechanism — no Docker, no network
+setup, everything runs on one machine.
 
-ออกแบบให้เป็นขั้นแรกก่อนย้ายขึ้น Hyperledger Fabric: ชื่อเมธอดและฟิลด์ทำให้ตรงกับ
-chaincode `sl-ledger` ที่เขียนไว้ (`SubmitUpdate` / `RecordAggregation` /
-`GetRoundUpdates` / `GetAggregation`) เพื่อให้ตอนเปลี่ยน backend โค้ดฝั่งโหนดแก้น้อยที่สุด
+Designed as the step before moving to Hyperledger Fabric: method and field names match
+the `sl-ledger` chaincode already written (`SubmitUpdate` / `RecordAggregation` /
+`GetRoundUpdates` / `GetAggregation`), so swapping the backend changes as little
+node-side code as possible.
 
-## ไฟล์
+## Files
 
-| ไฟล์ | หน้าที่ |
+| File | Purpose |
 |---|---|
 | `blockchain.py` | `Block` + `Blockchain` — hash chain, `validate()`, save/load JSON |
-| `consensus.py` | `ProofOfAuthority` (ค่าเริ่มต้น) + `ProofOfWork` (ไว้เทียบ), กุญแจ ed25519, กฎเลือก leader |
-| `swarm_ledger.py` | `SwarmLedger` — ชั้นงาน swarm learning, ธุรกรรมมีลายเซ็น, `audit_chain()` |
-| `demo.py` | สาธิต 5 โหนด 3 รอบ + กฎที่ถูกปฏิเสธ + ลองแก้ประวัติย้อนหลัง 2 แบบ |
-| `test_swarm_ledger.py` | เทสต์ 28 เคส (รันได้ทั้งกับ pytest และไม่มี pytest) |
+| `consensus.py` | `ProofOfAuthority` (default) + `ProofOfWork` (for comparison), ed25519 keys, the leader rule |
+| `swarm_ledger.py` | `SwarmLedger` — the swarm learning layer, signed transactions, `audit_chain()` |
+| `demo.py` | A 5-node, 3-round demo + the rejected rules + two attempts at rewriting history |
+| `test_swarm_ledger.py` | 28 test cases (runs with or without pytest) |
+| `web/server.py` | Web simulator — a thin HTTP API over the same `SwarmLedger` `demo.py` uses |
+| `web/index.html` | The simulator's page (no external dependencies) |
 
-## รัน
+## Running
 
 ```bash
 cd poc
-.venv/bin/python sl-blockchain/demo.py              # สาธิต
-.venv/bin/python sl-blockchain/test_swarm_ledger.py # เทสต์
+.venv/bin/python sl-blockchain/demo.py              # terminal demo
+.venv/bin/python sl-blockchain/test_swarm_ledger.py # tests
+.venv/bin/python sl-blockchain/web/server.py        # web simulator (port 8000)
 ```
 
-ต้องมี `cryptography` (อยู่ใน `poc/requirements.txt` แล้ว) สำหรับลายเซ็น ed25519
+`cryptography` is required for the ed25519 signatures (already in `poc/requirements.txt`)
 
-## ทำไมเลือก Proof of Authority
+## Web simulator
 
-swarm ของเราเป็น consortium ที่สมาชิกรู้ตัวตนกันอยู่แล้ว (แต่ละองค์กรเข้าร่วมด้วยข้อตกลง)
-โจทย์จึงไม่ใช่ "ใครก็เข้ามาขุดได้" แต่เป็น "ยืนยันให้ได้ว่าบล็อกนี้ผู้มีสิทธิ์เป็นคนปิดจริง"
+`demo.py` runs straight through to the end; the web simulator lets you take one step at a
+time and watch what changes in the chain. Useful when presenting, or for capturing figures.
 
-- **PoW** แก้ปัญหา Sybil ในเครือข่ายเปิด ต้องแลกด้วย CPU และเวลา — ที่นี่ไม่มี Sybil
-  ให้แก้ตั้งแต่แรก การเผา CPU จึงเพิ่มแค่ค่าไฟกับ latency (ยังเปิดใช้ได้เพื่อเทียบให้เห็นในเล่ม)
-- **PoA** ผูกสิทธิ์ปิดบล็อกกับตัวตนที่ประกาศไว้ ต้นทุนต่อบล็อกเกือบเป็นศูนย์
-  และตรงกับโมเดลของ Fabric (ทำอะไรได้ ขึ้นกับว่าเป็นใคร ไม่ใช่มีพลังประมวลผลเท่าไร)
+```bash
+python sl-blockchain/web/server.py        # http://127.0.0.1:8000
+python sl-blockchain/web/server.py 9000   # different port
+```
 
-PoA ในไฟล์นี้ประกอบด้วย 3 ส่วนตามนิยาม:
+The browser simulates nothing on its own. Every button sends an HTTP request that calls the
+real `SwarmLedger`, so the ed25519 signatures, the leader election, and the rejection rules
+are the same ones the tests cover.
 
-| ส่วน | ที่นี่ทำอย่างไร |
+| Panel | What it does |
 |---|---|
-| **authority set** | `node_id → ed25519 public key` ประกาศไว้บนเชน (private key อยู่กับโหนดเท่านั้น) |
-| **leader rule** | `sha256(เลขรอบ + รายชื่อสมาชิก) mod จำนวนสมาชิก` ทุกโหนดคำนวณเองได้ ผลตรงกัน |
-| **block seal** | leader เซ็น hash ของบล็อกด้วย private key ตัวเอง ใครถือไฟล์เชนก็ตรวจได้ |
+| authority set | each node's public key + the leaders of the next 5 rounds (derived from the rule, not remembered) |
+| current round | `submit_update` one node at a time, or run a whole round and let the leader seal it |
+| verify the global model | `verify_round()` against the real parameters and against ones altered by `1e-9` |
+| rules the ledger rejects | fires the same 6 rule-breaking transactions as `demo.py` and shows why each is refused |
+| rewriting history | edits a copy of the chain (mid-chain / last block with a recomputed hash) for `validate()` to catch |
+| the chain | click through a block's transactions, `prev_hash`, `tx_root`, and the sealer's signature |
 
-`elect_leader()` เป็น **สูตรเดียวกับใน `ini_swarm.ipynb`** — ถ้าแก้ที่ไฟล์ใดไฟล์หนึ่ง
-เชนจะปฏิเสธ aggregation จาก notebook ทันที
+State lives in the process's memory and is gone when the server stops — press
+"Save to chain.json" to write it out and have `audit_chain()` re-verify it from the file.
 
-## สิ่งที่บันทึกลงเชน
+This is a local demo server. It binds to `127.0.0.1` only, has no user authentication, and
+anyone who can open the page can sign transactions on behalf of every node (the PoC keeps
+all node keys in one process). Do not expose it to a public network.
 
-น้ำหนักโมเดลตัวจริง **ไม่ขึ้นเชน** เพราะใหญ่เกินกว่าจะเก็บในบล็อก และการเอาขึ้นก็ขัดกับ
-เหตุผลที่ใช้ swarm learning ตั้งแต่ต้น บนเชนเก็บแค่ hash กับบัญชีรอบ
+## Why Proof of Authority
 
-**ข้อตกลง: 1 รอบ swarm = 1 บล็อก** — บล็อกหนึ่งบรรจุ `model_update` ของทุกโหนดในรอบนั้น
-แล้วปิดท้ายด้วย `aggregation` ของ leader ทุกธุรกรรมมีลายเซ็นของผู้ส่งกำกับ
+Our swarm is a consortium whose members already know each other (each organization joins by
+agreement). The problem is not "anyone can show up and mine" but "prove that an authorized
+node really sealed this block".
+
+- **PoW** solves Sybil attacks on open networks, paid for in CPU and time — there is no Sybil
+  problem here to begin with, so burning CPU only adds a power bill and latency (still
+  available, so the thesis can show the comparison)
+- **PoA** ties the right to seal to a published identity, at nearly zero cost per block, and
+  matches Fabric's model (what you may do depends on who you are, not how much compute you have)
+
+PoA here has the three parts the definition calls for:
+
+| Part | How it works here |
+|---|---|
+| **authority set** | `node_id -> ed25519 public key`, published on the chain (private keys stay with their node) |
+| **leader rule** | `sha256(round number + member list) mod member count`, computed independently by every node with the same result |
+| **block seal** | the leader signs the block hash with its own private key; anyone holding the chain file can check it |
+
+`elect_leader()` is the **same formula used in `ini_swarm.ipynb`** — change it in one file and
+the chain immediately rejects the notebook's aggregations.
+
+## What goes on the chain
+
+Real model weights **never touch the chain**: they are far too large for a block, and putting
+them there would defeat the reason for using swarm learning in the first place. The chain
+holds hashes and the round ledger, nothing more.
+
+**Convention: 1 swarm round = 1 block** — one block holds every node's `model_update` for that
+round, closed by the leader's `aggregation`. Every transaction carries its sender's signature.
 
 ```jsonc
-// model_update — โหนดหนึ่งประกาศผลเทรนในเครื่อง
+// model_update — a node announces its local training result
 {"type": "model_update", "round": 1, "node_id": "A", "weight_hash": "aae85fb3…",
  "size_bytes": 88, "n_samples": 240, "timestamp": 1755…, "signature": "8f61ea7b…"}
 
-// aggregation — leader ประกาศโมเดลกลางของรอบ
+// aggregation — the leader announces the round's global model
 {"type": "aggregation", "round": 1, "aggregator": "D", "aggregated_hash": "4c1f…",
  "participant_count": 5, "total_samples": 680, "accuracy": 0.82,
  "timestamp": 1755…, "signature": "00aa333b…"}
 ```
 
-ตัวบล็อกเองมี `sealer` (ใครปิด) + `seal` (ลายเซ็นบน hash ของบล็อก) เพิ่มจากธุรกรรมข้างใน
+Beyond the transactions inside it, a block carries `sealer` (who sealed it) and `seal`
+(the signature over the block hash).
 
-## กฎที่ถูกบังคับ
+## Rules that are enforced
 
-ส่วนนี้คือสิ่งที่ทำให้เป็น blockchain-based ไม่ใช่แค่ log ไฟล์ — ธุรกรรมที่ผิดกฎถูกปฏิเสธ
-เหมือน chaincode ปฏิเสธ transaction (`demo.py` สาธิตครบทุกข้อ):
+This section is what makes it blockchain-based rather than a log file: transactions that break
+a rule are rejected, the way chaincode rejects a transaction (`demo.py` demonstrates all of them):
 
-| กฎ | เทียบกับ Fabric |
+| Rule | Fabric equivalent |
 |---|---|
-| ผู้ส่งต้องอยู่ใน authority set | MSP membership |
-| ลายเซ็นต้องตรงกับ public key ที่ประกาศไว้ | ตรวจ certificate ของผู้ส่ง |
-| หนึ่งโหนดส่งได้รอบละครั้ง | เช็ค composite key ซ้ำใน `SubmitUpdate` |
-| ผู้ปิดบล็อกต้องเป็น leader ของรอบนั้น | เช็ค `AggregatorMSP` |
-| รอบที่ปิดแล้วแก้ไม่ได้ | ledger เป็น append-only |
+| the sender must be in the authority set | MSP membership |
+| the signature must match the published public key | checking the sender's certificate |
+| one node may submit once per round | the duplicate composite-key check in `SubmitUpdate` |
+| the sealer must be that round's leader | the `AggregatorMSP` check |
+| a closed round cannot be modified | the ledger is append-only |
 
-การแก้ประวัติย้อนหลังถูกจับได้ 3 ชั้น:
+Rewriting history is caught at three layers:
 
-1. แก้บล็อกกลางสาย → `prev_hash` ของบล็อกถัดไปไม่ตรง
-2. แก้บล็อกท้ายสุด → ไม่ตรงกับ hash ที่บันทึกไว้ในไฟล์
-3. แก้แล้วคำนวณ hash ใหม่ให้เนียน → **ยังตกที่ลายเซ็นของ leader** เพราะไม่มี private key
-   ← ข้อนี้คือสิ่งที่ PoA ให้ ซึ่ง hash chain เปล่า ๆ ให้ไม่ได้
+1. edit a mid-chain block -> the next block's `prev_hash` no longer matches
+2. edit the last block -> it no longer matches the hash stored in the file
+3. edit it and recompute the hash to match -> **it still fails at the leader's signature**,
+   because the attacker has no private key
+   <- this is what PoA buys, and what a bare hash chain cannot give you
 
-## ตรวจสอบโดยไม่ต้องเชื่อใคร
+## Verifying without trusting anyone
 
 ```python
 from swarm_ledger import audit_chain
@@ -99,44 +138,47 @@ audit_chain("chain.json")
 #  'authorities': ['A', 'B', 'C', 'D', 'E']}
 ```
 
-คนที่ถือแค่ไฟล์เชนตรวจได้เองครบทั้ง 3 ชั้น (โครงสร้างสาย + ลายเซ็นผู้ปิดบล็อกว่าตรงคิว +
-ลายเซ็นทุกธุรกรรม) เพราะ public key ของทุกโหนดถูกเก็บอยู่ในไฟล์
+Someone holding nothing but the chain file can verify all three layers themselves (chain
+structure + the sealer's signature and turn + every transaction signature), because every
+node's public key is in the file.
 
-## ต่อกับ notebook
+## Using it from the notebook
 
-`ini_swarm.ipynb` มีลูป swarm อยู่แล้ว เพิ่ม ledger เข้าไปได้โดยไม่แตะตรรกะการเทรน:
+`ini_swarm.ipynb` already has the swarm loop; the ledger can be added without touching the
+training logic:
 
 ```python
 import sys; sys.path.append("sl-blockchain")
 from swarm_ledger import SwarmLedger
 
-ledger = SwarmLedger.bootstrap(NODE_NAMES, seed="poc")   # ของจริงแต่ละโหนดสร้างกุญแจเอง
+ledger = SwarmLedger.bootstrap(NODE_NAMES, seed="poc")   # in production each node makes its own key
 
-# ในลูป หลัง local_train ของแต่ละโหนด
+# inside the loop, after each node's local_train
 ledger.submit_update(round_num, name, coef, intercept, len(y_nodes[name]))
 
-# หลัง aggregate()
+# after aggregate()
 ledger.record_aggregation(round_num, leader, global_coef, global_intercept, swarm_acc)
 
-# จบทุกรอบ
+# once all rounds are done
 print(ledger.audit(), ledger.leader_counts(), ledger.ledger_bytes(), "bytes")
 ledger.chain.save("swarm_chain.json")
 ```
 
-โหนดที่รับโมเดลกลางมาตรวจได้ว่าได้ของจริงหรือไม่ด้วย
-`ledger.verify_round(round_num, coef, intercept)`
+A node receiving the global model can check it got the real thing with
+`ledger.verify_round(round_num, coef, intercept)`.
 
-## ยังไม่มีในเวอร์ชันนี้
+## Not in this version
 
-เรียงตามลำดับที่ควรทำต่อ:
+In the order they should be tackled:
 
-1. **หลายเครื่องจริง** — ตอนนี้เป็น in-process ทุกโหนดใช้ออบเจ็กต์ ledger เดียวกัน
-   ยังไม่มี networking และยังไม่มีการตกลงกันว่าใครถือสายที่ถูกต้อง (fork resolution)
-2. **การจัดการ authority set** — สมาชิกคงที่ตั้งแต่สร้าง ยังเพิ่ม/ถอดสมาชิกกลางทางไม่ได้
-   ของจริงต้องมีธุรกรรมประเภท governance ที่ต้องมีเสียงรับรองจากสมาชิกเดิม
-3. **leader ที่หายไป** — ถ้า leader ของรอบนั้นออฟไลน์ ระบบจะค้าง ยังไม่มี timeout
-   ที่จะข้ามไปคนถัดไป (Clique/Aura แก้ด้วยการให้คนอื่นปิดแทนได้หลังเลยเวลา)
-4. **Merkle tree** — `tx_root` ตอนนี้คือ hash รวมทีเดียวของธุรกรรมทั้งบล็อก
-   ยังพิสูจน์แบบ "ธุรกรรมนี้อยู่ในบล็อกนี้" โดยไม่ต้องส่งทั้งบล็อกไม่ได้
-5. **ย้ายขึ้น Fabric** — เปลี่ยนเฉพาะ backend ของ `SwarmLedger` ไปเรียก chaincode
-   `sl-ledger` โดยที่โหนดยังเรียกเมธอดชื่อเดิม
+1. **Real multi-machine operation** — everything is in-process today, every node shares one
+   ledger object. There is no networking and no agreement on who holds the correct chain
+   (fork resolution)
+2. **Authority set management** — membership is fixed at creation; members cannot be added or
+   removed later. In production this needs governance transactions that existing members endorse
+3. **A missing leader** — if a round's leader goes offline the system stalls; there is no timeout
+   that moves on to the next node (Clique/Aura solve this by letting others seal after a delay)
+4. **A Merkle tree** — `tx_root` is currently a single hash over all of a block's transactions,
+   so it cannot prove "this transaction is in this block" without sending the whole block
+5. **Moving to Fabric** — swap only `SwarmLedger`'s backend to call the `sl-ledger` chaincode,
+   while nodes keep calling the same method names

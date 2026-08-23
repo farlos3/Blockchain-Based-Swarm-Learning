@@ -1,10 +1,11 @@
-"""บล็อกเชนขนาดเล็กแบบ append-only สำหรับ PoC swarm learning
+"""A small append-only blockchain for the swarm learning PoC
 
-ตั้งใจให้อ่านจบได้ในไฟล์เดียว แนวคิดเดียวที่ทำให้มันเป็นบล็อกเชนคือ
-แต่ละบล็อกเก็บ sha256 ของบล็อกก่อนหน้า ถ้าใครแก้ของเก่าย้อนหลัง
-hash จะไม่ตรงกับที่บล็อกถัดไปอ้างไว้ validate() จะบอกได้ว่าพังที่บล็อกไหน
+Meant to be read end to end in one file. The single idea that makes it a blockchain
+is that every block stores the sha256 of the block before it. Rewrite an old block and
+its hash no longer matches what the next block points at; validate() reports exactly
+which block broke.
 
-ส่วน "ใครมีสิทธิ์ปิดบล็อก" แยกไปอยู่ใน consensus.py (ค่าเริ่มต้นของโปรเจกต์นี้คือ PoA)
+"Who is allowed to seal a block" lives in consensus.py (this project defaults to PoA).
 """
 
 from __future__ import annotations
@@ -16,17 +17,18 @@ from hashlib import sha256
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Iterator
 
-if TYPE_CHECKING:  # นำเข้าแบบนี้เพื่อเลี่ยง import วน (consensus.py ใช้ของจากไฟล์นี้)
+if TYPE_CHECKING:  # imported this way to avoid a circular import (consensus.py uses this file)
     from consensus import Consensus, NodeKey
 
 GENESIS_PREV_HASH = "0" * 64
 
 
 def canonical_json(value: Any) -> str:
-    """serialize ให้ได้ผลเดิมทุกครั้ง (เรียงคีย์ ไม่มีช่องว่างเกิน)
+    """Serialize to the same bytes every time (sorted keys, no stray whitespace)
 
-    ถ้าลำดับคีย์เปลี่ยนได้ hash ก็เปลี่ยนตามทั้งที่เนื้อหาเท่าเดิม
-    การตรวจสอบข้ามเครื่องจะพังทันที จึงล็อกรูปแบบไว้ที่เดียวตรงนี้
+    If key order could drift, the hash would change even though the content did not,
+    and cross-machine verification would break immediately. The format is pinned here,
+    in one place.
     """
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
@@ -36,28 +38,28 @@ def sha256_hex(data: str) -> str:
 
 
 class ChainError(Exception):
-    """สายบล็อกไม่สอดคล้องกัน — ข้อความจะระบุว่าพังที่บล็อกไหนและเพราะอะไร"""
+    """The chain is inconsistent — the message says which block broke and why"""
 
 
 @dataclass(frozen=True)
 class Block:
-    """หนึ่งบล็อก = ธุรกรรมของหนึ่งรอบ swarm + ตัวผูกไปยังบล็อกก่อนหน้า + ลายเซ็นผู้ปิดบล็อก"""
+    """One block = one swarm round's transactions + the link to the previous block + the sealer's signature"""
 
     index: int
     timestamp: float
     prev_hash: str
     transactions: tuple[dict[str, Any], ...]
     nonce: int = 0
-    sealer: str | None = None        # โหนดที่ปิดบล็อกนี้ (PoA)
-    seal: str | None = None          # ลายเซ็นของ sealer บน hash ของบล็อก
-    stored_hash: str | None = None   # hash ที่อ่านมาจากไฟล์ ใช้เทียบจับการแก้ไข
+    sealer: str | None = None        # the node that sealed this block (PoA)
+    seal: str | None = None          # the sealer's signature over the block hash
+    stored_hash: str | None = None   # hash as read from file, used to detect edits
 
     def tx_root(self) -> str:
-        """สรุปธุรกรรมทั้งบล็อกเป็นค่าเดียว (Merkle root แบบง่าย คือ hash รวมทีเดียว)"""
+        """Reduce every transaction in the block to one value (a simple Merkle root: one hash over all of them)"""
         return sha256_hex(canonical_json(list(self.transactions)))
 
     def header(self) -> dict[str, Any]:
-        """ส่วนที่ถูก hash — ไม่รวม hash ของบล็อกเอง และไม่รวมลายเซ็นที่เซ็นทับ hash นั้น"""
+        """The part that gets hashed — excludes the block's own hash and the signature over that hash"""
         return {
             "index": self.index,
             "timestamp": self.timestamp,
@@ -97,10 +99,10 @@ class Block:
 
 
 class Blockchain:
-    """สายบล็อกในหน่วยความจำ + เซฟ/โหลดเป็น JSON ได้
+    """An in-memory chain that can be saved to and loaded from JSON
 
-    consensus กำหนดว่าใครปิดบล็อกได้และตรวจย้อนหลังอย่างไร
-    ไม่ระบุ = ProofOfWork(difficulty) ซึ่ง difficulty=0 หมายถึงไม่มีเงื่อนไขอะไรเลย
+    consensus decides who may seal a block and how anyone re-checks that later.
+    Left unset it is ProofOfWork(difficulty), where difficulty=0 means no condition at all.
     """
 
     def __init__(self, consensus: Consensus | None = None, difficulty: int = 0) -> None:
@@ -113,7 +115,7 @@ class Blockchain:
 
     @staticmethod
     def _genesis() -> Block:
-        # timestamp คงที่ เพื่อให้สร้างเชนใหม่กี่ครั้งก็ได้ genesis hash เดิม (ทดสอบซ้ำได้)
+        # fixed timestamp so rebuilding the chain always yields the same genesis hash (reproducible tests)
         return Block(index=0, timestamp=0.0, prev_hash=GENESIS_PREV_HASH, transactions=())
 
     @property
@@ -122,12 +124,12 @@ class Blockchain:
 
     @property
     def height(self) -> int:
-        """จำนวนบล็อกที่มีข้อมูล (ไม่นับ genesis)"""
+        """Number of blocks carrying data (genesis excluded)"""
         return len(self.blocks) - 1
 
     def add_block(self, transactions: list[dict[str, Any]], sealer: NodeKey | None = None) -> Block:
         if not transactions:
-            raise ValueError("บล็อกว่างไม่มีประโยชน์ ต้องมีธุรกรรมอย่างน้อย 1 รายการ")
+            raise ValueError("an empty block is pointless: at least one transaction is required")
 
         block = Block(
             index=self.last_block.index + 1,
@@ -136,31 +138,31 @@ class Blockchain:
             transactions=tuple(transactions),
         )
         block = self.consensus.seal(block, sealer)
-        self.consensus.verify(block)  # ปิดบล็อกแล้วต้องผ่านกฎของตัวเองก่อนถึงต่อเข้าสาย
+        self.consensus.verify(block)  # a sealed block must pass its own rules before joining the chain
         self.blocks.append(block)
         return block
 
     def validate(self) -> None:
-        """ตรวจทั้งสายว่ายังต่อกันถูกต้องและทุกบล็อกถูกปิดโดยผู้มีสิทธิ์ ถ้าไม่ผ่านให้ ChainError"""
+        """Check the whole chain still links up and every block was sealed by an authorized node; raise ChainError otherwise"""
         genesis = self.blocks[0]
         if genesis.index != 0 or genesis.prev_hash != GENESIS_PREV_HASH:
-            raise ChainError("block 0: genesis ไม่ถูกต้อง")
+            raise ChainError("block 0: invalid genesis")
 
         for i, block in enumerate(self.blocks):
             if block.stored_hash is not None and block.stored_hash != block.compute_hash():
-                raise ChainError(f"block {i}: เนื้อหาถูกแก้ (hash ที่คำนวณได้ไม่ตรงกับที่บันทึกไว้)")
+                raise ChainError(f"block {i}: content was modified (computed hash does not match the stored one)")
 
-            # genesis ถูกกำหนดค่าไว้ตายตัว ไม่ได้ผ่านการปิดบล็อก จึงไม่ต้องเข้ากฎ consensus
+            # genesis is hard-coded and never went through sealing, so consensus rules do not apply
             if i == 0:
                 continue
 
             prev = self.blocks[i - 1]
             if block.index != prev.index + 1:
-                raise ChainError(f"block {i}: ลำดับ index ไม่ต่อเนื่อง")
+                raise ChainError(f"block {i}: index is not consecutive")
             if block.prev_hash != prev.compute_hash():
-                raise ChainError(f"block {i}: prev_hash ไม่ตรงกับบล็อก {i - 1} (สายขาดตรงนี้)")
+                raise ChainError(f"block {i}: prev_hash does not match block {i - 1} (the chain breaks here)")
             if block.timestamp < prev.timestamp:
-                raise ChainError(f"block {i}: timestamp ย้อนเวลา")
+                raise ChainError(f"block {i}: timestamp goes backwards")
             self.consensus.verify(block)
 
     def is_valid(self) -> bool:
@@ -171,7 +173,7 @@ class Blockchain:
         return True
 
     def transactions(self, tx_type: str | None = None) -> Iterator[dict[str, Any]]:
-        """ไล่ธุรกรรมทั้งเชนตามลำดับที่ถูกบันทึก (กรองตามชนิดได้)"""
+        """Walk every transaction in the chain in recorded order (optionally filtered by type)"""
         for block in self.blocks:
             for tx in block.transactions:
                 if tx_type is None or tx.get("type") == tx_type:

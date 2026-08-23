@@ -1,14 +1,15 @@
-"""กลไกฉันทามติ: ใครมีสิทธิ์ปิดบล็อก และคนอื่นตรวจสิทธิ์นั้นย้อนหลังได้อย่างไร
+"""Consensus: who may seal a block, and how everyone else re-checks that later
 
-มีให้ 2 แบบเพื่อเทียบกันในเล่ม
-  ProofOfAuthority (ค่าเริ่มต้น) — เหมาะกับ consortium ที่สมาชิกรู้ตัวตนกันอยู่แล้ว
-  ProofOfWork                    — ไว้สาธิตข้อเปรียบเทียบว่าทำไมไม่เลือกทางนี้
+Two mechanisms are provided so the thesis can compare them
+  ProofOfAuthority (default) — fits a consortium whose members already know each other
+  ProofOfWork                 — kept only to show why that route was not chosen
 
-PoA ที่นี่ประกอบด้วย 3 ส่วนตามนิยาม
-  1. authority set  รายชื่อผู้มีสิทธิ์ + public key ประกาศไว้บนเชน
-  2. leader rule    รอบไหนใครมีคิวปิดบล็อก คำนวณได้เองจากเลขรอบ (ไม่ต้องมีใครแต่งตั้ง)
-  3. block seal     leader เซ็น hash ของบล็อกด้วย private key ของตัวเอง
-                    ใครถือไฟล์เชน + public key ก็ตรวจได้ ไม่ต้องเชื่อใคร
+PoA here has the three parts the definition calls for
+  1. authority set  the list of authorized nodes + their public keys, published on the chain
+  2. leader rule    whose turn it is in a given round, derived from the round number alone
+                    (nobody has to appoint anyone)
+  3. block seal     the leader signs the block hash with its own private key
+                    anyone holding the chain file + public keys can check it, trusting no one
 """
 
 from __future__ import annotations
@@ -26,14 +27,14 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
 
 from blockchain import Block, ChainError, canonical_json
 
-TX_AGGREGATION = "aggregation"  # PoC นี้ปิดบล็อกละหนึ่งรอบ เลขรอบอยู่ในธุรกรรมชนิดนี้
+TX_AGGREGATION = "aggregation"  # this PoC seals one round per block; the round number lives in this tx type
 
 
-# ---------- กุญแจของโหนด ----------
+# ---------- node keys ----------
 
 
 class NodeKey:
-    """คู่กุญแจของโหนดหนึ่ง — ของจริงต้องอยู่ในเครื่องโหนดนั้นเท่านั้น ห้ามออกจากเครื่อง"""
+    """One node's key pair — in production this must never leave that node's machine"""
 
     def __init__(self, node_id: str, private_key: Ed25519PrivateKey) -> None:
         self.node_id = node_id
@@ -41,7 +42,7 @@ class NodeKey:
 
     @classmethod
     def generate(cls, node_id: str, seed: str | None = None) -> NodeKey:
-        """seed ใส่ไว้เพื่อให้ demo/เทสต์ได้กุญแจเดิมทุกครั้ง — ของจริงต้องสุ่มล้วน"""
+        """seed exists so demos/tests get the same keys every run — production must be fully random"""
         if seed is None:
             return cls(node_id, Ed25519PrivateKey.generate())
         material = hashlib.sha256(f"{node_id}:{seed}".encode("utf-8")).digest()
@@ -59,11 +60,11 @@ class NodeKey:
 
 
 class AuthoritySet:
-    """รายชื่อผู้มีสิทธิ์ + public key — ลำดับสมาชิกมีผลต่อการเลือก leader จึงต้องคงลำดับไว้"""
+    """Authorized nodes + their public keys — member order affects leader election, so it must be preserved"""
 
     def __init__(self, public_keys: dict[str, str]) -> None:
         if not public_keys:
-            raise ValueError("authority set ว่างไม่ได้")
+            raise ValueError("the authority set cannot be empty")
         self._keys = dict(public_keys)
 
     @classmethod
@@ -91,28 +92,28 @@ class AuthoritySet:
         return dict(self._keys)
 
 
-# ---------- กฎการเลือก leader ----------
+# ---------- leader rule ----------
 
 
 def elect_leader(round_num: int, participants: Sequence[str]) -> str:
-    """leader ของรอบ = sha256(เลขรอบ + รายชื่อผู้เข้าร่วม) mod จำนวนผู้เข้าร่วม
+    """The round's leader = sha256(round number + participant list) mod participant count
 
-    เป็นสูตรเดียวกับที่ ini_swarm.ipynb ใช้ ทุกโหนดคำนวณเองได้ ผลตรงกัน
-    และย้อนกลับไปตรวจได้ว่ารอบนั้นใครมีคิว โดยไม่ต้องเชื่อบันทึกของใคร
+    Same formula ini_swarm.ipynb uses. Every node computes it independently and agrees,
+    and anyone can go back and check whose turn a past round was without trusting a record.
     """
     digest = hashlib.sha256(f"round-{round_num}:{','.join(participants)}".encode("utf-8")).hexdigest()
     return participants[int(digest, 16) % len(participants)]
 
 
 def block_round(block: Block) -> int | None:
-    """หาเลขรอบของบล็อกจากธุรกรรม aggregation (None = บล็อกนี้ไม่ได้ปิดรอบ swarm)"""
+    """Find a block's round from its aggregation transaction (None = this block does not close a swarm round)"""
     for tx in block.transactions:
         if tx.get("type") == TX_AGGREGATION:
             return tx.get("round")
     return None
 
 
-# ---------- กลไก ----------
+# ---------- mechanisms ----------
 
 
 class Consensus(Protocol):
@@ -125,10 +126,10 @@ class Consensus(Protocol):
 
 @dataclass
 class ProofOfWork:
-    """ต้องไล่หา nonce ให้ hash ขึ้นต้นด้วย 0 ตามจำนวน difficulty
+    """Search for a nonce until the hash starts with `difficulty` zeros
 
-    ไม่ใช่ทางที่เลือกใช้ มีไว้เทียบให้เห็นว่าใน consortium ที่รู้ตัวตนกันแล้ว
-    การเผา CPU แข่งกันไม่ได้เพิ่มความปลอดภัย แค่เพิ่มเวลาและค่าไฟ
+    Not the mechanism we picked. It is here to show that in a consortium of known
+    members, burning CPU against each other adds no security — only latency and a power bill.
     """
 
     difficulty: int = 0
@@ -144,19 +145,20 @@ class ProofOfWork:
 
     def verify(self, block: Block) -> None:
         if self.difficulty and not block.compute_hash().startswith("0" * self.difficulty):
-            raise ChainError(f"block {block.index}: hash ไม่ผ่าน difficulty {self.difficulty}")
+            raise ChainError(f"block {block.index}: hash does not meet difficulty {self.difficulty}")
 
     def to_dict(self) -> dict[str, Any]:
         return {"name": self.name, "difficulty": self.difficulty}
 
 
 class ProofOfAuthority:
-    """บล็อกจะถูกยอมรับก็ต่อเมื่อ leader ของรอบนั้นเป็นคนเซ็นปิดเอง
+    """A block is accepted only if the leader of that round sealed it personally
 
-    ตรวจ 3 ชั้นตอน verify
-      1. ผู้ปิดบล็อกอยู่ใน authority set ไหม
-      2. ผู้ปิดบล็อกเป็น leader ของรอบนั้นตามกฎไหม (ถึงจะเป็นสมาชิกก็ปิดนอกคิวไม่ได้)
-      3. ลายเซ็นบน hash ของบล็อกถูกต้องตาม public key ที่ประกาศไว้ไหม
+    verify() checks three layers
+      1. is the sealer in the authority set?
+      2. is the sealer the leader of that round by the rule? (membership alone does not
+         let a node seal out of turn)
+      3. is the signature over the block hash valid against the published public key?
     """
 
     name = "poa"
@@ -169,18 +171,18 @@ class ProofOfAuthority:
         from dataclasses import replace
 
         if sealer is None:
-            raise ChainError("PoA ต้องระบุผู้ปิดบล็อก (ไม่มีใครปิดบล็อกแบบไม่ระบุตัวตนได้)")
+            raise ChainError("PoA requires a named sealer (nobody seals a block anonymously)")
         if sealer.node_id not in self.authorities:
-            raise ChainError(f"{sealer.node_id} ไม่ได้อยู่ใน authority set")
+            raise ChainError(f"{sealer.node_id} is not in the authority set")
 
         block = replace(block, sealer=sealer.node_id)
         return replace(block, seal=sealer.sign(block.compute_hash()))
 
     def verify(self, block: Block) -> None:
         if not block.sealer or not block.seal:
-            raise ChainError(f"block {block.index}: ไม่มีลายเซ็นผู้ปิดบล็อก")
+            raise ChainError(f"block {block.index}: no sealer signature")
         if block.sealer not in self.authorities:
-            raise ChainError(f"block {block.index}: ผู้ปิดบล็อก {block.sealer} ไม่ได้อยู่ใน authority set")
+            raise ChainError(f"block {block.index}: sealer {block.sealer} is not in the authority set")
 
         if self.enforce_leader:
             round_num = block_round(block)
@@ -188,12 +190,12 @@ class ProofOfAuthority:
                 expected = elect_leader(round_num, self.authorities.members)
                 if block.sealer != expected:
                     raise ChainError(
-                        f"block {block.index}: รอบ {round_num} เป็นคิวของ {expected} "
-                        f"แต่ {block.sealer} เป็นคนปิดบล็อก"
+                        f"block {block.index}: round {round_num} belongs to {expected} "
+                        f"but {block.sealer} sealed the block"
                     )
 
         if not self.authorities.verify(block.sealer, block.compute_hash(), block.seal):
-            raise ChainError(f"block {block.index}: ลายเซ็นของ {block.sealer} ไม่ถูกต้อง")
+            raise ChainError(f"block {block.index}: signature from {block.sealer} is invalid")
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -205,7 +207,7 @@ class ProofOfAuthority:
 
 
 def consensus_from_dict(data: dict[str, Any] | None) -> Consensus:
-    """สร้างกลไกกลับจากไฟล์เชน เพื่อให้คนที่ถือแค่ chain.json ตรวจสอบเองได้ครบ"""
+    """Rebuild the mechanism from a chain file, so whoever holds only chain.json can verify it in full"""
     if not data or data.get("name") == "pow":
         return ProofOfWork(difficulty=(data or {}).get("difficulty", 0))
     if data["name"] == "poa":
@@ -213,11 +215,11 @@ def consensus_from_dict(data: dict[str, Any] | None) -> Consensus:
             AuthoritySet(data["authorities"]),
             enforce_leader=data.get("enforce_leader", True),
         )
-    raise ValueError(f"ไม่รู้จักกลไก {data['name']!r}")
+    raise ValueError(f"unknown mechanism {data['name']!r}")
 
 
 def sign_payload(key: NodeKey, payload: dict[str, Any]) -> str:
-    """เซ็นธุรกรรม — เซ็นบน canonical form เพื่อให้ผู้ตรวจสร้างข้อความเดิมได้แน่นอน"""
+    """Sign a transaction — over its canonical form, so a verifier can reproduce the exact message"""
     return key.sign(canonical_json(payload))
 
 

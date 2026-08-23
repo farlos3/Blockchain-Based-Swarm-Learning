@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>sl-blockchain — PoA swarm ledger simulator</title>
+<style>
+  :root {
+    --bg: #0f1216;
+    --panel: #171b21;
+    --panel-2: #1e242c;
+    --line: #2a323c;
+    --text: #e6eaef;
+    --muted: #8d98a7;
+    --accent: #6fb3ff;
+    --ok: #58d68d;
+    --warn: #f0c674;
+    --bad: #ef7a7a;
+    --mono: ui-monospace, "Cascadia Mono", "JetBrains Mono", Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.55 "Segoe UI", system-ui, sans-serif;
+  }
+  header {
+    display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
+    padding: 14px 20px; border-bottom: 1px solid var(--line); background: var(--panel);
+    position: sticky; top: 0; z-index: 5;
+  }
+  header h1 { font-size: 16px; margin: 0; letter-spacing: .3px; }
+  header h1 small { color: var(--muted); font-weight: 400; margin-left: 8px; }
+  .stats { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+  .stat {
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px;
+    padding: 4px 10px; font-size: 12px; color: var(--muted);
+  }
+  .stat b { color: var(--text); font-family: var(--mono); font-weight: 600; }
+  .badge { border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; }
+  .badge.ok { background: rgba(88,214,141,.15); color: var(--ok); border: 1px solid rgba(88,214,141,.4); }
+  .badge.bad { background: rgba(239,122,122,.15); color: var(--bad); border: 1px solid rgba(239,122,122,.4); }
+
+  main { display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: 16px; padding: 16px 20px 40px; }
+  @media (max-width: 1000px) { main { grid-template-columns: 1fr; } }
+
+  section {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; margin-bottom: 16px;
+  }
+  section > h2 {
+    margin: 0 0 4px; font-size: 13px; text-transform: uppercase;
+    letter-spacing: .8px; color: var(--accent);
+  }
+  section > p.hint { margin: 0 0 12px; font-size: 12px; color: var(--muted); }
+
+  button {
+    font: inherit; font-size: 13px; cursor: pointer; color: var(--text);
+    background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: 6px; padding: 6px 12px;
+  }
+  button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: rgba(111,179,255,.16); border-color: rgba(111,179,255,.5); color: var(--accent); }
+  button.danger:hover:not(:disabled) { border-color: var(--bad); color: var(--bad); }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .row + .row { margin-top: 8px; }
+
+  .node {
+    display: flex; align-items: center; gap: 10px; padding: 7px 10px;
+    border: 1px solid var(--line); border-radius: 7px; margin-bottom: 6px;
+    background: var(--panel-2);
+  }
+  .node.leader { border-color: rgba(240,198,116,.55); background: rgba(240,198,116,.08); }
+  .node .id {
+    width: 26px; height: 26px; flex: none; display: grid; place-items: center;
+    border-radius: 6px; background: var(--line); font-family: var(--mono); font-weight: 700;
+  }
+  .node.leader .id { background: rgba(240,198,116,.3); color: var(--warn); }
+  .node .meta { min-width: 0; flex: 1; }
+  .node .key { font-family: var(--mono); font-size: 11px; color: var(--muted);
+               overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .node .tag { font-size: 11px; color: var(--warn); }
+  .node .sent { color: var(--ok); font-size: 11px; font-weight: 600; }
+
+  .chain { display: flex; flex-direction: column; gap: 0; }
+  .block {
+    border: 1px solid var(--line); border-radius: 8px; background: var(--panel-2);
+    overflow: hidden;
+  }
+  .block.genesis { opacity: .75; }
+  .block > summary {
+    list-style: none; cursor: pointer; padding: 10px 12px;
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+  }
+  .block > summary::-webkit-details-marker { display: none; }
+  .block > summary:hover { background: rgba(111,179,255,.06); }
+  .block .num { font-family: var(--mono); font-weight: 700; color: var(--accent); }
+  .block .who { font-size: 12px; color: var(--muted); }
+  .block .who b { color: var(--warn); }
+  .hash { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .link { text-align: center; color: var(--line); font-size: 18px; line-height: 1; padding: 2px 0; }
+  .tx-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .tx-table th, .tx-table td {
+    text-align: left; padding: 5px 12px; border-top: 1px solid var(--line);
+    font-family: var(--mono); white-space: nowrap;
+  }
+  .tx-table th { color: var(--muted); font-weight: 500; }
+  .tx-table tr.agg td { background: rgba(240,198,116,.07); }
+  .scroll { overflow-x: auto; }
+
+  #log { font-family: var(--mono); font-size: 12px; max-height: 300px; overflow-y: auto; }
+  #log div { padding: 3px 0; border-top: 1px solid var(--line); white-space: pre-wrap; word-break: break-word; }
+  #log div:first-child { border-top: 0; }
+  #log .error { color: var(--bad); }
+  #log .reject { color: var(--warn); }
+  #log .ok { color: var(--text); }
+
+  input[type=text] {
+    font: inherit; background: var(--panel-2); color: var(--text);
+    border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; width: 100%;
+  }
+  label.field { display: block; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  label.field span { display: block; margin-bottom: 3px; }
+  .kv { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>sl-blockchain <small>Proof of Authority swarm ledger simulator</small></h1>
+  <div class="stats" id="stats"></div>
+</header>
+
+<main>
+  <div>
+    <section>
+      <h2>Authority set</h2>
+      <p class="hint">The chain holds public keys only — private keys stay with their owner node</p>
+      <div id="nodes"></div>
+      <div class="kv" id="leader-preview"></div>
+    </section>
+
+    <section>
+      <h2>Current round</h2>
+      <p class="hint" id="round-hint"></p>
+      <div class="row" id="submit-buttons"></div>
+      <div class="row">
+        <button id="btn-aggregate">Aggregate + seal block</button>
+        <button class="primary" id="btn-run-round">Run the whole round</button>
+      </div>
+      <div class="row" id="pending-box"></div>
+    </section>
+
+    <section>
+      <h2>Verify the global model</h2>
+      <p class="hint">Compare the parameters a node holds against the hash on the chain</p>
+      <div class="row" id="verify-box"></div>
+    </section>
+
+    <section>
+      <h2>New swarm</h2>
+      <label class="field"><span>Node names (comma separated)</span>
+        <input type="text" id="nodes-input" value="A,B,C,D,E"></label>
+      <label class="field"><span>Key seed (empty = fresh random keys)</span>
+        <input type="text" id="seed-input" value="demo"></label>
+      <div class="row"><button class="danger" id="btn-reset">Reset the chain</button></div>
+    </section>
+  </div>
+
+  <div>
+    <section>
+      <h2>Rules the ledger rejects</h2>
+      <p class="hint">Real rule-breaking transactions are fired at the ledger; the reason it refuses is shown (chain state does not change)</p>
+      <div class="row" id="attack-box"></div>
+      <p class="hint" style="margin:12px 0 6px">Rewriting history — a copy of the chain is edited and <code>validate()</code> catches it</p>
+      <div class="row">
+        <button class="danger" data-tamper="middle">Edit a mid-chain block</button>
+        <button class="danger" data-tamper="last">Edit the last block + recompute its hash</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>The chain</h2>
+      <p class="hint">Click a block to see the transactions inside · <a href="/api/chain.json" target="_blank" style="color:var(--accent)">raw chain.json</a></p>
+      <div class="chain" id="chain"></div>
+      <div class="row" style="margin-top:12px">
+        <button id="btn-save">Save to chain.json + audit</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>Event log</h2>
+      <div id="log"></div>
+    </section>
+  </div>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const short = (s, n = 12) => (s ? s.slice(0, n) + "…" : "—");
+const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+
+let state = null;
+let busy = false;
+
+async function call(action, body = {}) {
+  if (busy) return;
+  busy = true;
+  document.querySelectorAll("button").forEach((b) => (b.disabled = true));
+  try {
+    const res = await fetch("/api/" + action, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (data.error) { alert(data.error); return; }
+    state = data;
+    render();
+  } catch (err) {
+    alert("Could not reach the server: " + err);
+  } finally {
+    busy = false;
+    document.querySelectorAll("button").forEach((b) => (b.disabled = false));
+    syncDisabled();
+  }
+}
+
+const ATTACKS = [
+  ["outsider", "Node outside the authority set"],
+  ["forged", "Forged signature, someone else's name"],
+  ["duplicate", "Second update in the same round"],
+  ["not_leader", "Non-leader aggregates"],
+  ["out_of_turn", "Real member seals out of turn"],
+  ["recommit", "Close an already closed round"],
+];
+
+function renderStats() {
+  const s = state;
+  const valid = s.valid && !s.audit_error;
+  $("stats").innerHTML =
+    `<span class="stat">consensus <b>${esc(s.consensus.name)}</b></span>` +
+    `<span class="stat">blocks <b>${s.height}</b></span>` +
+    `<span class="stat">tx verified <b>${s.audit ? s.audit.transactions_verified : 0}</b></span>` +
+    `<span class="stat">ledger size <b>${s.ledger_bytes.toLocaleString()}</b> bytes</span>` +
+    `<span class="badge ${valid ? "ok" : "bad"}">${valid ? "chain valid" : "chain broken: " + esc(s.audit_error || "")}</span>`;
+}
+
+function renderNodes() {
+  const s = state;
+  const sentThisRound = new Set(
+    s.pending.filter((tx) => tx.round === s.current_round).map((tx) => tx.node_id)
+  );
+  $("nodes").innerHTML = s.participants.map((n) => {
+    const isLeader = n === s.current_leader;
+    return `<div class="node ${isLeader ? "leader" : ""}">
+      <div class="id">${esc(n)}</div>
+      <div class="meta">
+        <div class="key">${esc(short(s.public_keys[n], 34))}</div>
+        <div class="tag">${isLeader ? "leader of round " + s.current_round + " · " : ""}<span class="kv">n=${s.samples[n]} · sealed ${s.leader_counts[n] || 0} rounds</span></div>
+      </div>
+      ${sentThisRound.has(n) ? '<div class="sent">submitted</div>' : ""}
+    </div>`;
+  }).join("");
+
+  $("leader-preview").textContent =
+    "upcoming leaders: " +
+    Object.entries(s.leader_preview).map(([r, n]) => `${r}:${n}`).join("  ");
+}
+
+function renderRound() {
+  const s = state;
+  const pending = s.pending.filter((tx) => tx.round === s.current_round);
+  $("round-hint").innerHTML =
+    `Round <b>${s.current_round}</b> · leader = <b style="color:var(--warn)">${esc(s.current_leader)}</b> ` +
+    `<span class="kv">(sha256(round + members) mod ${s.participants.length})</span>`;
+
+  $("submit-buttons").innerHTML = s.participants.map((n) =>
+    `<button data-submit="${esc(n)}">submit ${esc(n)}</button>`
+  ).join("");
+
+  $("pending-box").innerHTML = pending.length
+    ? `<div class="kv" style="width:100%">pending ${pending.length} tx: ` +
+      pending.map((tx) => `${esc(tx.node_id)}(${short(tx.weight_hash, 8)})`).join(" ") + "</div>"
+    : `<div class="kv" style="width:100%">no updates in this round yet</div>`;
+
+  $("verify-box").innerHTML = s.verifiable_rounds.length
+    ? s.verifiable_rounds.map((r) =>
+        `<button data-verify="${r}">round ${r} genuine</button>` +
+        `<button class="danger" data-verify="${r}" data-tampered="1">round ${r} modified</button>`
+      ).join("")
+    : `<div class="kv">no round sealed in this session yet</div>`;
+}
+
+function renderChain() {
+  const s = state;
+  $("chain").innerHTML = s.blocks.map((b, i) => {
+    const link = i > 0 ? '<div class="link">↓ prev_hash</div>' : "";
+    if (b.index === 0) {
+      return `${link}<details class="block genesis"><summary>
+        <span class="num">#0</span><span class="who">genesis</span>
+        <span class="hash" style="margin-left:auto">hash ${esc(short(b.hash, 16))}</span>
+      </summary><div style="padding:8px 12px" class="kv">the starting block: no transactions, no consensus rules applied</div></details>`;
+    }
+    const agg = b.transactions.find((tx) => tx.type === "aggregation") || {};
+    const rows = b.transactions.map((tx) => tx.type === "aggregation"
+      ? `<tr class="agg"><td>aggregation</td><td>${esc(tx.aggregator)}</td>
+         <td>hash ${esc(short(tx.aggregated_hash, 10))}</td>
+         <td>n=${tx.total_samples} · ${tx.participant_count} nodes</td>
+         <td>acc ${tx.accuracy ?? "—"}</td><td>sig ${esc(short(tx.signature, 10))}</td></tr>`
+      : `<tr><td>model_update</td><td>${esc(tx.node_id)}</td>
+         <td>hash ${esc(short(tx.weight_hash, 10))}</td>
+         <td>n=${tx.n_samples}</td><td>${tx.size_bytes} B</td>
+         <td>sig ${esc(short(tx.signature, 10))}</td></tr>`
+    ).join("");
+
+    return `${link}<details class="block"><summary>
+      <span class="num">#${b.index}</span>
+      <span class="who">round <b>${agg.round ?? "—"}</b> · sealed by <b>${esc(b.sealer || "—")}</b> · ${b.transactions.length} tx</span>
+      <span class="hash" style="margin-left:auto">hash ${esc(short(b.hash, 16))} · seal ${esc(short(b.seal, 10))}</span>
+    </summary>
+    <div class="scroll"><table class="tx-table">
+      <tr><th>type</th><th>sender</th><th>hash</th><th>data</th><th></th><th>signature</th></tr>
+      ${rows}
+    </table></div>
+    <div class="kv" style="padding:8px 12px">prev_hash ${esc(short(b.prev_hash, 24))} · tx_root ${esc(short(b.tx_root, 24))}</div>
+    </details>`;
+  }).join("");
+}
+
+function renderLog() {
+  $("log").innerHTML = state.log.slice().reverse()
+    .map((e) => `<div class="${e.level}">${esc(e.text)}</div>`).join("")
+    || '<div class="ok">nothing has happened yet</div>';
+}
+
+function renderAttacks() {
+  $("attack-box").innerHTML = ATTACKS
+    .map(([k, label]) => `<button class="danger" data-attack="${k}">${label}</button>`).join("");
+}
+
+function syncDisabled() {
+  if (!state) return;
+  const has = state.pending.some((tx) => tx.round === state.current_round);
+  $("btn-aggregate").disabled = !has;
+}
+
+function render() {
+  renderStats(); renderNodes(); renderRound(); renderAttacks(); renderChain(); renderLog();
+  syncDisabled();
+}
+
+document.addEventListener("click", (ev) => {
+  const el = ev.target.closest("button");
+  if (!el) return;
+  if (el.dataset.submit) call("submit", { node_id: el.dataset.submit });
+  else if (el.dataset.attack) call("attack", { kind: el.dataset.attack });
+  else if (el.dataset.tamper) call("tamper", { mode: el.dataset.tamper });
+  else if (el.dataset.verify) call("verify", { round: +el.dataset.verify, tampered: !!el.dataset.tampered });
+});
+
+$("btn-aggregate").onclick = () => call("aggregate");
+$("btn-run-round").onclick = () => call("run_round");
+$("btn-save").onclick = () => call("save");
+$("btn-reset").onclick = () => call("reset", {
+  nodes: $("nodes-input").value.split(",").map((s) => s.trim()).filter(Boolean),
+  seed: $("seed-input").value.trim(),
+});
+
+call("state");
+</script>
+</body>
+</html>

@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>sl-fabric — swarm ledger monitor</title>
+<style>
+  :root {
+    --bg: #0f1216; --panel: #171b21; --panel-2: #1e242c; --line: #2a323c;
+    --text: #e6eaef; --muted: #8d98a7; --accent: #6fb3ff;
+    --ok: #58d68d; --warn: #f0c674; --bad: #ef7a7a;
+    --logistic: #6fb3ff; --mlp: #f0c674; --mlp-deep: #e08c5a;
+    --cnn: #58d68d; --cnn-wide: #3fa7a0; --other: #b48ead;
+    --mono: ui-monospace, "Cascadia Mono", "JetBrains Mono", Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 14px/1.55 "Segoe UI", system-ui, sans-serif; }
+  header { display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
+           padding: 14px 20px; border-bottom: 1px solid var(--line);
+           background: var(--panel); position: sticky; top: 0; z-index: 5; }
+  header h1 { font-size: 16px; margin: 0; letter-spacing: .3px; }
+  header h1 small { color: var(--muted); font-weight: 400; margin-left: 8px; }
+  .stats { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; align-items: center; }
+  .stat { background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px;
+          padding: 4px 10px; font-size: 12px; color: var(--muted); }
+  .stat b { color: var(--text); font-family: var(--mono); font-weight: 600; }
+  .badge { border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; }
+  .badge.ok { background: rgba(88,214,141,.15); color: var(--ok); border: 1px solid rgba(88,214,141,.4); }
+  .badge.bad { background: rgba(239,122,122,.15); color: var(--bad); border: 1px solid rgba(239,122,122,.4); }
+
+  main { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 16px; padding: 16px 20px 40px; }
+  @media (max-width: 1050px) { main { grid-template-columns: 1fr; } }
+
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+            padding: 14px 16px; margin-bottom: 16px; }
+  section > h2 { margin: 0 0 4px; font-size: 13px; text-transform: uppercase;
+                 letter-spacing: .8px; color: var(--accent); }
+  section > p.hint { margin: 0 0 12px; font-size: 12px; color: var(--muted); }
+
+  button { font: inherit; font-size: 13px; cursor: pointer; color: var(--text);
+           background: var(--panel-2); border: 1px solid var(--line);
+           border-radius: 6px; padding: 6px 12px; }
+  button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.danger:hover:not(:disabled) { border-color: var(--bad); color: var(--bad); }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .org { display: flex; align-items: center; gap: 10px; padding: 7px 10px;
+         border: 1px solid var(--line); border-radius: 7px; margin-bottom: 6px;
+         background: var(--panel-2); }
+  .org .id { width: 30px; height: 26px; flex: none; display: grid; place-items: center;
+             border-radius: 6px; background: var(--line); font-family: var(--mono);
+             font-weight: 700; font-size: 12px; }
+  .org.leader { border-color: rgba(240,198,116,.55); background: rgba(240,198,116,.08); }
+  .org.leader .id { background: rgba(240,198,116,.3); color: var(--warn); }
+  .org .meta { min-width: 0; flex: 1; font-size: 12px; color: var(--muted); }
+  .org .meta b { color: var(--text); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td { text-align: left; padding: 6px 10px; border-top: 1px solid var(--line);
+           font-family: var(--mono); white-space: nowrap; }
+  th { color: var(--muted); font-weight: 500; position: sticky; top: 0; background: var(--panel); }
+  tbody tr:hover { background: rgba(111,179,255,.06); cursor: pointer; }
+  tr.detail td { background: var(--panel-2); white-space: normal; }
+  .scroll { overflow: auto; max-height: 460px; }
+  /* the wide column's tables can still outgrow a small window, so they scroll inside
+     their own box rather than pushing the layout */
+  .scroll-x { overflow-x: auto; }
+  .tag { border-radius: 4px; padding: 1px 7px; font-size: 11px; font-weight: 600; }
+
+  #log { font-family: var(--mono); font-size: 12px; max-height: 260px; overflow-y: auto; }
+  #log div { padding: 3px 0; border-top: 1px solid var(--line); white-space: pre-wrap;
+             word-break: break-word; }
+  #log div:first-child { border-top: 0; }
+  #log .pass { color: var(--ok); }
+  #log .fail { color: var(--bad); }
+  #log .info { color: var(--muted); }
+  .kv { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+
+  .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+  @media (max-width: 780px) { .charts { grid-template-columns: 1fr; } }
+  .chart { border: 1px solid var(--line); border-radius: 8px; background: var(--panel-2);
+           padding: 10px 12px; }
+  .chart h3 { margin: 0 0 2px; font-size: 12px; text-transform: uppercase;
+              letter-spacing: .6px; color: var(--muted); font-weight: 600;
+              display: flex; justify-content: space-between; align-items: baseline; }
+  .chart h3 b { font-family: var(--mono); font-size: 13px; color: var(--text); }
+  .chart .legend { font-size: 11px; color: var(--muted); font-family: var(--mono);
+                   margin-top: 4px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .chart .legend i { font-style: normal; }
+  .chart .empty { font-size: 12px; color: var(--muted); font-family: var(--mono);
+                  padding: 14px 0; }
+  .bars { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+  .bars .row2 { display: flex; align-items: center; gap: 8px; font-size: 11px;
+                font-family: var(--mono); color: var(--muted); }
+  .bars .row2 span:first-child { width: 118px; flex: none; }
+  .bars .track { flex: 1; height: 7px; border-radius: 4px; background: var(--line); overflow: hidden; }
+  .bars .track > i { display: block; height: 100%; background: var(--accent); }
+
+  .chains { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chains button { padding: 4px 10px; font-size: 12px; }
+  .chains button.on { border-color: var(--accent); color: var(--accent);
+                      background: rgba(111,179,255,.14); }
+  .chains button .n { color: var(--muted); font-weight: 400; margin-left: 5px; }
+
+  .field { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; font-size: 12px; color: var(--muted); }
+  .field label { flex: 1; }
+  #projection table td:first-child { color: var(--muted); }
+  .row input[type=number] { width: 76px; font: inherit; font-family: var(--mono);
+    background: var(--panel-2); color: var(--text); border: 1px solid var(--line);
+    border-radius: 6px; padding: 4px 8px; }
+
+  .field input[type=number] { width: 84px; font: inherit; font-family: var(--mono);
+    background: var(--panel-2); color: var(--text); border: 1px solid var(--line);
+    border-radius: 6px; padding: 4px 8px; }
+  .models { display: flex; gap: 6px; margin-bottom: 10px; }
+  .models label { flex: 1; text-align: center; padding: 6px 4px; border-radius: 6px;
+    border: 1px solid var(--line); background: var(--panel-2); cursor: pointer;
+    font-size: 12px; user-select: none; }
+  .models input { display: none; }
+  .models input:checked + span { color: var(--accent); font-weight: 600; }
+  .models label:has(input:checked) { border-color: var(--accent); background: rgba(111,179,255,.12); }
+
+  .bar { height: 8px; border-radius: 4px; background: var(--panel-2);
+         border: 1px solid var(--line); overflow: hidden; margin: 10px 0 6px; }
+  .bar > div { height: 100%; background: var(--accent); transition: width .3s ease; }
+
+  #events { font-family: var(--mono); font-size: 11.5px; max-height: 320px; overflow-y: auto; }
+  #events div { padding: 2px 0; border-top: 1px solid var(--line); display: flex; gap: 8px; }
+  #events div:first-child { border-top: 0; }
+  #events .st { flex: none; width: 78px; font-weight: 600; }
+  #events .epoch .st { color: var(--muted); }
+  #events .submit .st { color: var(--accent); }
+  #events .committed .st, #events .block .st { color: var(--ok); }
+  #events .aggregating .st, #events .round_start .st { color: var(--warn); }
+  #events .rejected .st, #events .error .st { color: var(--bad); }
+  #events .round .st { color: var(--text); }
+  svg text { font-family: var(--mono); font-size: 10px; fill: var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>sl-fabric <small>swarm ledger monitor</small></h1>
+  <div class="chains" id="chains"></div>
+  <div class="stats" id="stats"></div>
+</header>
+
+<main>
+  <div>
+    <section>
+      <h2>Organizations</h2>
+      <p class="hint">One per swarm node. The leader shown is for the next round number.</p>
+      <div id="orgs"></div>
+      <div class="kv" id="next-leader"></div>
+    </section>
+
+    <section>
+      <h2>Training</h2>
+      <p class="hint">Runs on the Python trainer; every round is written to this ledger.</p>
+      <div class="models">
+        <label><input type="checkbox" value="logistic" checked><span>logistic</span></label>
+        <label><input type="checkbox" value="mlp"><span>mlp</span></label>
+        <label><input type="checkbox" value="cnn"><span>cnn</span></label>
+      </div>
+      <div class="models">
+        <label><input type="checkbox" value="mlp_deep"><span>mlp_deep</span></label>
+        <label><input type="checkbox" value="cnn_wide"><span>cnn_wide</span></label>
+      </div>
+      <div class="field"><label for="in-rounds">rounds per model</label>
+        <input type="number" id="in-rounds" value="30" min="1" max="500"></div>
+      <div class="field"><label for="in-epochs">local epochs</label>
+        <input type="number" id="in-epochs" value="3" min="1" max="20"></div>
+      <div class="field"><label for="in-alpha">Dirichlet alpha</label>
+        <input type="number" id="in-alpha" value="0.5" min="0.01" step="0.1"></div>
+      <div class="row">
+        <button class="primary" id="btn-train">Start training</button>
+        <button class="danger" id="btn-stop" disabled>Stop</button>
+        <button class="danger" id="btn-reset">Clear rounds</button>
+        <button class="danger" id="btn-rebuild">Rebuild network</button>
+      </div>
+      <p class="hint" style="margin:8px 0 0"><b>Clear rounds</b> deletes the recorded rounds
+        from state so the next run starts at round 1. Block height does not drop — committed
+        blocks cannot be deleted, and the clear is itself a transaction, so the history still
+        shows what was there and who cleared it.<br><br>
+        <b>Rebuild network</b> destroys the ledger volumes and recreates every channel, which
+        is the only way height goes back to its starting point. Takes about three minutes and
+        restarts the gateway, so this page loses its connection until it is done.<br><br>
+        Model weights are rebuilt at the start of every run, so there is nothing else to clear.</p>
+      <div id="train-progress"></div>
+    </section>
+
+    <section>
+      <h2>Rule checks</h2>
+      <p class="hint">Fires transactions the chaincode must refuse. All four are rejected,
+        so nothing is written to the ledger.</p>
+      <div class="row">
+        <button class="danger" data-check="outsider">Unknown identity</button>
+        <button class="danger" data-check="closed">Submit into a closed round</button>
+        <button class="danger" data-check="notleader">Non-leader aggregates</button>
+        <button class="danger" data-check="quorum">Leader aggregates with no updates</button>
+        <button data-check="all">Run all four</button>
+      </div>
+      <div id="log" style="margin-top:12px"></div>
+    </section>
+  </div>
+
+  <div>
+    <section>
+      <h2>Validation accuracy per round</h2>
+      <p class="hint" id="chart-hint">Read back from the ledger, one line per model. This is
+        the validation split; the test split is scored once at the end of a run and shown in
+        the training summary.</p>
+      <div id="chart"></div>
+    </section>
+
+    <section>
+      <h2>Results and cost</h2>
+      <p class="hint">One row per finished model: what it reached, and what that took.
+        Accuracy on the left is validation (scored every round) and test (scored once at
+        the end). The cost columns are measured from the counters before and after the run,
+        divided by the rounds it completed.</p>
+      <div class="scroll" style="max-height:none">
+        <table>
+          <thead><tr>
+            <th>model</th><th>rounds</th><th>best val</th><th>test</th>
+            <th>wall/round</th><th>blocks</th><th>tx</th>
+            <th>peer CPU/round</th><th>ledger/round</th><th>off-chain/round</th>
+          </tr></thead>
+          <tbody id="cost"></tbody>
+        </table>
+      </div>
+      <div class="row" style="margin-top:10px;align-items:center">
+        <span class="kv">project to</span>
+        <input type="number" id="proj-nodes" value="20" min="1" max="500" title="organizations">
+        <span class="kv">nodes ×</span>
+        <input type="number" id="proj-rounds" value="50" min="1" max="5000" title="rounds">
+        <span class="kv">rounds</span>
+      </div>
+      <div id="projection"></div>
+    </section>
+
+    <section>
+      <h2>Live activity</h2>
+      <p class="hint">Each local epoch, each submission, and each block as it commits.</p>
+      <div id="events"></div>
+    </section>
+
+    <section>
+      <h2>Resources</h2>
+      <p class="hint">Scraped from each node's Fabric operations endpoint. Delta is since
+        this page loaded, which is what a running experiment costs.</p>
+      <div class="scroll" style="max-height:none">
+        <table>
+          <thead><tr>
+            <th>node</th><th>rounds</th><th>blocks (this chain)</th>
+            <th>tx (this chain)</th><th>refused</th>
+            <th>memory</th><th>CPU</th><th>Δ blocks</th><th>Δ CPU</th>
+          </tr></thead>
+          <tbody id="resources"></tbody>
+        </table>
+      </div>
+      <div class="charts" id="charts"></div>
+      <div id="traffic" style="margin-top:12px"></div>
+    </section>
+
+    <section>
+      <h2>Rounds</h2>
+      <p class="hint">Click a round to see the model updates it contains.</p>
+      <div class="scroll">
+        <table>
+          <thead><tr>
+            <th>round</th><th>model</th><th>leader</th><th>nodes</th>
+            <th>samples</th><th>accuracy</th><th>hash</th><th>committed</th>
+          </tr></thead>
+          <tbody id="rounds"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+const short = (s, n = 12) => (s ? s.slice(0, n) + "…" : "—");
+const MODELS = ["logistic", "mlp", "mlp_deep", "cnn", "cnn_wide"];
+const MODEL_COLOUR = (m) => `var(--${MODELS.includes(m) ? m.replace("_", "-") : "other"})`;
+
+// rounds already fetched, keyed by round number; the ledger is append-only so a round
+// that has been read never changes and never needs fetching again
+const cache = new Map();
+let config = null;
+let expanded = null;
+// the first scrape of the session, so the table can show what this run has cost rather
+// than what the containers have accumulated since they started
+let resourceBaseline = null;
+// the last resource scrape, so a rise in block height can be reported as it happens, and
+// a short ring buffer behind it for the sparklines
+// which chain the ledger panels are showing. Every model type has its own, so the page
+// asks for one at a time rather than mixing rounds that belong to different experiments.
+let channels = [];
+let channel = null;
+const roundsPerChannel = new Map();
+let lastResources = null;
+const resourceTrail = [];
+// host CPU/GPU/RAM/disk, sampled by the trainer: the peers publish neither GPU nor disk,
+// and the machine doing the training is where those two actually cost anything
+const hostTrail = [];
+let hostMetrics = null;
+let trainStatus = null;
+let seenEventSeq = 0;
+const activity = [];
+
+async function api(path, options) {
+  const res = await fetch(path, options);
+  const body = await res.json().catch(() => null);
+  if (!res.ok) throw new Error((body && body.error) || `${res.status} ${res.statusText}`);
+  return body;
+}
+
+// once per page load, so a tab that has been open across a redeploy is obvious
+let announcedBuild = false;
+
+async function refresh() {
+  try {
+    if (!announcedBuild) {
+      announcedBuild = true;
+      const health = await api("/health");
+      pushActivity({ stage: "info",
+        text: `monitor loaded · gateway started ${health.gateway_started} · ` +
+              `${health.channels.length} chains` });
+    }
+    if (!channels.length) {
+      channels = await api("/channels");
+      channel = channel || (channels[0] && channels[0].channel);
+    }
+    if (!config) config = await api(`/config?channel=${channel}`);
+    const rounds = (await api(`/rounds?channel=${channel}`)) || [];
+    roundsPerChannel.set(channel, rounds.length);
+
+    // the cache is per chain: round 1 of swarm-cnn is a different round from round 1
+    // of swarm-mlp, and they must never be shown as the same thing
+    const fresh = rounds.filter((r) => !cache.has(`${channel}/${r}`));
+    for (const round of fresh) {
+      const [aggregation, updates] = await Promise.all([
+        api(`/rounds/${round}/aggregation?channel=${channel}`),
+        api(`/rounds/${round}/updates?channel=${channel}`),
+      ]);
+      cache.set(`${channel}/${round}`, { aggregation, updates });
+    }
+
+    const next = rounds.length ? Math.max(...rounds) + 1 : 1;
+    const [leader, resources] = await Promise.all([
+      api(`/leader/${next}?channel=${channel}`),
+      api("/resources"),
+    ]);
+    try {
+      hostMetrics = await api("/train/metrics");
+      hostTrail.push(hostMetrics);
+      if (hostTrail.length > 80) hostTrail.shift();
+    } catch { hostMetrics = null; }
+    if (!resourceBaseline) resourceBaseline = resources;
+    noteBlocks(resources);
+    resourceTrail.push(resources);
+    if (resourceTrail.length > 80) resourceTrail.shift();
+    render(rounds, next, leader.leader, true, null, resources);
+  } catch (err) {
+    render(currentRounds(), null, null, false, err.message, null);
+  }
+}
+
+function render(rounds, nextRound, nextLeader, online, error, resources) {
+  const entries = rounds.map((r) => cache.get(`${channel}/${r}`)).filter(Boolean);
+  renderChains(resources ? resources.chain_heights : null);
+  renderStats(rounds, online, error);
+  renderOrgs(nextLeader, entries);
+  renderChart(entries);
+  if (resources) renderResources(resources);
+  renderCharts(resources);
+  renderTraffic(entries);
+  renderRounds(rounds);
+  $("next-leader").textContent = nextRound
+    ? `next round ${nextRound} → ${nextLeader}` : "";
+}
+
+// A block is committed by the ordering service, not by anything this page calls, so the
+// only honest way to show it is to watch the height the peers report and log the jump.
+function noteBlocks(resources) {
+  const peer = resources.nodes.find((n) => n.role === "peer" && n.reachable);
+  if (!peer) return;
+  const now = (peer.blocks && peer.blocks[channel]) || 0;
+  if (lastResources) {
+    const before = lastResources.nodes.find((n) => n.name === peer.name);
+    const then = (before && before.blocks && before.blocks[channel]) || 0;
+    if (then && now > then) {
+      for (let i = then + 1; i <= now; i++) {
+        pushActivity({ stage: "block", text: `${channel} block #${i} committed on all peers` });
+      }
+    }
+  }
+  lastResources = resources;
+}
+
+function pushActivity(entry) {
+  activity.push({ at: new Date().toLocaleTimeString(), ...entry });
+  if (activity.length > 200) activity.shift();
+  renderEvents();
+}
+
+// the round numbers this chain currently has in the cache
+function currentRounds() {
+  return [...cache.keys()]
+    .filter((key) => key.startsWith(`${channel}/`))
+    .map((key) => Number(key.split("/")[1]))
+    .sort((a, b) => a - b);
+}
+
+function renderChains(heights) {
+  $("chains").innerHTML = channels.map((c) => {
+    const rounds = roundsPerChannel.get(c.channel);
+    const height = heights ? heights[c.channel] : undefined;
+    const label = rounds === undefined ? (height === undefined ? "" : `h${height}`)
+      : `${rounds}r${height === undefined ? "" : ` · h${height}`}`;
+    return `<button data-channel="${esc(c.channel)}" class="${c.channel === channel ? "on" : ""}">
+      ${esc(c.model)}${label ? `<span class="n">${label}</span>` : ""}</button>`;
+  }).join("");
+}
+
+function renderStats(rounds, online, error) {
+  const models = new Set(rounds.map((r) => cache.get(r)?.aggregation?.model).filter(Boolean));
+  $("stats").innerHTML =
+    `<span class="stat">chain <b>${esc(channel || "?")}</b></span>` +
+    `<span class="stat">members <b>${config ? config.members.length : "?"}</b></span>` +
+    `<span class="stat">quorum <b>${config ? config.quorum : "?"}</b></span>` +
+    `<span class="stat">rounds <b>${rounds.length}</b></span>` +
+    `<span class="stat">models <b>${[...models].join(" ") || "—"}</b></span>` +
+    `<span class="badge ${online ? "ok" : "bad"}">${online ? "ledger live" : "offline: " + esc(error || "")}</span>`;
+}
+
+function renderOrgs(nextLeader, entries) {
+  if (!config) return;
+  const led = {}, submitted = {};
+  for (const { aggregation, updates } of entries) {
+    led[aggregation.aggregator] = (led[aggregation.aggregator] || 0) + 1;
+    for (const u of updates) submitted[u.node_id] = (submitted[u.node_id] || 0) + 1;
+  }
+  $("orgs").innerHTML = config.members.map((m) => `
+    <div class="org ${m === nextLeader ? "leader" : ""}">
+      <div class="id">${esc(m.replace("MSP", ""))}</div>
+      <div class="meta">${m === nextLeader ? "<b>next leader</b> · " : ""}led <b>${led[m] || 0}</b>
+        · submitted <b>${submitted[m] || 0}</b></div>
+    </div>`).join("");
+}
+
+// A plain inline SVG line chart: no library, so the page stays a single file the gateway
+// can embed in its binary.
+function renderChart(entries) {
+  const points = entries.filter((e) => typeof e.aggregation.accuracy === "number");
+  if (points.length < 2) {
+    $("chart").innerHTML = '<div class="kv">not enough rounds yet</div>';
+    return;
+  }
+
+  const byModel = new Map();
+  for (const { aggregation } of points) {
+    const model = aggregation.model || "unknown";
+    if (!byModel.has(model)) byModel.set(model, []);
+    byModel.get(model).push(aggregation);
+  }
+
+  const W = 720, H = 260, PAD = { t: 12, r: 12, b: 26, l: 38 };
+  const accs = points.map((p) => p.aggregation.accuracy);
+  const lo = Math.max(0, Math.min(...accs) - 0.05), hi = Math.min(1, Math.max(...accs) + 0.05);
+  const y = (a) => PAD.t + (H - PAD.t - PAD.b) * (1 - (a - lo) / (hi - lo || 1));
+
+  // rounds are numbered per model in blocks, so each series is drawn against its own
+  // position within the run rather than the absolute round number
+  const maxLen = Math.max(...[...byModel.values()].map((s) => s.length));
+  const x = (i) => PAD.l + (W - PAD.l - PAD.r) * (maxLen > 1 ? i / (maxLen - 1) : 0.5);
+
+  const grid = [0, 0.25, 0.5, 0.75, 1].map((f) => {
+    const value = lo + (hi - lo) * f;
+    return `<line x1="${PAD.l}" y1="${y(value)}" x2="${W - PAD.r}" y2="${y(value)}"
+              stroke="var(--line)" stroke-width="1"/>
+            <text x="4" y="${y(value) + 3}">${value.toFixed(2)}</text>`;
+  }).join("");
+
+  const series = [...byModel.entries()].map(([model, rows]) => {
+    const path = rows.map((r, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(r.accuracy).toFixed(1)}`).join(" ");
+    const dots = rows.map((r, i) =>
+      `<circle cx="${x(i).toFixed(1)}" cy="${y(r.accuracy).toFixed(1)}" r="2.5"
+         fill="${MODEL_COLOUR(model)}"><title>${esc(model)} round ${r.round}: ${r.accuracy.toFixed(4)}</title></circle>`).join("");
+    return `<path d="${path}" fill="none" stroke="${MODEL_COLOUR(model)}" stroke-width="2"/>${dots}`;
+  }).join("");
+
+  const legend = [...byModel.entries()].map(([model, rows]) => {
+    const best = Math.max(...rows.map((r) => r.accuracy));
+    return `<span class="stat"><span class="tag" style="background:${MODEL_COLOUR(model)};color:#0f1216">${esc(model)}</span>
+            best <b>${best.toFixed(4)}</b> over ${rows.length} rounds</span>`;
+  }).join(" ");
+
+  $("chart").innerHTML =
+    `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="accuracy per round">
+       ${grid}${series}
+       <text x="${PAD.l}" y="${H - 8}">round 1</text>
+       <text x="${W - PAD.r - 40}" y="${H - 8}">round ${maxLen}</text>
+     </svg>
+     <div class="row" style="margin-top:8px">${legend}</div>`;
+}
+
+function renderResources(resources) {
+  const base = new Map((resourceBaseline?.nodes || []).map((n) => [n.name, n]));
+  // rounds belong to the chain, not to a node: every peer agrees on them, which is why
+  // the same figure repeats down the column while block height is read per peer
+  const rounds = roundsPerChannel.get(channel) ?? 0;
+  $("resources").innerHTML = resources.nodes.map((n) => {
+    if (!n.reachable) {
+      return `<tr><td>${esc(n.name)}</td><td colspan="8" style="color:var(--bad)">
+              ${esc(n.error || "unreachable")}</td></tr>`;
+    }
+    const was = base.get(n.name);
+    // per chain: the totals across all five would mix experiments that have nothing to
+    // do with each other
+    const here = (n.blocks && n.blocks[channel]) || 0;
+    const hereTx = (n.ledger_transactions && n.ledger_transactions[channel]) || 0;
+    const dBlocks = was && was.blocks ? here - ((was.blocks[channel]) || 0) : 0;
+    const dCPU = was ? n.cpu_seconds - was.cpu_seconds : 0;
+    return `<tr>
+      <td>${esc(n.name)}${n.role === "orderer" ? ' <span class="kv">orderer</span>' : ""}</td>
+      <td>${rounds.toLocaleString()}</td>
+      <td>${here.toLocaleString()}<span class="kv"> / ${n.total_blocks.toLocaleString()} all</span></td>
+      <td>${hereTx.toLocaleString()}</td>
+      <td style="color:${n.proposals_rejected > 0 ? "var(--warn)" : "var(--muted)"}">${n.proposals_rejected}</td>
+      <td>${n.resident_mb.toFixed(0)} MB</td>
+      <td>${n.cpu_seconds.toFixed(0)} s</td>
+      <td style="color:var(--accent)">${dBlocks ? "+" + dBlocks : "—"}</td>
+      <td style="color:var(--accent)">${dCPU > 0.05 ? "+" + dCPU.toFixed(1) + " s" : "—"}</td>
+    </tr>`;
+  }).join("");
+}
+
+// The ledger stores a sha256 of the parameters, never the parameters. That makes the
+// on-chain cost per update the same 64 bytes whatever the model is, while the bytes a
+// node actually ships scale with its parameter count. The ratio is the argument for
+// keeping weights off chain, so the page computes it from what the ledger recorded.
+function renderTraffic(entries) {
+  if (!entries.length) {
+    $("traffic").innerHTML = '<div class="kv">no rounds yet</div>';
+    return;
+  }
+  const byModel = new Map();
+  for (const { aggregation, updates } of entries) {
+    const model = aggregation.model || "unknown";
+    const stat = byModel.get(model) || { rounds: 0, offChain: 0, updates: 0 };
+    stat.rounds += 1;
+    stat.updates += updates.length;
+    stat.offChain += updates.reduce((sum, u) => sum + u.size_bytes, 0);
+    byModel.set(model, stat);
+  }
+
+  const rows = [...byModel.entries()].map(([model, stat]) => {
+    const onChain = stat.updates * 64; // one sha256 hex digest per update
+    const perNode = stat.updates ? stat.offChain / stat.updates / 1024 : 0;
+    return `<tr>
+      <td><span class="tag" style="background:${MODEL_COLOUR(model)};color:#0f1216">${esc(model)}</span></td>
+      <td>${stat.rounds}</td>
+      <td>${perNode.toFixed(1)} KiB</td>
+      <td>${(stat.offChain / 1024 / 1024).toFixed(2)} MiB</td>
+      <td>${(onChain / 1024).toFixed(2)} KiB</td>
+      <td style="color:var(--ok)">${Math.round(stat.offChain / Math.max(onChain, 1)).toLocaleString()}×</td>
+    </tr>`;
+  }).join("");
+
+  $("traffic").innerHTML = `
+    <table>
+      <thead><tr><th>model</th><th>rounds</th><th>per node/round</th>
+        <th>shipped off chain</th><th>hashes on chain</th><th>ratio</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="kv" style="padding:8px 2px">weights stay off chain; the ledger records a
+      64-byte digest per update whatever the model size is</div>`;
+}
+
+function renderRounds(rounds) {
+  const rows = [...rounds].sort((a, b) => b - a).map((round) => {
+    const entry = cache.get(`${channel}/${round}`);
+    if (!entry) return "";
+    const a = entry.aggregation;
+    const when = new Date(a.timestamp * 1000).toLocaleTimeString();
+    const main = `<tr data-round="${round}">
+      <td>#${round}</td>
+      <td><span class="tag" style="background:${MODEL_COLOUR(a.model)};color:#0f1216">${esc(a.model || "—")}</span></td>
+      <td style="color:var(--warn)">${esc(a.aggregator)}</td>
+      <td>${a.participant_count}/${config ? config.members.length : "?"}</td>
+      <td>${a.total_samples.toLocaleString()}</td>
+      <td>${typeof a.accuracy === "number" ? a.accuracy.toFixed(4) : "—"}</td>
+      <td>${esc(short(a.aggregated_hash, 14))}</td>
+      <td>${when}</td>
+    </tr>`;
+    if (expanded !== round) return main;
+
+    const updates = entry.updates.map((u) => `
+      <tr><td>${esc(u.node_id)}</td><td>n=${u.n_samples}</td>
+          <td>${(u.size_bytes / 1024).toFixed(1)} KiB</td>
+          <td>${esc(short(u.weight_hash, 20))}</td></tr>`).join("");
+    return main + `<tr class="detail"><td colspan="9">
+      <div class="scroll-x"><table><thead><tr><th>node</th><th>samples</th><th>shipped</th>
+      <th>weight_hash</th></tr></thead>
+      <tbody>${updates}</tbody></table></div>
+      <div class="kv" style="padding:8px 10px">participants ${esc(a.participants.join(" "))}</div>
+    </td></tr>`;
+  }).join("");
+  $("rounds").innerHTML = rows || '<tr><td colspan="8" class="kv">no rounds yet</td></tr>';
+}
+
+// ---------- rule checks ----------
+
+function note(level, text) {
+  const div = document.createElement("div");
+  div.className = level;
+  div.textContent = text;
+  $("log").prepend(div);
+}
+
+// Each check expects a rejection. A check that succeeds would mean the chaincode let
+// something through, so "rejected" is the pass condition and it is reported as such.
+async function expectRejection(label, path, body) {
+  try {
+    await api(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    note("fail", `NOT REJECTED  ${label}`);
+  } catch (err) {
+    note("pass", `rejected  ${label}\n          ${err.message}`);
+  }
+}
+
+const HASH = "0".repeat(64);
+
+async function runCheck(kind) {
+  const rounds = currentRounds();
+  const closed = rounds.length ? Math.max(...rounds) : null;
+  const probe = (closed || 0) + 777; // a round nobody has touched
+  const leader = (await api(`/leader/${probe}?channel=${channel}`)).leader;
+  const other = config.members.find((m) => m !== leader);
+
+  if (kind === "outsider" || kind === "all") {
+    await expectRejection("a node outside the authority set submits",
+      `/nodes/Org9MSP/updates?channel=${channel}`,
+      { round: probe, weight_hash: HASH, size_bytes: 88, n_samples: 10, model: "probe" });
+  }
+  if (kind === "closed" || kind === "all") {
+    if (closed === null) note("info", "no closed round yet to test against");
+    else await expectRejection(`submitting into closed round ${closed}`,
+      `/nodes/${config.members[0]}/updates?channel=${channel}`,
+      { round: closed, weight_hash: HASH, size_bytes: 88, n_samples: 10, model: "probe" });
+  }
+  if (kind === "notleader" || kind === "all") {
+    await expectRejection(`${other} aggregates round ${probe} (leader is ${leader})`,
+      `/nodes/${other}/aggregations?channel=${channel}`,
+      { round: probe, aggregated_hash: HASH, accuracy: 0.5, model: "probe" });
+  }
+  if (kind === "quorum" || kind === "all") {
+    await expectRejection(`${leader} aggregates round ${probe} with no updates`,
+      `/nodes/${leader}/aggregations?channel=${channel}`,
+      { round: probe, aggregated_hash: HASH, accuracy: 0.5, model: "probe" });
+  }
+}
+
+// ---------- training ----------
+
+function selectedModels() {
+  return [...document.querySelectorAll(".models input:checked")].map((el) => el.value);
+}
+
+async function pollTraining() {
+  try {
+    const status = await api("/train/status");
+    trainStatus = status;
+    for (const event of status.events || []) {
+      if (event.seq > seenEventSeq) {
+        seenEventSeq = event.seq;
+        pushActivity({ stage: event.stage, text: describeEvent(event) });
+      }
+    }
+    renderTraining();
+    renderCost();
+  } catch (err) {
+    trainStatus = { unavailable: err.message };
+    renderTraining();
+  }
+}
+
+function describeEvent(e) {
+  const kib = (b) => (b / 1024).toFixed(0);
+  switch (e.stage) {
+    case "model_start":
+      return `${e.model}: ${e.parameters.toLocaleString()} parameters, ${kib(e.bytes_per_node)} KiB per node`;
+    case "round_start": return `round ${e.round} opened, leader ${e.leader}`;
+    case "epoch":
+      return `${e.node} epoch ${e.epoch}/${e.epochs} on ${e.samples} samples in ${e.seconds}s`;
+    case "submitting": return `submitting ${e.nodes} updates together`;
+    case "submit":
+      return `${e.node} submitted ${e.weight_hash} (${kib(e.size_bytes)} KiB) in ${e.latency_ms}ms`;
+    case "rejected": return `${e.node} REJECTED: ${e.reason}`;
+    case "aggregating":
+      return `${e.leader} aggregating ${e.participants} updates, accuracy ${e.accuracy}`;
+    case "committed": return `round ${e.round} sealed by ${e.leader} in ${e.latency_ms}ms`;
+    case "round": return `round ${e.round} done, accuracy ${e.accuracy}, verified ${e.verified}`;
+    case "model_done":
+      return `${e.model} finished: ${e.rounds} rounds, best val ${e.best_accuracy}, ` +
+             `test ${e.test_accuracy}, ${e.seconds}s`;
+    default: return JSON.stringify(e);
+  }
+}
+
+// Time left, from the pace of the rounds already done. Shown as "about", because rounds
+// of a model that has not started yet are costed at the current model's speed and a CNN
+// round takes several times a logistic one.
+function etaText(status) {
+  if (!status.eta_seconds) return "";
+  const seconds = status.eta_seconds;
+  const left = seconds < 90 ? `${Math.round(seconds)}s`
+    : seconds < 5400 ? `${Math.round(seconds / 60)} min`
+    : `${(seconds / 3600).toFixed(1)} h`;
+  const done = new Date(Date.now() + seconds * 1000)
+    .toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const pace = status.seconds_per_round ? ` · ${status.seconds_per_round}s/round` : "";
+  return ` · about ${left} left (done ~${done})${pace}`;
+}
+
+function renderTraining() {
+  const box = $("train-progress");
+  const status = trainStatus;
+  if (!status || status.unavailable) {
+    box.innerHTML = '<div class="kv">trainer not reachable. Start it with<br>' +
+      'cd poc/sl-fabric/client &amp;&amp; python trainer.py</div>';
+    $("btn-train").disabled = false;
+    $("btn-stop").disabled = true;
+    return;
+  }
+
+  $("btn-train").disabled = status.running;
+  $("btn-stop").disabled = !status.running;
+
+  const pct = Math.round((status.progress || 0) * 100);
+  const state = status.running
+    ? `${esc(status.current_model || "")} · round ${status.round_index}/${status.rounds_per_model} · ` +
+      `${pct}% · ${esc(status.stage || "")}${etaText(status)}`
+    : (status.cancelled ? "stopped" : "finished");
+
+  const done = (status.summary || []).length;
+  box.innerHTML =
+    (status.running || done
+      ? `<div class="bar"><div style="width:${pct}%"></div></div><div class="kv">${state}</div>`
+      : '<div class="kv">idle</div>') +
+    (status.error ? `<div class="kv" style="color:var(--bad)">${esc(status.error)}</div>` : "") +
+    (done ? `<div class="kv" style="margin-top:6px">${done} model${done > 1 ? "s" : ""}
+             finished — results in the table on the right</div>` : "") +
+    (status.results_file
+      ? `<div class="kv" style="margin-top:4px">saved to ${esc(status.results_file)}</div>` : "");
+}
+
+const fmtBytes = (b) => b >= 1024 * 1024 ? `${(b / 1024 / 1024).toFixed(2)} MB`
+  : b >= 1024 ? `${(b / 1024).toFixed(0)} KiB` : `${b} B`;
+
+// The per-round figures are what make this a sizing tool rather than a dashboard: a
+// deployment is planned in rounds and organizations, not in instantaneous percentages.
+function renderCost() {
+  const runs = (trainStatus && trainStatus.summary || []).filter((m) => m.cost && m.cost.per_round);
+  if (!runs.length) {
+    $("cost").innerHTML = '<tr><td colspan="10" class="kv">no finished run yet</td></tr>';
+    $("projection").innerHTML = "";
+    return;
+  }
+
+  $("cost").innerHTML = runs.map((m) => {
+    const c = m.cost.per_round;
+    return `<tr>
+      <td><span class="tag" style="background:${MODEL_COLOUR(m.model)};color:#0f1216">${esc(m.model)}</span></td>
+      <td>${m.cost.rounds}</td>
+      <td>${m.best_accuracy}</td>
+      <td><b>${m.test_accuracy ?? "—"}</b></td>
+      <td>${c.wall_seconds}s</td><td>${c.blocks}</td><td>${c.transactions}</td>
+      <td>${c.peer_cpu_seconds}s</td>
+      <td>${fmtBytes(c.ledger_bytes)}</td>
+      <td>${fmtBytes(c.off_chain_bytes)}</td>
+    </tr>`;
+  }).join("");
+
+  const nodes = Math.max(1, Number($("proj-nodes").value) || 1);
+  const rounds = Math.max(1, Number($("proj-rounds").value) || 1);
+
+  $("projection").innerHTML = `<div class="scroll-x"><table style="margin-top:10px">
+    <thead><tr><th>model</th><th>wall</th><th>peer CPU</th><th>orderer CPU</th>
+      <th>ledger on disk</th><th>shipped off chain</th></tr></thead>
+    <tbody>${runs.map((m) => {
+      const c = m.cost.per_round;
+      const scale = nodes / m.cost.nodes;
+      return `<tr>
+        <td>${esc(m.model)}</td>
+        <td>${(c.wall_seconds * rounds / 3600).toFixed(2)} h</td>
+        <td>${(c.peer_cpu_seconds * scale * rounds / 3600).toFixed(2)} h</td>
+        <td>${(c.orderer_cpu_seconds * rounds / 3600).toFixed(3)} h</td>
+        <td>${(c.ledger_bytes * scale * rounds / 1024 / 1024).toFixed(0)} MB</td>
+        <td>${(c.off_chain_bytes * scale * rounds / 1024 ** 3).toFixed(2)} GB</td>
+      </tr>`;
+    }).join("")}</tbody></table></div>
+    <div class="kv" style="margin-top:6px">linear from one measured point: ledger and
+      off-chain traffic scale with nodes, wall time does not because the updates are
+      submitted concurrently and batched into one block</div>`;
+}
+
+function renderEvents() {
+  $("events").innerHTML = activity.slice().reverse().map((e) =>
+    `<div class="${esc(e.stage)}"><span class="st">${esc(e.stage)}</span><span>${esc(e.text)}</span></div>`
+  ).join("") || '<div class="kv">nothing running</div>';
+}
+
+// ---------- resource charts ----------
+
+// One small line chart, drawn as inline SVG. Four of these beat one combined chart: CPU,
+// GPU, memory and disk move on completely different scales, and stacking them on shared
+// axes would flatten whichever one is smaller.
+function lineChart(series, { height = 64, max = null } = {}) {
+  const points = series.filter((s) => s.values.length > 1);
+  if (!points.length) return '<div class="empty">collecting…</div>';
+
+  const W = 320, H = height;
+  const peak = max !== null ? max
+    : Math.max(0.001, ...points.flatMap((s) => s.values));
+  const paths = points.map((s) => {
+    const step = W / Math.max(s.values.length - 1, 1);
+    const d = s.values.map((v, i) =>
+      `${i ? "L" : "M"}${(i * step).toFixed(1)},${(H - (H - 3) * Math.min(v / peak, 1)).toFixed(1)}`
+    ).join(" ");
+    return `<path d="${d}" fill="none" stroke="${s.colour}" stroke-width="1.6"/>`;
+  }).join("");
+
+  const legend = points.map((s) =>
+    `<i style="color:${s.colour}">■</i> ${esc(s.label)} ${s.last}`).join(" ");
+
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" preserveAspectRatio="none">
+      <line x1="0" y1="${H - 1}" x2="${W}" y2="${H - 1}" stroke="var(--line)"/>${paths}
+    </svg><div class="legend">${legend}</div>`;
+}
+
+function bars(rows, unit = "") {
+  if (!rows.length) return '<div class="empty">nothing to show</div>';
+  const peak = Math.max(...rows.map((r) => r.value), 0.001);
+  return `<div class="bars">${rows.map((r) => `
+    <div class="row2"><span>${esc(r.label)}</span>
+      <span class="track"><i style="width:${(100 * r.value / peak).toFixed(1)}%"></i></span>
+      <span>${esc(r.text ?? r.value + unit)}</span></div>`).join("")}</div>`;
+}
+
+// per-node CPU seconds burned between two scrapes, which is the rate the peers are working
+function peerCpuSeries() {
+  if (resourceTrail.length < 2) return [];
+  const palette = ["#6fb3ff", "#f0c674", "#58d68d", "#e08c5a", "#3fa7a0", "#b48ead"];
+  return resourceTrail[resourceTrail.length - 1].nodes.map((node, index) => {
+    const history = resourceTrail.map((r) => r.nodes.find((n) => n.name === node.name));
+    const values = history.map((n, i) =>
+      i === 0 || !n || !history[i - 1] ? 0 : Math.max(0, n.cpu_seconds - history[i - 1].cpu_seconds));
+    return {
+      label: node.name.replace("MSP", ""),
+      colour: palette[index % palette.length],
+      values,
+      last: values[values.length - 1].toFixed(2) + "s",
+    };
+  });
+}
+
+function renderCharts(resources) {
+  const host = hostMetrics;
+  const cards = [];
+
+  // --- CPU: the host doing the training, and the peers doing the consensus
+  const cpuSeries = [];
+  if (hostTrail.length > 1) {
+    const values = hostTrail.map((h) => h.cpu.percent);
+    cpuSeries.push({
+      label: `host (${host ? host.cpu.cores : "?"} cores)`, colour: "#ffffff",
+      values, last: values[values.length - 1].toFixed(0) + "%",
+    });
+  }
+  cards.push({
+    title: "CPU",
+    value: host ? `${host.cpu.percent.toFixed(0)}%` : "—",
+    body: lineChart(cpuSeries, { max: 100 }) +
+      '<div class="legend" style="margin-top:8px">peers, CPU seconds per scrape</div>' +
+      lineChart(peerCpuSeries(), { height: 48 }),
+  });
+
+  // --- GPU
+  if (host && host.gpu.length) {
+    const gpu = host.gpu[0];
+    const util = hostTrail.map((h) => (h.gpu[0] ? h.gpu[0].utilisation_percent : 0));
+    const mem = hostTrail.map((h) => (h.gpu[0] ? h.gpu[0].memory_used_mb / gpu.memory_total_mb * 100 : 0));
+    cards.push({
+      title: "GPU",
+      value: `${gpu.utilisation_percent.toFixed(0)}%`,
+      body: lineChart([
+        { label: "utilisation", colour: "#58d68d", values: util, last: util[util.length - 1].toFixed(0) + "%" },
+        { label: "memory", colour: "#f0c674", values: mem, last: `${gpu.memory_used_mb.toFixed(0)}/${gpu.memory_total_mb.toFixed(0)} MB` },
+      ], { max: 100 }) +
+        `<div class="legend">${esc(gpu.name)} · ${gpu.temperature_c.toFixed(0)}°C ·
+         torch here is the CPU build, so this is not training load</div>`,
+    });
+  } else {
+    cards.push({ title: "GPU", value: "none", body: '<div class="empty">no NVIDIA GPU reported</div>' });
+  }
+
+  // --- RAM: host total, then each node's resident set
+  const ramSeries = hostTrail.length > 1 ? [{
+    label: "host", colour: "#ffffff",
+    values: hostTrail.map((h) => h.ram.percent),
+    last: host ? `${(host.ram.used_mb / 1024).toFixed(1)}/${(host.ram.total_mb / 1024).toFixed(1)} GB` : "",
+  }] : [];
+  cards.push({
+    title: "RAM",
+    value: host ? `${host.ram.percent.toFixed(0)}%` : "—",
+    body: lineChart(ramSeries, { max: 100 }) +
+      bars((resources ? resources.nodes : []).filter((n) => n.reachable).map((n) => ({
+        label: n.name.replace("MSP", ""),
+        value: n.resident_mb,
+        text: `${n.resident_mb.toFixed(0)} MB`,
+      }))),
+  });
+
+  // --- disk: what the ledger occupies, plus how hard the host disk is working
+  const volumes = host ? host.ledger_volumes : [];
+  const ledgerTotal = volumes.reduce((sum, v) => sum + v.size_bytes, 0);
+  const io = hostTrail.length > 1 ? [{
+    label: "write MB/s", colour: "#ef7a7a",
+    values: hostTrail.map((h, i) => i === 0 ? 0 :
+      Math.max(0, (h.disk.write_mb - hostTrail[i - 1].disk.write_mb) / 3)),
+    last: "",
+  }, {
+    label: "read MB/s", colour: "#6fb3ff",
+    values: hostTrail.map((h, i) => i === 0 ? 0 :
+      Math.max(0, (h.disk.read_mb - hostTrail[i - 1].disk.read_mb) / 3)),
+    last: "",
+  }] : [];
+  cards.push({
+    title: "Disk",
+    value: ledgerTotal ? `${(ledgerTotal / 1024 / 1024).toFixed(0)} MB ledger` : "—",
+    body: bars(volumes.map((v) => ({
+      label: v.name.replace(".swarm.local", ""), value: v.size_bytes, text: v.size,
+    }))) + '<div class="legend" style="margin-top:8px">host disk throughput</div>' +
+      lineChart(io, { height: 48 }),
+  });
+
+  $("charts").innerHTML = cards.map((c) => `<div class="chart">
+      <h3>${esc(c.title)}<b>${esc(c.value)}</b></h3>${c.body}</div>`).join("");
+}
+
+for (const id of ["proj-nodes", "proj-rounds"]) {
+  document.addEventListener("input", (ev) => {
+    if (ev.target.id === id) renderCost();
+  });
+}
+
+document.addEventListener("click", async (ev) => {
+  const chainButton = ev.target.closest("button[data-channel]");
+  if (chainButton) {
+    channel = chainButton.dataset.channel;
+    config = null;
+    expanded = null;
+    refresh();
+    return;
+  }
+
+  const button = ev.target.closest("button[data-check]");
+  if (button) {
+    document.querySelectorAll("button").forEach((b) => (b.disabled = true));
+    try {
+      await runCheck(button.dataset.check);
+    } catch (err) {
+      note("fail", `check could not run: ${err.message}`);
+    } finally {
+      document.querySelectorAll("button").forEach((b) => (b.disabled = false));
+    }
+    return;
+  }
+  const row = ev.target.closest("tr[data-round]");
+  if (row) {
+    const round = Number(row.dataset.round);
+    expanded = expanded === round ? null : round;
+    renderRounds(currentRounds());
+  }
+});
+
+// ---------- training controls ----------
+
+// One helper for both logs: the rule-check panel writes into #log, everything about a
+// run writes into #events. Both go through pushActivity so a reset shows up next to the
+// rounds it cleared.
+function withButtons(disabled) {
+  for (const id of ["btn-train", "btn-stop", "btn-reset"]) {
+    const el = $(id);
+    if (el) el.disabled = disabled;
+  }
+}
+
+$("btn-train").onclick = async () => {
+  const models = selectedModels();
+  if (!models.length) { alert("pick at least one model"); return; }
+  const body = {
+    models,
+    rounds: Number($("in-rounds").value),
+    local_epochs: Number($("in-epochs").value),
+    alpha: Number($("in-alpha").value),
+  };
+  withButtons(true);
+  try {
+    await api("/train", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    activity.length = 0;
+    seenEventSeq = 0;
+    pushActivity({ stage: "info",
+      text: `started ${models.join(", ")} — ${body.rounds} rounds, ${body.local_epochs} local epochs, alpha ${body.alpha}` });
+  } catch (err) {
+    alert(err.message);
+  } finally {
+    withButtons(false);
+    pollTraining();
+  }
+};
+
+$("btn-rebuild").onclick = async () => {
+  if (!confirm("Destroy the ledger volumes and rebuild every channel?\n\n" +
+               "This is the only way block height returns to its starting point. It takes " +
+               "about three minutes, restarts the gateway, and this page will show as " +
+               "offline until it comes back.")) return;
+  try {
+    await api("/network/rebuild", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ confirm: true }),
+    });
+    cache.clear();
+    roundsPerChannel.clear();
+    channels = [];
+    config = null;
+    pushActivity({ stage: "info",
+      text: "rebuilding the network — the gateway restarts, this page reconnects on its own" });
+  } catch (err) {
+    alert(err.message);
+  }
+};
+
+$("btn-stop").onclick = async () => {
+  try {
+    await api("/train/stop", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: "{}",
+    });
+    pushActivity({ stage: "info", text: "stop requested, finishing the current round" });
+  } catch (err) {
+    alert(err.message);
+  }
+};
+
+$("btn-reset").onclick = async () => {
+  const counts = channels
+    .map((c) => `${c.model}: ${roundsPerChannel.get(c.channel) ?? "?"} rounds`)
+    .join("\n");
+  if (!confirm(`Clear the recorded rounds on all ${channels.length} chains?\n\n${counts}\n\n` +
+               "The blocks are not deleted — the reset is itself a transaction, so the " +
+               "history still shows what was there and who cleared it.")) return;
+
+  withButtons(true);
+  try {
+    const out = await api("/reset", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ confirm: true }),
+    });
+    cache.clear();
+    roundsPerChannel.clear();
+    expanded = null;
+    pushActivity({ stage: "info", text: `reset requested by ${out.reset_by}` });
+    for (const [name, result] of Object.entries(out.channels)) {
+      pushActivity({ stage: "block", text: `${name}: ${result}` });
+    }
+    await refresh();
+  } catch (err) {
+    alert(err.message);
+  } finally {
+    withButtons(false);
+  }
+};
+
+refresh();
+pollTraining();
+setInterval(refresh, 3000);
+// faster than the ledger poll: epochs and submissions happen inside a round
+setInterval(pollTraining, 1000);
+</script>
+</body>
+</html>

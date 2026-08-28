@@ -1,0 +1,90 @@
+{
+  "created": "20260828T174839Z",
+  "models": [
+    "logistic"
+  ],
+  "rounds": 3,
+  "local_epochs": 2,
+  "alpha": 0.5,
+  "seed": 42,
+  "members": [
+    "Org1MSP",
+    "Org2MSP",
+    "Org3MSP",
+    "Org4MSP",
+    "Org5MSP"
+  ],
+  "quorum": 3,
+  "shards": {
+    "Org1MSP": 2973,
+    "Org2MSP": 2637,
+    "Org3MSP": 2189,
+    "Org4MSP": 1180,
+    "Org5MSP": 2980
+  },
+  "results": [
+    {
+      "model": "logistic",
+      "n_parameters": 18824,
+      "peak_rss_mb": 309.9,
+      "total_seconds": 17.52,
+      "train_seconds": 3.8,
+      "ledger_seconds": 12.29,
+      "best_accuracy": 0.6769950306927799,
+      "final_accuracy": 0.6769950306927799,
+      "rounds": [
+        {
+          "round": 401,
+          "leader": "Org1MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.6515638702133879,
+          "train_seconds": 1.242,
+          "aggregate_seconds": 0.0005,
+          "ledger_seconds": 4.118,
+          "bytes_per_node": 75296,
+          "verified": true
+        },
+        {
+          "round": 402,
+          "leader": "Org3MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.6515638702133879,
+          "train_seconds": 1.317,
+          "aggregate_seconds": 0.0004,
+          "ledger_seconds": 4.097,
+          "bytes_per_node": 75296,
+          "verified": true
+        },
+        {
+          "round": 403,
+          "leader": "Org5MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.6769950306927799,
+          "train_seconds": 1.242,
+          "aggregate_seconds": 0.0005,
+          "ledger_seconds": 4.077,
+          "bytes_per_node": 75296,
+          "verified": true
+        }
+      ]
+    }
+  ]
+}

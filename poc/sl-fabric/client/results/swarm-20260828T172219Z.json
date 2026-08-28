@@ -1,0 +1,70 @@
+{
+  "created": "20260828T172219Z",
+  "alpha": 0.5,
+  "rounds": 2,
+  "local_epochs": 1,
+  "seed": 42,
+  "members": [
+    "Org1MSP",
+    "Org2MSP",
+    "Org3MSP",
+    "Org4MSP",
+    "Org5MSP"
+  ],
+  "quorum": 3,
+  "shards": {
+    "Org1MSP": 2973,
+    "Org2MSP": 2637,
+    "Org3MSP": 2189,
+    "Org4MSP": 1180,
+    "Org5MSP": 2980
+  },
+  "results": [
+    {
+      "model": "logistic",
+      "n_parameters": 18824,
+      "peak_rss_mb": 307.4,
+      "total_seconds": 38.5,
+      "train_seconds": 1.91,
+      "ledger_seconds": 24.88,
+      "best_accuracy": 0.6726103478515054,
+      "final_accuracy": 0.6726103478515054,
+      "rounds": [
+        {
+          "round": 1,
+          "leader": "Org3MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.6539023677287343,
+          "train_seconds": 0.735,
+          "aggregate_seconds": 0.0006,
+          "ledger_seconds": 12.569,
+          "bytes_per_node": 75296,
+          "verified": true
+        },
+        {
+          "round": 2,
+          "leader": "Org5MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.6726103478515054,
+          "train_seconds": 1.178,
+          "aggregate_seconds": 0.0006,
+          "ledger_seconds": 12.307,
+          "bytes_per_node": 75296,
+          "verified": true
+        }
+      ]
+    }
+  ]
+}

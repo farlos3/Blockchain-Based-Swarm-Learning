@@ -1,0 +1,73 @@
+{
+  "created": "20260828T182240Z",
+  "models": [
+    "cnn"
+  ],
+  "rounds": 2,
+  "local_epochs": 1,
+  "alpha": 0.5,
+  "seed": 42,
+  "members": [
+    "Org1MSP",
+    "Org2MSP",
+    "Org3MSP",
+    "Org4MSP",
+    "Org5MSP"
+  ],
+  "quorum": 3,
+  "shards": {
+    "Org1MSP": 2973,
+    "Org2MSP": 2637,
+    "Org3MSP": 2189,
+    "Org4MSP": 1180,
+    "Org5MSP": 2980
+  },
+  "results": [
+    {
+      "model": "cnn",
+      "n_parameters": 56872,
+      "peak_rss_mb": 458.3,
+      "total_seconds": 53.82,
+      "train_seconds": 22.29,
+      "ledger_seconds": 8.28,
+      "best_accuracy": 0.668225665010231,
+      "final_accuracy": 0.668225665010231,
+      "rounds": [
+        {
+          "round": 5,
+          "leader": "Org4MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.5787781350482315,
+          "train_seconds": 18.331,
+          "aggregate_seconds": 0.0022,
+          "ledger_seconds": 4.135,
+          "bytes_per_node": 227488,
+          "verified": true
+        },
+        {
+          "round": 6,
+          "leader": "Org5MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.668225665010231,
+          "train_seconds": 3.954,
+          "aggregate_seconds": 0.0019,
+          "ledger_seconds": 4.143,
+          "bytes_per_node": 227488,
+          "verified": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "created": "20260828T184223Z",
+  "models": [
+    "logistic"
+  ],
+  "rounds": 2,
+  "local_epochs": 3,
+  "alpha": 0.5,
+  "seed": 42,
+  "members": [
+    "Org1MSP",
+    "Org2MSP",
+    "Org3MSP",
+    "Org4MSP",
+    "Org5MSP"
+  ],
+  "quorum": 3,
+  "shards": {
+    "Org1MSP": 2973,
+    "Org2MSP": 2637,
+    "Org3MSP": 2189,
+    "Org4MSP": 1180,
+    "Org5MSP": 2980
+  },
+  "results": [
+    {
+      "model": "logistic",
+      "n_parameters": 18824,
+      "peak_rss_mb": 310.6,
+      "total_seconds": 15.49,
+      "train_seconds": 3.98,
+      "ledger_seconds": 8.23,
+      "best_accuracy": 0.6489330605086232,
+      "final_accuracy": 0.6489330605086232,
+      "cost": {
+        "rounds": 2,
+        "nodes": 5,
+        "wall_seconds": 23.9,
+        "blocks": 4,
+        "transactions": 12,
+        "per_round": {
+          "wall_seconds": 11.93,
+          "blocks": 2.0,
+          "transactions": 6.0,
+          "peer_cpu_seconds": 2.56,
+          "orderer_cpu_seconds": 0.09,
+          "ledger_bytes": 236250,
+          "off_chain_bytes": 376480
+        },
+        "per_transaction": {
+          "peer_cpu_seconds": 0.426,
+          "ledger_bytes": 39375
+        },
+        "peak_resident_mb": {
+          "orderer": 59.6,
+          "Org1MSP": 109.8,
+          "Org2MSP": 108.6,
+          "Org3MSP": 115.1,
+          "Org4MSP": 115.3,
+          "Org5MSP": 113.3
+        }
+      },
+      "rounds": [
+        {
+          "round": 1,
+          "leader": "Org3MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.6404560070154925,
+          "train_seconds": 2.269,
+          "aggregate_seconds": 0.0006,
+          "ledger_seconds": 4.114,
+          "bytes_per_node": 75296,
+          "verified": true
+        },
+        {
+          "round": 2,
+          "leader": "Org5MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.6489330605086232,
+          "train_seconds": 1.713,
+          "aggregate_seconds": 0.0005,
+          "ledger_seconds": 4.113,
+          "bytes_per_node": 75296,
+          "verified": true
+        }
+      ]
+    }
+  ]
+}

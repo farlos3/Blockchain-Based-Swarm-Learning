@@ -1,0 +1,239 @@
+# Channel configuration for the swarm network.
+#
+# Five peer organizations, one per swarm node, and a single-node Raft ordering service.
+# One orderer is enough here: the property the thesis needs is that no single *swarm
+# member* can commit a round on its own, and that comes from the endorsement policy
+# below, not from orderer replication. A production deployment would run 3 or 5 orderers.
+#
+# Build the genesis block with:
+#   configtxgen -profile SwarmChannel -outputBlock ... -channelID swarm-channel
+
+Organizations:
+  - &OrdererOrg
+    Name: OrdererOrg
+    ID: OrdererMSP
+    MSPDir: ../organizations/ordererOrganizations/swarm.local/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('OrdererMSP.member')"
+      Writers:
+        Type: Signature
+        Rule: "OR('OrdererMSP.member')"
+      Admins:
+        Type: Signature
+        Rule: "OR('OrdererMSP.admin')"
+    OrdererEndpoints:
+      - orderer.swarm.local:7050
+
+  - &Org1
+    Name: Org1MSP
+    ID: Org1MSP
+    MSPDir: ../organizations/peerOrganizations/org1.swarm.local/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('Org1MSP.admin', 'Org1MSP.peer', 'Org1MSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('Org1MSP.admin', 'Org1MSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('Org1MSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('Org1MSP.peer')"
+    # baked into the genesis block so peers can discover each other across orgs
+    # from the moment they join; the Gateway needs that to gather endorsements
+    AnchorPeers:
+      - Host: peer0.org1.swarm.local
+        Port: 7051
+
+  - &Org2
+    Name: Org2MSP
+    ID: Org2MSP
+    MSPDir: ../organizations/peerOrganizations/org2.swarm.local/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('Org2MSP.admin', 'Org2MSP.peer', 'Org2MSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('Org2MSP.admin', 'Org2MSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('Org2MSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('Org2MSP.peer')"
+    # baked into the genesis block so peers can discover each other across orgs
+    # from the moment they join; the Gateway needs that to gather endorsements
+    AnchorPeers:
+      - Host: peer0.org2.swarm.local
+        Port: 8051
+
+  - &Org3
+    Name: Org3MSP
+    ID: Org3MSP
+    MSPDir: ../organizations/peerOrganizations/org3.swarm.local/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('Org3MSP.admin', 'Org3MSP.peer', 'Org3MSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('Org3MSP.admin', 'Org3MSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('Org3MSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('Org3MSP.peer')"
+    # baked into the genesis block so peers can discover each other across orgs
+    # from the moment they join; the Gateway needs that to gather endorsements
+    AnchorPeers:
+      - Host: peer0.org3.swarm.local
+        Port: 9051
+
+  - &Org4
+    Name: Org4MSP
+    ID: Org4MSP
+    MSPDir: ../organizations/peerOrganizations/org4.swarm.local/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('Org4MSP.admin', 'Org4MSP.peer', 'Org4MSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('Org4MSP.admin', 'Org4MSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('Org4MSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('Org4MSP.peer')"
+    # baked into the genesis block so peers can discover each other across orgs
+    # from the moment they join; the Gateway needs that to gather endorsements
+    AnchorPeers:
+      - Host: peer0.org4.swarm.local
+        Port: 10051
+
+  - &Org5
+    Name: Org5MSP
+    ID: Org5MSP
+    MSPDir: ../organizations/peerOrganizations/org5.swarm.local/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('Org5MSP.admin', 'Org5MSP.peer', 'Org5MSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('Org5MSP.admin', 'Org5MSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('Org5MSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('Org5MSP.peer')"
+    # baked into the genesis block so peers can discover each other across orgs
+    # from the moment they join; the Gateway needs that to gather endorsements
+    AnchorPeers:
+      - Host: peer0.org5.swarm.local
+        Port: 11051
+
+Capabilities:
+  Channel: &ChannelCapabilities
+    V2_0: true
+  Orderer: &OrdererCapabilities
+    V2_0: true
+  Application: &ApplicationCapabilities
+    V2_5: true
+
+Application: &ApplicationDefaults
+  Organizations:
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+    LifecycleEndorsement:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Endorsement"
+    # A round is only recorded if a majority of the swarm's own organizations ran the
+    # chaincode and reached the same answer. This is what stops one node — leader or
+    # not — from writing a round on its own.
+    Endorsement:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Endorsement"
+  Capabilities:
+    <<: *ApplicationCapabilities
+
+Orderer: &OrdererDefaults
+  OrdererType: etcdraft
+  Addresses:
+    - orderer.swarm.local:7050
+  EtcdRaft:
+    Consenters:
+      - Host: orderer.swarm.local
+        Port: 7050
+        ClientTLSCert: ../organizations/ordererOrganizations/swarm.local/orderers/orderer.swarm.local/tls/server.crt
+        ServerTLSCert: ../organizations/ordererOrganizations/swarm.local/orderers/orderer.swarm.local/tls/server.crt
+  # A swarm round produces six transactions (five updates plus one aggregation), so the
+  # batch is cut on the timeout far more often than on size. Two seconds keeps a round
+  # snappy without cutting a block per transaction.
+  BatchTimeout: 2s
+  BatchSize:
+    MaxMessageCount: 10
+    AbsoluteMaxBytes: 99 MB
+    PreferredMaxBytes: 512 KB
+  Organizations:
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+    BlockValidation:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+
+Channel: &ChannelDefaults
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+  Capabilities:
+    <<: *ChannelCapabilities
+
+Profiles:
+  SwarmChannel:
+    <<: *ChannelDefaults
+    Orderer:
+      <<: *OrdererDefaults
+      Organizations:
+        - *OrdererOrg
+      Capabilities: *OrdererCapabilities
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - *Org1
+        - *Org2
+        - *Org3
+        - *Org4
+        - *Org5
+      Capabilities: *ApplicationCapabilities

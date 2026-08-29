@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>sl-fabric — CPU and memory across runs</title>
+<style>
+  :root {
+    --bg: #0f1216; --panel: #171b21; --panel-2: #1e242c; --line: #2a323c;
+    --text: #e6eaef; --muted: #8d98a7; --accent: #6fb3ff;
+    --ok: #58d68d; --warn: #f0c674; --bad: #ef7a7a;
+    --train: #58d68d; --peer: #6fb3ff; --orderer: #f0c674;
+    --mono: ui-monospace, "Cascadia Mono", "JetBrains Mono", Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 14px/1.55 "Segoe UI", system-ui, sans-serif; }
+  header { padding: 12px 20px; border-bottom: 1px solid var(--line);
+           background: var(--panel); position: sticky; top: 0; z-index: 5;
+           display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  header h1 { font-size: 16px; margin: 0; letter-spacing: .3px; }
+  header h1 small { color: var(--muted); font-weight: 400; margin-left: 8px; }
+  header a { color: var(--accent); font-size: 12px; text-decoration: none;
+             border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; }
+  header a:hover { border-color: var(--accent); }
+  .stats { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; align-items: center; }
+  .stat { background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px;
+          padding: 4px 10px; font-size: 12px; color: var(--muted); }
+  .stat b { color: var(--text); font-family: var(--mono); font-weight: 600; }
+
+  main { padding: 16px 20px 48px; }
+  /* the two bar lists are short and similar in height, so they pair up on a wide
+     screen; the tables below keep the full width their columns need */
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+          align-items: start; margin-bottom: 16px; }
+  @media (max-width: 1150px) { .pair { grid-template-columns: 1fr; } }
+  .pair section { margin-bottom: 0; }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+            padding: 14px 16px; margin-bottom: 16px; }
+  section > h2 { margin: 0 0 4px; font-size: 13px; text-transform: uppercase;
+                 letter-spacing: .8px; color: var(--accent); }
+  section > p.hint { margin: 0 0 14px; font-size: 12px; color: var(--muted); max-width: 90ch; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td { text-align: left; padding: 6px 10px; border-top: 1px solid var(--line);
+           font-family: var(--mono); white-space: nowrap; }
+  th { color: var(--muted); font-weight: 500; }
+  /* a numeric column is right-aligned, and its heading has to follow or the figures
+     sit under the wrong words */
+  th.num, td.num { text-align: right; }
+  /* digits share a width so columns of numbers line up on the decimal point */
+  td.num { font-variant-numeric: tabular-nums; }
+  .scroll-x { overflow-x: auto; }
+  .tag { border-radius: 4px; padding: 1px 7px; font-size: 11px; font-weight: 600;
+         background: var(--panel-2); border: 1px solid var(--line); }
+  .kv { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+
+  /* one stacked bar per run: the split between training and consensus is the point */
+  .split { display: grid; grid-template-columns: 210px 1fr 130px; gap: 10px;
+           align-items: center; margin-bottom: 7px; font-size: 12px;
+           font-family: var(--mono); }
+  .split .who { color: var(--muted); overflow: hidden; text-overflow: ellipsis; }
+  .split .who b { color: var(--text); }
+  .track { height: 18px; border-radius: 4px; background: var(--panel-2);
+           border: 1px solid var(--line); overflow: hidden; display: flex; }
+  .track i { display: block; height: 100%; }
+  .split .total { text-align: right; color: var(--text); }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px;
+            color: var(--muted); font-family: var(--mono); margin-top: 10px; }
+  .legend i { font-style: normal; }
+  .empty { color: var(--muted); font-family: var(--mono); font-size: 12px; padding: 18px 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>sl-fabric <small>CPU and memory across runs</small></h1>
+  <a href="/">← monitor</a>
+  <div class="stats" id="stats"></div>
+</header>
+
+<main>
+  <div class="pair">
+  <section>
+    <h2>CPU per round — training against consensus</h2>
+    <p class="hint">Each bar is one round of one run, split by where the CPU went: local
+      training, the five peers endorsing and committing, and the orderer cutting blocks.
+      The blockchain's share is what this project has to justify, and it only looks large
+      next to a model that is cheap to train.</p>
+    <div id="cpu-split"></div>
+    <div class="legend">
+      <span><i style="color:var(--train)">■</i> training (5 nodes, wall time)</span>
+      <span><i style="color:var(--peer)">■</i> peers (5, CPU time)</span>
+      <span><i style="color:var(--orderer)">■</i> orderer (CPU time)</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Memory</h2>
+    <p class="hint">Peak resident memory reached during each run: the Python process that
+      trains all five nodes in one place, and the Fabric containers. The trainer's figure
+      would be split across five machines in a real deployment; the containers' would not.</p>
+    <div id="ram-split"></div>
+    <div class="legend">
+      <span><i style="color:var(--train)">■</i> trainer process</span>
+      <span><i style="color:var(--peer)">■</i> 5 peers</span>
+      <span><i style="color:var(--orderer)">■</i> orderer</span>
+    </div>
+  </section>
+  </div>
+
+  <section>
+    <h2>CPU detail</h2>
+    <p class="hint">Per round and per transaction. Transaction cost is the number that
+      scales with the swarm: every node added is one more transaction per round, whatever
+      the model.</p>
+    <div class="scroll-x"><table>
+      <thead><tr>
+        <th>dataset</th><th>model</th><th class="num">rounds</th>
+        <th class="num">train s/round</th><th class="num">peer CPU s/round</th>
+        <th class="num">orderer CPU s/round</th><th class="num">blockchain share</th>
+        <th class="num">peer CPU s/tx</th><th class="num">wall s/round</th>
+      </tr></thead>
+      <tbody id="cpu-table"></tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>Per-node CPU</h2>
+    <p class="hint">CPU seconds each Fabric node burned during a run. Every peer validates
+      every transaction, so an even spread is the healthy shape; one peer far above the
+      others means it is carrying the endorsement load alone.</p>
+    <div class="scroll-x"><table>
+      <thead><tr><th>run</th><th>node</th><th class="num">CPU seconds</th>
+        <th class="num">per round</th><th class="num">peak MB</th></tr></thead>
+      <tbody id="node-table"></tbody>
+    </table></div>
+  </section>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+const num = (v, d = 2) => (typeof v === "number" ? v.toFixed(d) : "—");
+
+let runs = [];
+
+async function api(path) {
+  const res = await fetch(path);
+  const body = await res.json().catch(() => null);
+  if (!res.ok) throw new Error((body && body.error) || `${res.status} ${res.statusText}`);
+  return body;
+}
+
+// only runs that carry a measured cost can be compared; the rest predate the measurement
+function usable() {
+  return runs.filter((r) => r.cost && r.cost.per_round);
+}
+
+function label(run) {
+  return `${run.dataset || "?"}/${run.model} · ${run.rounds}r`;
+}
+
+// training time is wall clock across five nodes trained one after another, while peer and
+// orderer figures are CPU time. They are not the same unit, which is why the bar is
+// labelled as a split of a round rather than as CPU utilisation.
+function trainPerRound(run) {
+  return (run.train_seconds || 0) / Math.max(run.rounds || 1, 1);
+}
+
+function renderCpuSplit() {
+  const rows = usable();
+  if (!rows.length) {
+    $("cpu-split").innerHTML = '<div class="empty">no measured run yet</div>';
+    return;
+  }
+  const totals = rows.map((r) =>
+    trainPerRound(r) + r.cost.per_round.peer_cpu_seconds + r.cost.per_round.orderer_cpu_seconds);
+  const peak = Math.max(...totals, 0.001);
+
+  $("cpu-split").innerHTML = rows.map((run, i) => {
+    const c = run.cost.per_round;
+    const train = trainPerRound(run);
+    const total = totals[i];
+    const bar = [
+      [train, "var(--train)"], [c.peer_cpu_seconds, "var(--peer)"],
+      [c.orderer_cpu_seconds, "var(--orderer)"],
+    ].map(([v, colour]) =>
+      `<i style="width:${(100 * v / peak).toFixed(2)}%;background:${colour}"></i>`).join("");
+    const share = total ? (100 * (c.peer_cpu_seconds + c.orderer_cpu_seconds) / total) : 0;
+    return `<div class="split">
+      <span class="who"><b>${esc(run.model)}</b> ${esc(run.dataset || "?")} · ${run.rounds}r</span>
+      <span class="track">${bar}</span>
+      <span class="total">${num(total)}s · ${share.toFixed(0)}% chain</span>
+    </div>`;
+  }).join("");
+}
+
+function renderCpuTable() {
+  const rows = usable();
+  $("cpu-table").innerHTML = rows.length ? rows.map((run) => {
+    const c = run.cost.per_round;
+    const train = trainPerRound(run);
+    const chain = c.peer_cpu_seconds + c.orderer_cpu_seconds;
+    const share = train + chain ? (100 * chain / (train + chain)) : 0;
+    return `<tr>
+      <td>${esc(run.dataset || "—")}</td>
+      <td><span class="tag">${esc(run.model)}</span></td>
+      <td class="num">${run.rounds}</td>
+      <td class="num">${num(train)}</td>
+      <td class="num">${num(c.peer_cpu_seconds)}</td>
+      <td class="num">${num(c.orderer_cpu_seconds)}</td>
+      <td class="num">${share.toFixed(0)}%</td>
+      <td class="num">${num(c.peer_cpu_seconds / Math.max(c.transactions, 1), 3)}</td>
+      <td class="num">${num(c.wall_seconds)}</td>
+    </tr>`;
+  }).join("") : '<tr><td colspan="9" class="kv">no measured run yet</td></tr>';
+}
+
+function renderRam() {
+  const rows = usable();
+  if (!rows.length) {
+    $("ram-split").innerHTML = '<div class="empty">no measured run yet</div>';
+    return;
+  }
+  const parts = rows.map((run) => {
+    const peaks = run.cost.peak_resident_mb || {};
+    const orderer = peaks.orderer || 0;
+    const peers = Object.entries(peaks)
+      .filter(([name]) => name !== "orderer")
+      .reduce((sum, [, mb]) => sum + mb, 0);
+    return { run, trainer: run.peak_rss_mb || 0, peers, orderer };
+  });
+  const peak = Math.max(...parts.map((p) => p.trainer + p.peers + p.orderer), 1);
+
+  $("ram-split").innerHTML = parts.map((p) => {
+    const total = p.trainer + p.peers + p.orderer;
+    const bar = [[p.trainer, "var(--train)"], [p.peers, "var(--peer)"], [p.orderer, "var(--orderer)"]]
+      .map(([v, colour]) => `<i style="width:${(100 * v / peak).toFixed(2)}%;background:${colour}"></i>`)
+      .join("");
+    return `<div class="split">
+      <span class="who"><b>${esc(p.run.model)}</b> ${esc(p.run.dataset || "?")} · ${p.run.rounds}r</span>
+      <span class="track">${bar}</span>
+      <span class="total">${total.toFixed(0)} MB</span>
+    </div>`;
+  }).join("");
+}
+
+function renderNodes() {
+  const rows = [];
+  for (const run of usable()) {
+    const peaks = run.cost.peak_resident_mb || {};
+    // cpu_seconds_by_node was added after some runs were recorded; those show a dash
+    const cpu = run.cost.cpu_seconds_by_node || {};
+    for (const node of Object.keys(peaks).sort()) {
+      rows.push(`<tr>
+        <td class="kv">${esc(label(run))}</td>
+        <td>${esc(node)}</td>
+        <td class="num">${node in cpu ? num(cpu[node], 1) : "—"}</td>
+        <td class="num">${node in cpu ? num(cpu[node] / Math.max(run.rounds, 1), 3) : "—"}</td>
+        <td class="num">${num(peaks[node], 0)}</td>
+      </tr>`);
+    }
+  }
+  $("node-table").innerHTML = rows.length ? rows.join("")
+    : '<tr><td colspan="5" class="kv">no measured run yet</td></tr>';
+}
+
+function renderStats() {
+  const rows = usable();
+  const datasets = new Set(rows.map((r) => r.dataset).filter(Boolean));
+  $("stats").innerHTML =
+    `<span class="stat">runs <b>${rows.length}</b></span>` +
+    `<span class="stat">datasets <b>${datasets.size || "—"}</b></span>` +
+    `<span class="stat">skipped <b>${runs.length - rows.length}</b></span>`;
+}
+
+async function refresh() {
+  try {
+    runs = (await api("/train/runs")) || [];
+  } catch {
+    runs = [];
+  }
+  renderStats();
+  renderCpuSplit();
+  renderCpuTable();
+  renderRam();
+  renderNodes();
+}
+
+refresh();
+setInterval(refresh, 5000);
+</script>
+</body>
+</html>

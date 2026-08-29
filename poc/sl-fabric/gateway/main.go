@@ -40,13 +40,13 @@ const chaincodeName = "sl-ledger"
 
 // defaultChannels is only a fallback: ./network.sh deploy writes the real list into .env
 // and compose passes it in as SL_CHANNELS.
-const defaultChannels = "swarm-logistic,swarm-mlp,swarm-mlp-deep,swarm-cnn,swarm-cnn-wide"
+const defaultChannels = "swarm-blood-logistic,swarm-blood-mlp,swarm-blood-cnn," + "swarm-path-logistic,swarm-path-mlp,swarm-path-cnn"
 
 // The monitor page is compiled into the binary, so the gateway is the only thing that
 // has to be running to watch the ledger. It reads through the same endpoints the Python
 // client uses — there is no second view of the state to keep in sync.
 //
-//go:embed web/index.html
+//go:embed web/index.html web/compare.html
 var webFS embed.FS
 
 // When this process started. A browser tab left open keeps running the JavaScript it
@@ -188,7 +188,8 @@ func (n *node) close() {
 
 func (s *server) routes() http.Handler {
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /{$}", s.monitorPage)
+	mux.HandleFunc("GET /{$}", s.page("web/index.html"))
+	mux.HandleFunc("GET /compare", s.page("web/compare.html"))
 	mux.HandleFunc("GET /health", s.health)
 	mux.HandleFunc("GET /channels", s.channelList)
 	mux.HandleFunc("GET /config", s.evaluateAsAny("GetSwarmConfig"))
@@ -197,6 +198,8 @@ func (s *server) routes() http.Handler {
 	mux.HandleFunc("POST /train", s.proxyToTrainer("/train"))
 	mux.HandleFunc("GET /train/status", s.proxyToTrainer("/status"))
 	mux.HandleFunc("GET /train/metrics", s.proxyToTrainer("/metrics"))
+	mux.HandleFunc("GET /train/runs", s.proxyToTrainer("/runs"))
+	mux.HandleFunc("POST /train/runs/archive", s.proxyToTrainer("/runs/archive"))
 	mux.HandleFunc("POST /network/rebuild", s.proxyToTrainer("/network/rebuild"))
 	mux.HandleFunc("GET /network/status", s.proxyToTrainer("/network/status"))
 	mux.HandleFunc("POST /train/stop", s.proxyToTrainer("/stop"))
@@ -209,15 +212,20 @@ func (s *server) routes() http.Handler {
 	return mux
 }
 
-func (s *server) monitorPage(w http.ResponseWriter, _ *http.Request) {
-	page, err := webFS.ReadFile("web/index.html")
-	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
-		return
+// page serves one of the embedded pages. no-store because a tab left open across a
+// redeploy keeps running the JavaScript it already loaded, and a cached copy would make
+// that worse.
+func (s *server) page(name string) http.HandlerFunc {
+	return func(w http.ResponseWriter, _ *http.Request) {
+		body, err := webFS.ReadFile(name)
+		if err != nil {
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			return
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.Header().Set("Cache-Control", "no-store")
+		_, _ = w.Write(body)
 	}
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.Header().Set("Cache-Control", "no-store")
-	_, _ = w.Write(page)
 }
 
 func (s *server) health(w http.ResponseWriter, _ *http.Request) {
@@ -236,18 +244,28 @@ func (s *server) health(w http.ResponseWriter, _ *http.Request) {
 func (s *server) channelList(w http.ResponseWriter, _ *http.Request) {
 	type entry struct {
 		Channel string `json:"channel"`
+		Dataset string `json:"dataset"`
 		Model   string `json:"model"`
 	}
 	out := make([]entry, 0, len(s.channels))
 	for _, channel := range s.channels {
-		out = append(out, entry{Channel: channel, Model: modelOf(channel)})
+		dataset, model := splitChannel(channel)
+		out = append(out, entry{Channel: channel, Dataset: dataset, Model: model})
 	}
 	writeJSON(w, http.StatusOK, out)
 }
 
-// modelOf reverses the naming rule the network script uses: swarm-cnn-wide -> cnn_wide.
-func modelOf(channel string) string {
-	return strings.ReplaceAll(strings.TrimPrefix(channel, "swarm-"), "-", "_")
+// splitChannel reverses the naming rule the network script uses:
+// swarm-path-cnn -> ("path", "cnn"), swarm-blood-mlp-deep -> ("blood", "mlp_deep").
+// The dataset is the first segment, so a model name may contain dashes and a dataset
+// name may not.
+func splitChannel(channel string) (dataset, model string) {
+	rest := strings.TrimPrefix(channel, "swarm-")
+	dataset, tail, found := strings.Cut(rest, "-")
+	if !found {
+		return "", strings.ReplaceAll(rest, "-", "_")
+	}
+	return dataset, strings.ReplaceAll(tail, "-", "_")
 }
 
 // reader returns a contract for the requested channel, using any identity: a read gives

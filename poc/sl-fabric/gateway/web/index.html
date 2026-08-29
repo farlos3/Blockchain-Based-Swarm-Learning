@@ -16,9 +16,12 @@
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--text);
          font: 14px/1.55 "Segoe UI", system-ui, sans-serif; }
-  header { display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
-           padding: 14px 20px; border-bottom: 1px solid var(--line);
+  header { padding: 12px 20px 10px; border-bottom: 1px solid var(--line);
            background: var(--panel); position: sticky; top: 0; z-index: 5; }
+  header .top { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  header .top .nav { color: var(--accent); font-size: 12px; text-decoration: none;
+                     border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; }
+  header .top .nav:hover { border-color: var(--accent); }
   header h1 { font-size: 16px; margin: 0; letter-spacing: .3px; }
   header h1 small { color: var(--muted); font-weight: 400; margin-left: 8px; }
   .stats { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; align-items: center; }
@@ -29,8 +32,11 @@
   .badge.ok { background: rgba(88,214,141,.15); color: var(--ok); border: 1px solid rgba(88,214,141,.4); }
   .badge.bad { background: rgba(239,122,122,.15); color: var(--bad); border: 1px solid rgba(239,122,122,.4); }
 
-  main { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 16px; padding: 16px 20px 40px; }
-  @media (max-width: 1050px) { main { grid-template-columns: 1fr; } }
+  main { display: grid; grid-template-columns: 370px minmax(0, 1fr); gap: 16px;
+         padding: 16px 20px 40px; align-items: start; }
+  @media (max-width: 1100px) { main { grid-template-columns: 1fr; } }
+  /* the rail is short enough to stay in view while the long tables scroll past */
+  @media (min-width: 1101px) { main > div:first-child { position: sticky; top: 104px; } }
 
   section { background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
             padding: 14px 16px; margin-bottom: 16px; }
@@ -69,7 +75,7 @@
   .scroll-x { overflow-x: auto; }
   .tag { border-radius: 4px; padding: 1px 7px; font-size: 11px; font-weight: 600; }
 
-  #log { font-family: var(--mono); font-size: 12px; max-height: 260px; overflow-y: auto; }
+  #log { font-family: var(--mono); font-size: 12px; max-height: 150px; overflow-y: auto; }
   #log div { padding: 3px 0; border-top: 1px solid var(--line); white-space: pre-wrap;
              word-break: break-word; }
   #log div:first-child { border-top: 0; }
@@ -98,7 +104,7 @@
   .bars .track { flex: 1; height: 7px; border-radius: 4px; background: var(--line); overflow: hidden; }
   .bars .track > i { display: block; height: 100%; background: var(--accent); }
 
-  .chains { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chains { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
   .chains button { padding: 4px 10px; font-size: 12px; }
   .chains button.on { border-color: var(--accent); color: var(--accent);
                       background: rgba(111,179,255,.14); }
@@ -111,9 +117,18 @@
     background: var(--panel-2); color: var(--text); border: 1px solid var(--line);
     border-radius: 6px; padding: 4px 8px; }
 
+  .field select { font: inherit; font-family: var(--mono); font-size: 12px;
+    background: var(--panel-2); color: var(--text); border: 1px solid var(--line);
+    border-radius: 6px; padding: 4px 8px; min-width: 120px; }
   .field input[type=number] { width: 84px; font: inherit; font-family: var(--mono);
     background: var(--panel-2); color: var(--text); border: 1px solid var(--line);
     border-radius: 6px; padding: 4px 8px; }
+  .target { display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+    padding: 8px 10px; border: 1px solid var(--accent); border-radius: 7px;
+    background: rgba(111,179,255,.10); font-family: var(--mono); font-size: 12px; }
+  .target b { color: var(--accent); }
+  .target .kv { margin-left: auto; }
+
   .models { display: flex; gap: 6px; margin-bottom: 10px; }
   .models label { flex: 1; text-align: center; padding: 6px 4px; border-radius: 6px;
     border: 1px solid var(--line); background: var(--panel-2); cursor: pointer;
@@ -126,7 +141,7 @@
          border: 1px solid var(--line); overflow: hidden; margin: 10px 0 6px; }
   .bar > div { height: 100%; background: var(--accent); transition: width .3s ease; }
 
-  #events { font-family: var(--mono); font-size: 11.5px; max-height: 320px; overflow-y: auto; }
+  #events { font-family: var(--mono); font-size: 11.5px; max-height: 260px; overflow-y: auto; }
   #events div { padding: 2px 0; border-top: 1px solid var(--line); display: flex; gap: 8px; }
   #events div:first-child { border-top: 0; }
   #events .st { flex: none; width: 78px; font-weight: 600; }
@@ -142,32 +157,20 @@
 <body>
 
 <header>
-  <h1>sl-fabric <small>swarm ledger monitor</small></h1>
+  <div class="top">
+    <h1>sl-fabric <small>swarm ledger monitor</small></h1>
+    <a class="nav" href="/compare">CPU &amp; memory →</a>
+    <div class="stats" id="stats"></div>
+  </div>
   <div class="chains" id="chains"></div>
-  <div class="stats" id="stats"></div>
 </header>
 
 <main>
   <div>
     <section>
-      <h2>Organizations</h2>
-      <p class="hint">One per swarm node. The leader shown is for the next round number.</p>
-      <div id="orgs"></div>
-      <div class="kv" id="next-leader"></div>
-    </section>
-
-    <section>
       <h2>Training</h2>
       <p class="hint">Runs on the Python trainer; every round is written to this ledger.</p>
-      <div class="models">
-        <label><input type="checkbox" value="logistic" checked><span>logistic</span></label>
-        <label><input type="checkbox" value="mlp"><span>mlp</span></label>
-        <label><input type="checkbox" value="cnn"><span>cnn</span></label>
-      </div>
-      <div class="models">
-        <label><input type="checkbox" value="mlp_deep"><span>mlp_deep</span></label>
-        <label><input type="checkbox" value="cnn_wide"><span>cnn_wide</span></label>
-      </div>
+      <div id="train-target"></div>
       <div class="field"><label for="in-rounds">rounds per model</label>
         <input type="number" id="in-rounds" value="30" min="1" max="500"></div>
       <div class="field"><label for="in-epochs">local epochs</label>
@@ -189,6 +192,19 @@
         restarts the gateway, so this page loses its connection until it is done.<br><br>
         Model weights are rebuilt at the start of every run, so there is nothing else to clear.</p>
       <div id="train-progress"></div>
+    </section>
+
+    <section>
+      <h2>Organizations</h2>
+      <p class="hint">One per swarm node. The leader shown is for the next round number.</p>
+      <div id="orgs"></div>
+      <div class="kv" id="next-leader"></div>
+    </section>
+
+    <section>
+      <h2>Live activity</h2>
+      <p class="hint">Each local epoch, each submission, and each block as it commits.</p>
+      <div id="events"></div>
     </section>
 
     <section>
@@ -217,21 +233,25 @@
 
     <section>
       <h2>Results and cost</h2>
-      <p class="hint">One row per finished model: what it reached, and what that took.
-        Accuracy on the left is validation (scored every round) and test (scored once at
-        the end). The cost columns are measured from the counters before and after the run,
-        divided by the rounds it completed.</p>
+      <p class="hint">Every model with a finished run, read back from the saved results,
+        so models trained at different times compare side by side whatever chain is
+        selected — the selected one is highlighted. Accuracy is validation (scored every
+        round) and test (scored once at the end); a dash means that run predates the split
+        and has no honest test number. Cost columns come from the counters before and after
+        the run, divided by the rounds it completed. Rate columns show the per-round figure
+        first and the run's total after the slash.</p>
       <div class="scroll" style="max-height:none">
         <table>
           <thead><tr>
-            <th>model</th><th>rounds</th><th>best val</th><th>test</th>
-            <th>wall/round</th><th>blocks</th><th>tx</th>
-            <th>peer CPU/round</th><th>ledger/round</th><th>off-chain/round</th>
+            <th>dataset</th><th>model</th><th>rounds</th><th>best val</th><th>test</th>
+            <th>wall/round</th><th>blocks/round</th><th>tx/round</th>
+            <th>peer CPU/round</th><th>ledger/round</th><th>off-chain/round</th><th>run</th>
           </tr></thead>
           <tbody id="cost"></tbody>
         </table>
       </div>
       <div class="row" style="margin-top:10px;align-items:center">
+        <button class="danger" id="btn-archive">Archive past results</button>
         <span class="kv">project to</span>
         <input type="number" id="proj-nodes" value="20" min="1" max="500" title="organizations">
         <span class="kv">nodes ×</span>
@@ -239,12 +259,6 @@
         <span class="kv">rounds</span>
       </div>
       <div id="projection"></div>
-    </section>
-
-    <section>
-      <h2>Live activity</h2>
-      <p class="hint">Each local epoch, each submission, and each block as it commits.</p>
-      <div id="events"></div>
     </section>
 
     <section>
@@ -285,7 +299,7 @@
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
 const short = (s, n = 12) => (s ? s.slice(0, n) + "…" : "—");
-const MODELS = ["logistic", "mlp", "mlp_deep", "cnn", "cnn_wide"];
+const MODELS = ["logistic", "mlp", "mlp_deep", "cnn", "cnn_wide"];  // colour keys only
 const MODEL_COLOUR = (m) => `var(--${MODELS.includes(m) ? m.replace("_", "-") : "other"})`;
 
 // rounds already fetched, keyed by round number; the ledger is append-only so a round
@@ -310,6 +324,9 @@ const resourceTrail = [];
 const hostTrail = [];
 let hostMetrics = null;
 let trainStatus = null;
+// every model that has a finished run, read back from the result files, so the comparison
+// table survives a trainer restart and covers models trained at different times
+let runs = [];
 let seenEventSeq = 0;
 const activity = [];
 
@@ -374,6 +391,7 @@ async function refresh() {
 function render(rounds, nextRound, nextLeader, online, error, resources) {
   const entries = rounds.map((r) => cache.get(`${channel}/${r}`)).filter(Boolean);
   renderChains(resources ? resources.chain_heights : null);
+  renderPickers();
   renderStats(rounds, online, error);
   renderOrgs(nextLeader, entries);
   renderChart(entries);
@@ -417,6 +435,27 @@ function currentRounds() {
     .sort((a, b) => a - b);
 }
 
+// The models you can train are the chains the network created — see MODELS in
+// network/network.sh. Listing them here as well would let the two lists drift.
+// Which pair a run uses is read from the selected chain rather than chosen again here.
+// Switching chains at the top is how you switch what Start will train.
+function renderPickers() {
+  const target = $("train-target");
+  if (!target) return;
+  const pair = selectedChain();
+  if (!pair) {
+    target.innerHTML = '<div class="kv">select a chain above</div>';
+    return;
+  }
+  const rounds = roundsPerChannel.get(pair.channel) ?? 0;
+  target.innerHTML = `<div class="target">
+      <span>training <b>${esc(pair.model)}</b> on <b>${esc(pair.dataset)}</b></span>
+      <span class="kv">${rounds} round${rounds === 1 ? "" : "s"} so far</span>
+    </div>
+    <div class="kv" style="margin:-4px 0 10px">writes to ${esc(pair.channel)} — switch chains
+      above to train something else</div>`;
+}
+
 function renderChains(heights) {
   $("chains").innerHTML = channels.map((c) => {
     const rounds = roundsPerChannel.get(c.channel);
@@ -424,7 +463,7 @@ function renderChains(heights) {
     const label = rounds === undefined ? (height === undefined ? "" : `h${height}`)
       : `${rounds}r${height === undefined ? "" : ` · h${height}`}`;
     return `<button data-channel="${esc(c.channel)}" class="${c.channel === channel ? "on" : ""}">
-      ${esc(c.model)}${label ? `<span class="n">${label}</span>` : ""}</button>`;
+      ${esc(c.dataset)}/${esc(c.model)}${label ? `<span class="n">${label}</span>` : ""}</button>`;
   }).join("");
 }
 
@@ -673,8 +712,9 @@ async function runCheck(kind) {
 
 // ---------- training ----------
 
-function selectedModels() {
-  return [...document.querySelectorAll(".models input:checked")].map((el) => el.value);
+// The chain selected at the top decides both, so there is nothing else to choose.
+function selectedChain() {
+  return channels.find((c) => c.channel === channel) || null;
 }
 
 async function pollTraining() {
@@ -688,6 +728,9 @@ async function pollTraining() {
       }
     }
     renderTraining();
+    try {
+      runs = await api("/train/runs");
+    } catch { /* keep whatever was already loaded */ }
     renderCost();
   } catch (err) {
     trainStatus = { unavailable: err.message };
@@ -770,25 +813,40 @@ const fmtBytes = (b) => b >= 1024 * 1024 ? `${(b / 1024 / 1024).toFixed(2)} MB`
 
 // The per-round figures are what make this a sizing tool rather than a dashboard: a
 // deployment is planned in rounds and organizations, not in instantaneous percentages.
+const acc = (v) => (typeof v === "number" ? v.toFixed(4) : "—");
+
 function renderCost() {
-  const runs = (trainStatus && trainStatus.summary || []).filter((m) => m.cost && m.cost.per_round);
   if (!runs.length) {
-    $("cost").innerHTML = '<tr><td colspan="10" class="kv">no finished run yet</td></tr>';
+    $("cost").innerHTML = '<tr><td colspan="12" class="kv">no finished run yet</td></tr>';
     $("projection").innerHTML = "";
     return;
   }
 
+  // every model is listed whatever chain is selected: the point of the table is the
+  // comparison, and switching chains to read one row at a time would defeat it. The
+  // selected chain's row is highlighted instead.
   $("cost").innerHTML = runs.map((m) => {
-    const c = m.cost.per_round;
-    return `<tr>
+    const c = (m.cost && m.cost.per_round) || {};
+    const chain = `swarm-${(m.dataset || "").replace("_", "-")}-${m.model.replace("_", "-")}`;
+    const mine = channel === chain;
+    // a results file outlives the chain it was written to: if that chain is empty now,
+    // the row is history, not the state of this network
+    const onChain = (roundsPerChannel.get(chain) ?? 0) > 0;
+    const style = (mine ? "background:rgba(111,179,255,.08);" : "") + (onChain ? "" : "opacity:.45;");
+    return `<tr style="${style}">
+      <td class="kv">${esc(m.dataset || "—")}</td>
       <td><span class="tag" style="background:${MODEL_COLOUR(m.model)};color:#0f1216">${esc(m.model)}</span></td>
-      <td>${m.cost.rounds}</td>
-      <td>${m.best_accuracy}</td>
-      <td><b>${m.test_accuracy ?? "—"}</b></td>
-      <td>${c.wall_seconds}s</td><td>${c.blocks}</td><td>${c.transactions}</td>
-      <td>${c.peer_cpu_seconds}s</td>
-      <td>${fmtBytes(c.ledger_bytes)}</td>
-      <td>${fmtBytes(c.off_chain_bytes)}</td>
+      <td>${m.rounds ?? "—"}</td>
+      <td>${acc(m.best_accuracy)}</td>
+      <td><b>${acc(m.test_accuracy)}</b></td>
+      <td>${c.wall_seconds !== undefined ? c.wall_seconds + "s" : "—"}</td>
+      <td>${c.blocks ?? "—"}<span class="kv"> / ${m.cost.blocks ?? "—"}</span></td>
+      <td>${c.transactions ?? "—"}<span class="kv"> / ${m.cost.transactions ?? "—"}</span></td>
+      <td>${c.peer_cpu_seconds !== undefined ? c.peer_cpu_seconds + "s" : "—"}</td>
+      <td>${c.ledger_bytes !== undefined ? fmtBytes(c.ledger_bytes) : "—"}</td>
+      <td>${c.off_chain_bytes !== undefined ? fmtBytes(c.off_chain_bytes) : "—"}</td>
+      <td class="kv">${onChain ? esc((m.created || "").slice(0, 13).replace("T", " "))
+                               : "not on this chain"}</td>
     </tr>`;
   }).join("");
 
@@ -798,11 +856,11 @@ function renderCost() {
   $("projection").innerHTML = `<div class="scroll-x"><table style="margin-top:10px">
     <thead><tr><th>model</th><th>wall</th><th>peer CPU</th><th>orderer CPU</th>
       <th>ledger on disk</th><th>shipped off chain</th></tr></thead>
-    <tbody>${runs.map((m) => {
+    <tbody>${runs.filter((m) => m.cost && m.cost.per_round).map((m) => {
       const c = m.cost.per_round;
       const scale = nodes / m.cost.nodes;
       return `<tr>
-        <td>${esc(m.model)}</td>
+        <td>${esc(m.dataset || "?")}/${esc(m.model)}</td>
         <td>${(c.wall_seconds * rounds / 3600).toFixed(2)} h</td>
         <td>${(c.peer_cpu_seconds * scale * rounds / 3600).toFixed(2)} h</td>
         <td>${(c.orderer_cpu_seconds * rounds / 3600).toFixed(3)} h</td>
@@ -1008,9 +1066,11 @@ function withButtons(disabled) {
 }
 
 $("btn-train").onclick = async () => {
-  const models = selectedModels();
-  if (!models.length) { alert("pick at least one model"); return; }
+  const pair = selectedChain();
+  if (!pair) { alert("select a chain first"); return; }
+  const models = [pair.model];
   const body = {
+    dataset: pair.dataset,
     models,
     rounds: Number($("in-rounds").value),
     local_epochs: Number($("in-epochs").value),
@@ -1026,12 +1086,30 @@ $("btn-train").onclick = async () => {
     activity.length = 0;
     seenEventSeq = 0;
     pushActivity({ stage: "info",
-      text: `started ${models.join(", ")} — ${body.rounds} rounds, ${body.local_epochs} local epochs, alpha ${body.alpha}` });
+      text: `started ${pair.model} on ${pair.dataset} — ${body.rounds} rounds, ` +
+            `${body.local_epochs} local epochs, alpha ${body.alpha}` });
   } catch (err) {
     alert(err.message);
   } finally {
     withButtons(false);
     pollTraining();
+  }
+};
+
+$("btn-archive").onclick = async () => {
+  if (!confirm("Move every saved result file into results/archive/?\n\n" +
+               "Nothing is deleted. The table starts empty and fills again as runs finish " +
+               "on the chains this network actually has.")) return;
+  try {
+    const out = await api("/train/runs/archive", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ confirm: true }),
+    });
+    runs = [];
+    renderCost();
+    pushActivity({ stage: "info", text: `archived ${out.archived} result file(s)` });
+  } catch (err) {
+    alert(err.message);
   }
 };
 

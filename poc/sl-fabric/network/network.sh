@@ -16,10 +16,14 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
-# One channel per model type: each is its own chain, with its own blocks and its own
-# round numbers starting at 1. Comparing two architectures is two separate experiments,
-# and putting them on one ledger meant carving up a shared round-number space by hand.
-MODELS=${MODELS:-"logistic mlp mlp_deep cnn cnn_wide"}
+# One channel per dataset-and-model pair: each is its own chain, with its own blocks
+# and its own round numbers starting at 1. Training cnn on two datasets is two separate
+# experiments, and sharing a ledger between them would mix their rounds.
+#
+# Adding a dataset or a model here is the only edit needed: the gateway, the trainer
+# and the page all read the resulting channel list instead of keeping their own copy.
+DATASETS=${DATASETS:-"blood path"}
+MODELS=${MODELS:-"logistic mlp cnn"}
 CHAINCODE_NAME=${CHAINCODE_NAME:-sl-ledger}
 CHAINCODE_VERSION=${CHAINCODE_VERSION:-1.0}
 CHAINCODE_SEQUENCE=${CHAINCODE_SEQUENCE:-1}
@@ -38,8 +42,17 @@ ORDERER_ADMIN_KEY="$ORGS/ordererOrganizations/swarm.local/orderers/orderer.swarm
 PEER_PORTS=(7051 8051 9051 10051 11051)
 ORGS_N=(1 2 3 4 5)
 
-# channel names allow [a-z0-9.-] only, so the underscore in a model name becomes a dash
-channel_for() { echo "swarm-${1//_/-}"; }
+# channel names allow [a-z0-9.-] only, so underscores in a name become dashes
+channel_for() { echo "swarm-${1//_/-}-${2//_/-}"; }
+
+# every dataset-model pair, one "dataset model" per line
+pairs() {
+  for dataset in $DATASETS; do
+    for model in $MODELS; do
+      echo "$dataset $model"
+    done
+  done
+}
 
 say() { printf '\n\033[1;34m==> %s\033[0m\n' "$*"; }
 die() { printf '\n\033[1;31mERROR: %s\033[0m\n' "$*" >&2; exit 1; }
@@ -77,20 +90,20 @@ network_up() {
 
   say "building a genesis block per model channel"
   mkdir -p "$ARTIFACTS"
-  for model in $MODELS; do
-    channel=$(channel_for "$model")
+  while read -r dataset model; do
+    channel=$(channel_for "$dataset" "$model")
     FABRIC_CFG_PATH="$PWD" configtxgen \
       -profile SwarmChannel \
       -outputBlock "$ARTIFACTS/$channel.block" \
       -channelID "$channel" 2>/dev/null
-  done
+  done < <(pairs)
 
   say "starting the orderer, 5 peers and the gateway"
   SL_GATEWAY_PORT="$GATEWAY_PORT" docker compose -f compose.yaml up -d --build
   wait_for_orderer
 
-  for model in $MODELS; do
-    channel=$(channel_for "$model")
+  while read -r dataset model; do
+    channel=$(channel_for "$dataset" "$model")
     say "creating $channel and joining all 5 organizations"
     osnadmin channel join \
       --channelID "$channel" \
@@ -104,7 +117,7 @@ network_up() {
       peer_env "$n"
       peer channel join -b "$ARTIFACTS/$channel.block" > /dev/null
     done
-  done
+  done < <(pairs)
 
   say "network up — 5 organizations, one channel per model, monitor on http://127.0.0.1:$GATEWAY_PORT"
   network_status
@@ -154,7 +167,9 @@ deploy_chaincode() {
   done
   echo "SL_GATEWAY_PORT=$GATEWAY_PORT" >> .env
   channels=""
-  for model in $MODELS; do channels="$channels,$(channel_for "$model")"; done
+  while read -r dataset model; do
+    channels="$channels,$(channel_for "$dataset" "$model")"
+  done < <(pairs)
   echo "SL_CHANNELS=${channels#,}" >> .env
   docker compose -f compose.yaml --profile chaincode up -d --build
 
@@ -170,8 +185,8 @@ deploy_chaincode() {
 
   # install is per peer, but the definition has to be approved and committed on every
   # channel separately: each chain carries its own copy of the agreement
-  for model in $MODELS; do
-    channel=$(channel_for "$model")
+  while read -r dataset model; do
+    channel=$(channel_for "$dataset" "$model")
     say "approving and committing on $channel"
 
     for n in "${ORGS_N[@]}"; do
@@ -200,9 +215,9 @@ deploy_chaincode() {
       -c '{"function":"InitSwarm","Args":["[\"Org1MSP\",\"Org2MSP\",\"Org3MSP\",\"Org4MSP\",\"Org5MSP\"]","3"]}' \
       --waitForEvent > /dev/null 2>&1
 
-    printf '  %-18s %s\n' "$channel" \
+    printf '  %-26s %s\n' "$channel" \
       "$(peer chaincode query -C "$channel" -n "$CHAINCODE_NAME" -c '{"function":"GetSwarmConfig","Args":[]}')"
-  done
+  done < <(pairs)
 
   say "chaincode ready on every channel — monitor at http://127.0.0.1:$GATEWAY_PORT"
 }
@@ -240,13 +255,13 @@ network_status() {
   CC_ID_ORG1=- CC_ID_ORG2=- CC_ID_ORG3=- CC_ID_ORG4=- CC_ID_ORG5=- \
     docker compose -f compose.yaml --profile chaincode ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}"
   if [[ -d "$ORGS" ]]; then
-    say "one chain per model"
+    say "one chain per dataset and model"
     peer_env 1
-    for model in $MODELS; do
-      channel=$(channel_for "$model")
+    while read -r dataset model; do
+      channel=$(channel_for "$dataset" "$model")
       height=$(peer channel getinfo -c "$channel" 2>/dev/null | sed 's/.*"height"://; s/,.*//')
-      printf '  %-10s %-18s height %s\n' "$model" "$channel" "${height:-not created}"
-    done
+      printf '  %-6s %-9s %-26s height %s\n' "$dataset" "$model" "$channel" "${height:-not created}"
+    done < <(pairs)
   fi
 }
 

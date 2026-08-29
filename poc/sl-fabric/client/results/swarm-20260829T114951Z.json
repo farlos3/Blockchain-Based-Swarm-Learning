@@ -1,0 +1,664 @@
+{
+  "created": "20260829T114951Z",
+  "dataset": "path",
+  "models": [
+    "cnn"
+  ],
+  "rounds": 100,
+  "local_epochs": 3,
+  "alpha": 0.5,
+  "seed": 42,
+  "members": [
+    "Org1MSP",
+    "Org2MSP",
+    "Org3MSP",
+    "Org4MSP",
+    "Org5MSP"
+  ],
+  "quorum": 3,
+  "shards": {
+    "Org1MSP": 21660,
+    "Org2MSP": 22687,
+    "Org3MSP": 18598,
+    "Org4MSP": 16258,
+    "Org5MSP": 10793
+  },
+  "results": [
+    {
+      "model": "cnn",
+      "n_parameters": 56937,
+      "peak_rss_mb": 534.0,
+      "total_seconds": 3094.17,
+      "train_seconds": 2820.9,
+      "ledger_seconds": 143.89,
+      "best_accuracy": 0.8686525389844062,
+      "final_accuracy": 0.8673530587764894,
+      "test_accuracy": 0.8073816155988858,
+      "cost": {
+        "rounds": 35,
+        "nodes": 5,
+        "wall_seconds": 3101.9,
+        "blocks": 70.0,
+        "transactions": 210.0,
+        "per_round": {
+          "wall_seconds": 88.63,
+          "blocks": 2.0,
+          "transactions": 6.0,
+          "peer_cpu_seconds": 13.64,
+          "orderer_cpu_seconds": 0.37,
+          "ledger_bytes": 220000,
+          "off_chain_bytes": 1138740
+        },
+        "per_transaction": {
+          "peer_cpu_seconds": 2.273,
+          "ledger_bytes": 36666
+        },
+        "peak_resident_mb": {
+          "orderer": 89.8,
+          "Org1MSP": 127.6,
+          "Org2MSP": 125.7,
+          "Org3MSP": 123.5,
+          "Org4MSP": 125.1,
+          "Org5MSP": 126.9
+        }
+      },
+      "rounds": [
+        {
+          "round": 1,
+          "leader": "Org3MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.3790483806477409,
+          "train_seconds": 62.268,
+          "aggregate_seconds": 0.0011,
+          "ledger_seconds": 4.103,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 2,
+          "leader": "Org5MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.6570371851259497,
+          "train_seconds": 60.823,
+          "aggregate_seconds": 0.0012,
+          "ledger_seconds": 4.1,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 3,
+          "leader": "Org1MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.7423030787684926,
+          "train_seconds": 56.751,
+          "aggregate_seconds": 0.0012,
+          "ledger_seconds": 4.094,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 4,
+          "leader": "Org1MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.7681927229108356,
+          "train_seconds": 60.586,
+          "aggregate_seconds": 0.0016,
+          "ledger_seconds": 4.105,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 5,
+          "leader": "Org4MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.7792882846861255,
+          "train_seconds": 67.411,
+          "aggregate_seconds": 0.0014,
+          "ledger_seconds": 4.12,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 6,
+          "leader": "Org5MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.7782886845261895,
+          "train_seconds": 79.392,
+          "aggregate_seconds": 0.0015,
+          "ledger_seconds": 4.139,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 7,
+          "leader": "Org4MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.808876449420232,
+          "train_seconds": 94.023,
+          "aggregate_seconds": 0.0013,
+          "ledger_seconds": 4.141,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 8,
+          "leader": "Org5MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.7986805277888844,
+          "train_seconds": 67.987,
+          "aggregate_seconds": 0.0012,
+          "ledger_seconds": 4.125,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 9,
+          "leader": "Org2MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.8129748100759696,
+          "train_seconds": 70.736,
+          "aggregate_seconds": 0.0012,
+          "ledger_seconds": 4.108,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 10,
+          "leader": "Org4MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.8203718512594962,
+          "train_seconds": 66.485,
+          "aggregate_seconds": 0.0012,
+          "ledger_seconds": 4.11,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 11,
+          "leader": "Org1MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.8325669732107157,
+          "train_seconds": 69.519,
+          "aggregate_seconds": 0.0013,
+          "ledger_seconds": 4.117,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 12,
+          "leader": "Org2MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.8434626149540184,
+          "train_seconds": 69.779,
+          "aggregate_seconds": 0.002,
+          "ledger_seconds": 4.119,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 13,
+          "leader": "Org2MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.8482606957217114,
+          "train_seconds": 69.134,
+          "aggregate_seconds": 0.0016,
+          "ledger_seconds": 4.098,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 14,
+          "leader": "Org3MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.8475609756097561,
+          "train_seconds": 69.232,
+          "aggregate_seconds": 0.0011,
+          "ledger_seconds": 4.117,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 15,
+          "leader": "Org1MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.8534586165533786,
+          "train_seconds": 66.755,
+          "aggregate_seconds": 0.0018,
+          "ledger_seconds": 4.115,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 16,
+          "leader": "Org5MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.859656137544982,
+          "train_seconds": 67.094,
+          "aggregate_seconds": 0.0011,
+          "ledger_seconds": 4.095,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 17,
+          "leader": "Org1MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.8638544582167134,
+          "train_seconds": 66.72,
+          "aggregate_seconds": 0.0014,
+          "ledger_seconds": 4.114,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 18,
+          "leader": "Org3MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.8618552578968413,
+          "train_seconds": 71.806,
+          "aggregate_seconds": 0.0012,
+          "ledger_seconds": 4.136,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 19,
+          "leader": "Org2MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.8542582966813275,
+          "train_seconds": 68.604,
+          "aggregate_seconds": 0.0011,
+          "ledger_seconds": 4.117,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 20,
+          "leader": "Org1MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.8640543782487006,
+          "train_seconds": 70.409,
+          "aggregate_seconds": 0.0016,
+          "ledger_seconds": 4.077,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 21,
+          "leader": "Org5MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.8635545781687325,
+          "train_seconds": 71.001,
+          "aggregate_seconds": 0.0013,
+          "ledger_seconds": 4.094,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 22,
+          "leader": "Org2MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.8604558176729308,
+          "train_seconds": 101.659,
+          "aggregate_seconds": 0.0014,
+          "ledger_seconds": 4.094,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 23,
+          "leader": "Org5MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.8617552978808477,
+          "train_seconds": 79.806,
+          "aggregate_seconds": 0.0013,
+          "ledger_seconds": 4.092,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 24,
+          "leader": "Org2MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.8635545781687325,
+          "train_seconds": 138.918,
+          "aggregate_seconds": 0.0012,
+          "ledger_seconds": 4.109,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 25,
+          "leader": "Org4MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.8655537784886046,
+          "train_seconds": 116.135,
+          "aggregate_seconds": 0.0011,
+          "ledger_seconds": 4.093,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 26,
+          "leader": "Org2MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.8686525389844062,
+          "train_seconds": 102.816,
+          "aggregate_seconds": 0.0012,
+          "ledger_seconds": 4.091,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 27,
+          "leader": "Org1MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.8639544182327069,
+          "train_seconds": 152.438,
+          "aggregate_seconds": 0.0015,
+          "ledger_seconds": 4.087,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 28,
+          "leader": "Org4MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.8607556977209116,
+          "train_seconds": 149.749,
+          "aggregate_seconds": 0.0013,
+          "ledger_seconds": 4.121,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 29,
+          "leader": "Org4MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.864954018392643,
+          "train_seconds": 156.583,
+          "aggregate_seconds": 0.0015,
+          "ledger_seconds": 4.111,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 30,
+          "leader": "Org1MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.8638544582167134,
+          "train_seconds": 63.443,
+          "aggregate_seconds": 0.0012,
+          "ledger_seconds": 4.094,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 31,
+          "leader": "Org1MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.8595561775289884,
+          "train_seconds": 56.172,
+          "aggregate_seconds": 0.0013,
+          "ledger_seconds": 4.114,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 32,
+          "leader": "Org2MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.8619552179128349,
+          "train_seconds": 55.432,
+          "aggregate_seconds": 0.0011,
+          "ledger_seconds": 4.159,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 33,
+          "leader": "Org3MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.8678528588564575,
+          "train_seconds": 54.52,
+          "aggregate_seconds": 0.0012,
+          "ledger_seconds": 4.128,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 34,
+          "leader": "Org1MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.8686525389844062,
+          "train_seconds": 61.223,
+          "aggregate_seconds": 0.0017,
+          "ledger_seconds": 4.13,
+          "bytes_per_node": 227748,
+          "verified": true
+        },
+        {
+          "round": 35,
+          "leader": "Org1MSP",
+          "participants": [
+            "Org1MSP",
+            "Org2MSP",
+            "Org3MSP",
+            "Org4MSP",
+            "Org5MSP"
+          ],
+          "accuracy": 0.8673530587764894,
+          "train_seconds": 85.487,
+          "aggregate_seconds": 0.0017,
+          "ledger_seconds": 4.12,
+          "bytes_per_node": 227748,
+          "verified": true
+        }
+      ]
+    }
+  ]
+}

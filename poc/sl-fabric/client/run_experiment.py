@@ -37,6 +37,8 @@ RESULTS_DIR = results_io.RESULTS_DIR
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--dataset", default="blood",
+                        help="which dataset to train on (blood, path)")
     parser.add_argument("--models", nargs="+", default=["logistic", "mlp", "cnn"],
                         help="which models to compare")
     parser.add_argument("--rounds", type=int, default=30, help="swarm rounds per model")
@@ -79,10 +81,11 @@ def main() -> int:
     print(f"gateway {args.gateway}  chains {health['channels']}")
     print(f"members {msp_ids}  quorum {config['quorum']}")
 
-    data = load_swarm_data(msp_ids, alpha=args.alpha, seed=args.seed)
+    data = load_swarm_data(msp_ids, dataset=args.dataset, alpha=args.alpha, seed=args.seed)
     print(describe(data))
 
     run_settings = {
+        "dataset": args.dataset,
         "alpha": args.alpha,
         "rounds": args.rounds,
         "local_epochs": args.local_epochs,
@@ -95,7 +98,7 @@ def main() -> int:
     results: list[RunResult] = []
     for model_name in args.models:
         # each model type has its own chain; its rounds continue from that chain's height
-        model_ledger = ledger.for_channel(channel_for(model_name))
+        model_ledger = ledger.for_channel(channel_for(args.dataset, model_name))
         committed = model_ledger.committed_rounds()
         offset = model_ledger.next_free_round(max(committed) if committed else 0)
         try:

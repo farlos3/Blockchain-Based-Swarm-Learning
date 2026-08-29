@@ -274,7 +274,7 @@ services:
       # this image several gigabytes for no benefit in a demo
       SL_TRAINER_URL: http://host.docker.internal:8900
       # one channel per model, written into .env by ./network.sh deploy
-      SL_CHANNELS: ${SL_CHANNELS:-swarm-logistic,swarm-mlp,swarm-mlp-deep,swarm-cnn,swarm-cnn-wide}
+      SL_CHANNELS: ${SL_CHANNELS:-swarm-blood-logistic,swarm-blood-mlp,swarm-blood-cnn,swarm-path-logistic,swarm-path-mlp,swarm-path-cnn}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:

@@ -116,3 +116,6 @@ poc/sl-fabric/gateway/vendor/
 poc/sl-fabric/gateway/sl-gateway.exe
 poc/sl-fabric/network/.env
 poc/sl-fabric/client/__pycache__/
+# regenerated from the JSON results by client/export.py
+poc/sl-fabric/client/results/*.csv
+

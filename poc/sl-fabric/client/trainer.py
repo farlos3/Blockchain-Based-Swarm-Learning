@@ -29,12 +29,37 @@ from typing import Any
 
 import cost as cost_model
 import hostmetrics
+import models
 import results as results_io
+import data as data_module
 from data import describe, load_swarm_data
 from ledger import DEFAULT_URL, LedgerClient, LedgerError, channel_for
 from swarm import RunResult, run_swarm
 
-KNOWN_MODELS = ["logistic", "mlp", "mlp_deep", "cnn", "cnn_wide"]
+# Which models can be trained is decided by which channels the network created — see
+# MODELS in network/network.sh. Keeping a second list here would let the two drift, and a
+# model without a chain fails deep inside a run instead of at the request.
+def known_pairs() -> list[dict[str, str]]:
+    """The dataset-and-model pairs this network has a chain for."""
+    try:
+        return LedgerClient(DEFAULT_URL).channels()
+    except LedgerError:
+        return []
+
+
+def known_models(dataset: str | None = None) -> list[str]:
+    pairs = known_pairs()
+    if not pairs:
+        return sorted(models.BUILDERS)
+    names = [c["model"] for c in pairs if dataset is None or c.get("dataset") == dataset]
+    return sorted(set(names))
+
+
+def known_datasets() -> list[str]:
+    pairs = known_pairs()
+    if not pairs:
+        return sorted(data_module.DATASETS)
+    return sorted({c["dataset"] for c in pairs if c.get("dataset")})
 MAX_ROUNDS = 500
 
 
@@ -76,15 +101,17 @@ class Job:
     def eta_seconds(self) -> float | None:
         """Rough seconds remaining, from how long recent rounds actually took.
 
-        The last few rounds are used rather than all of them: the first round of a torch
-        model pays a one-off warm-up that would otherwise inflate the estimate for the
-        whole run. Rounds of models still queued are costed at the current model's pace,
-        which is only a guess — a CNN round takes several times a logistic one.
+        The median of the last several rounds, not the mean: rounds vary by a factor of
+        two when something else on the machine takes the CPU, and a mean over a slow patch
+        predicts hours that never happen. Only recent rounds count, because the first round
+        of a torch model pays a one-off warm-up. Rounds of models still queued are costed
+        at the current model's pace, which is a guess — a CNN round takes several times a
+        logistic one.
         """
         if not self.running or not self.round_seconds:
             return None
-        recent = self.round_seconds[-5:]
-        pace = sum(recent) / len(recent)
+        recent = sorted(self.round_seconds[-9:])
+        pace = recent[len(recent) // 2]
         done = self.model_index * self.rounds_per_model + self.round_index
         remaining = max(len(self.models) * self.rounds_per_model - done, 0)
         return round(pace * remaining, 1)
@@ -113,8 +140,8 @@ class Job:
                 "stage": self.stage,
                 "channel": self.channel,
                 "eta_seconds": eta,
-                "seconds_per_round": (round(sum(self.round_seconds[-5:]) /
-                                            len(self.round_seconds[-5:]), 1)
+                "seconds_per_round": (round(sorted(self.round_seconds[-9:])[
+                                          len(self.round_seconds[-9:]) // 2], 1)
                                       if self.round_seconds else None),
                 "summary": list(self.summary),
                 "error": self.error,
@@ -171,9 +198,14 @@ def validate(body: dict[str, Any]) -> dict[str, Any]:
     models = body.get("models") or ["logistic"]
     if not isinstance(models, list) or not models:
         raise ValueError("models must be a non-empty list")
-    unknown = [m for m in models if m not in KNOWN_MODELS]
+    dataset = str(body.get("dataset") or (known_datasets() or ["blood"])[0])
+    if dataset not in known_datasets():
+        raise ValueError(f"no chains for dataset {dataset!r}; this network has {known_datasets()}")
+
+    available = known_models(dataset)
+    unknown = [m for m in models if m not in available]
     if unknown:
-        raise ValueError(f"unknown models {unknown}, pick from {KNOWN_MODELS}")
+        raise ValueError(f"no chain for {unknown} on {dataset}; it has {available}")
 
     try:
         rounds = int(body.get("rounds", 30))
@@ -190,8 +222,8 @@ def validate(body: dict[str, Any]) -> dict[str, Any]:
     if alpha <= 0:
         raise ValueError("alpha must be positive")
 
-    return {"models": models, "rounds": rounds, "local_epochs": local_epochs,
-            "alpha": alpha, "seed": seed}
+    return {"dataset": dataset, "models": models, "rounds": rounds,
+            "local_epochs": local_epochs, "alpha": alpha, "seed": seed}
 
 
 def record_event(event: dict[str, Any]) -> None:
@@ -236,7 +268,8 @@ def train(settings: dict[str, Any]) -> None:
 
     try:
         config = ledger.config()
-        data = load_swarm_data(config["members"], alpha=settings["alpha"], seed=settings["seed"])
+        data = load_swarm_data(config["members"], dataset=settings["dataset"],
+                               alpha=settings["alpha"], seed=settings["seed"])
         with JOB.lock:
             JOB.shards = {s.msp_id: s.n_samples for s in data.shards}
         print(describe(data), flush=True)
@@ -244,7 +277,7 @@ def train(settings: dict[str, Any]) -> None:
         for index, model_name in enumerate(settings["models"]):
             # each model type trains on its own chain, so its rounds simply continue
             # from where that chain left off — no shared round-number space to carve up
-            channel = channel_for(model_name)
+            channel = channel_for(settings["dataset"], model_name)
             model_ledger = ledger.for_channel(channel)
             committed = model_ledger.committed_rounds()
             # past the aggregated rounds, and past any round left half-written by a run
@@ -288,6 +321,10 @@ def train(settings: dict[str, Any]) -> None:
             with JOB.lock:
                 JOB.results_file = out.name
                 JOB.summary.append({
+                    # the filter that keeps a row only when its dataset-and-model pair has
+                    # a chain needs both halves; without this the model being trained right
+                    # now is the one row that disappears
+                    "dataset": settings["dataset"],
                     "model": run.model,
                     "n_parameters": run.n_parameters,
                     "rounds": len(run.rounds),
@@ -336,13 +373,31 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         if self.path in ("/status", "/train/status"):
             self._send(200, JOB.snapshot())
+        elif self.path in ("/runs", "/train/runs"):
+            # the live session first, so a model just finished shows its fresh numbers
+            # rather than the file from a previous run of the same model
+            snapshot = JOB.snapshot()
+            live = {(m.get("dataset"), m["model"]): m for m in snapshot["summary"]}
+            saved = {(r.get("dataset"), r["model"]): r for r in results_io.latest_per_model()}
+            merged = {**saved, **live}
+
+            # a results file outlives the network it was produced on. Rows for models this
+            # network has no chain for are dropped outright, and the rest carry the file
+            # they came from so a stale one can be recognised rather than trusted.
+            # a result belongs to a dataset as much as to a model, so rows are keyed by
+            # both; a run whose pair has no chain here is from another network
+            available = {(c["dataset"], c["model"]) for c in known_pairs()}
+            rows = [m for m in merged.values()
+                    if not available or (m.get("dataset"), m["model"]) in available]
+            self._send(200, sorted(rows, key=lambda m: (m.get("dataset") or "", m["model"])))
         elif self.path in ("/network/status", "/train/network"):
             with _rebuild_lock:
                 self._send(200, dict(REBUILD))
         elif self.path in ("/metrics", "/train/metrics"):
             self._send(200, hostmetrics.sample())
         elif self.path == "/health":
-            self._send(200, {"status": "ok", "models": KNOWN_MODELS, "max_rounds": MAX_ROUNDS})
+            self._send(200, {"status": "ok", "datasets": known_datasets(),
+                             "models": known_models(), "max_rounds": MAX_ROUNDS})
         else:
             self._send(404, {"error": f"no such route: {self.path}"})
 
@@ -352,6 +407,14 @@ class Handler(BaseHTTPRequestHandler):
             body = json.loads(self.rfile.read(length) or b"{}")
         except json.JSONDecodeError as exc:
             self._send(400, {"error": f"body is not JSON: {exc}"})
+            return
+
+        if self.path in ("/runs/archive", "/train/runs/archive"):
+            if not body.get("confirm"):
+                self._send(400, {"error": 'send {"confirm": true} to archive past results'})
+                return
+            moved = results_io.archive()
+            self._send(200, {"archived": moved})
             return
 
         if self.path in ("/network/rebuild", "/train/network"):

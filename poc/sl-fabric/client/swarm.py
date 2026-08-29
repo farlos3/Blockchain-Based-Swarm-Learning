@@ -130,8 +130,9 @@ def run_swarm(model_name: str, data: SwarmData, ledger: LedgerClient, rounds: in
 
     # every node starts from the same parameters, which is what makes averaging them
     # meaningful in the first round; after that the global model plays that role
-    node_models = {shard.msp_id: models.build(model_name, seed=seed) for shard in data.shards}
-    global_params = models.build(model_name, seed=seed).get_params()
+    node_models = {shard.msp_id: models.build(model_name, data.n_classes, seed=seed)
+                   for shard in data.shards}
+    global_params = models.build(model_name, data.n_classes, seed=seed).get_params()
 
     def emit(stage: str, **fields: object) -> None:
         if on_event is not None:
@@ -165,9 +166,12 @@ def run_swarm(model_name: str, data: SwarmData, ledger: LedgerClient, rounds: in
             model = node_models[shard.msp_id]
             model.set_params(global_params)
 
+            # shards are stored raw; a node's data becomes float32 only while it trains,
+            # which is what keeps the larger dataset inside memory
+            batch = data.prepare(shard.X)
             started = time.perf_counter()
             model.train(
-                shard.X, shard.y, epochs=local_epochs,
+                batch, shard.y, epochs=local_epochs,
                 on_epoch=lambda epoch, seconds, node=shard.msp_id: emit(
                     "epoch", round=round_num, node=node, epoch=epoch,
                     epochs=local_epochs, seconds=round(seconds, 3),
@@ -175,6 +179,7 @@ def run_swarm(model_name: str, data: SwarmData, ledger: LedgerClient, rounds: in
             )
             train_seconds += time.perf_counter() - started
 
+            del batch
             params = model.get_params()
             trained[shard.msp_id] = (params, models.hash_params(params),
                                      models.params_size_bytes(params))

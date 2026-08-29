@@ -29,7 +29,7 @@ from typing import Callable, Protocol
 
 import numpy as np
 
-from data import IMAGE_SHAPE, N_CLASSES
+from data import IMAGE_SHAPE
 
 N_FEATURES = int(np.prod(IMAGE_SHAPE))
 
@@ -81,12 +81,13 @@ class _SklearnModel:
 
     name = "sklearn"
 
-    def __init__(self, estimator, seed: int = 0) -> None:
+    def __init__(self, estimator, n_classes: int, seed: int = 0) -> None:
         self.estimator = estimator
+        self.n_classes = n_classes
         rng = np.random.default_rng(seed)
-        warmup_X = rng.normal(size=(N_CLASSES, N_FEATURES)).astype(np.float32)
-        warmup_y = np.arange(N_CLASSES)
-        self.estimator.partial_fit(warmup_X, warmup_y, classes=np.arange(N_CLASSES))
+        warmup_X = rng.normal(size=(n_classes, N_FEATURES)).astype(np.float32)
+        warmup_y = np.arange(n_classes)
+        self.estimator.partial_fit(warmup_X, warmup_y, classes=np.arange(n_classes))
         # scikit-learn's SGD requires its coefficients to have the same dtype as the
         # training data, so the layout captured here records dtype as well as shape
         self._shapes = [a.shape for a in self._arrays()]
@@ -116,7 +117,7 @@ class _SklearnModel:
         flat_X = X.reshape(len(X), -1)
         for epoch in range(epochs):
             started = time.perf_counter()
-            self.estimator.partial_fit(flat_X, y, classes=np.arange(N_CLASSES))
+            self.estimator.partial_fit(flat_X, y, classes=np.arange(self.n_classes))
             if on_epoch is not None:
                 on_epoch(epoch + 1, time.perf_counter() - started)
 
@@ -129,13 +130,13 @@ class LogisticModel(_SklearnModel):
 
     name = "logistic"
 
-    def __init__(self, seed: int = 0, learning_rate: float = 0.01) -> None:
+    def __init__(self, n_classes: int, seed: int = 0, learning_rate: float = 0.01) -> None:
         from sklearn.linear_model import SGDClassifier
 
         super().__init__(
             SGDClassifier(loss="log_loss", learning_rate="constant", eta0=learning_rate,
                           random_state=seed),
-            seed=seed,
+            n_classes=n_classes, seed=seed,
         )
 
     def _arrays(self) -> list[np.ndarray]:
@@ -151,13 +152,13 @@ class MLPModel(_SklearnModel):
     name = "mlp"
     hidden_layers: tuple[int, ...] = (128,)
 
-    def __init__(self, seed: int = 0, learning_rate: float = 0.01) -> None:
+    def __init__(self, n_classes: int, seed: int = 0, learning_rate: float = 0.01) -> None:
         from sklearn.neural_network import MLPClassifier
 
         super().__init__(
             MLPClassifier(hidden_layer_sizes=self.hidden_layers,
                           learning_rate_init=learning_rate, random_state=seed),
-            seed=seed,
+            n_classes=n_classes, seed=seed,
         )
 
     def _arrays(self) -> list[np.ndarray]:
@@ -195,7 +196,8 @@ class CNNModel:
     channels: tuple[int, int] = (16, 32)
     dense: int = 64
 
-    def __init__(self, seed: int = 0, learning_rate: float = 0.001, batch_size: int = 64) -> None:
+    def __init__(self, n_classes: int, seed: int = 0, learning_rate: float = 0.001,
+                 batch_size: int = 64) -> None:
         import torch
         from torch import nn
 
@@ -210,7 +212,7 @@ class CNNModel:
             nn.Conv2d(c1, c2, 3), nn.ReLU(), nn.MaxPool2d(2),
             nn.Flatten(),
             nn.Linear(c2 * 5 * 5, self.dense), nn.ReLU(),
-            nn.Linear(self.dense, N_CLASSES),
+            nn.Linear(self.dense, n_classes),
         )
         self.loss_fn = nn.CrossEntropyLoss()
         self.learning_rate = learning_rate
@@ -289,7 +291,8 @@ BUILDERS = {
 }
 
 
-def build(name: str, seed: int = 0) -> SwarmModel:
+def build(name: str, n_classes: int, seed: int = 0) -> SwarmModel:
+    """Every model is sized to the dataset it will train on, so its output layer matches."""
     if name not in BUILDERS:
         raise ValueError(f"unknown model {name!r}, pick one of {sorted(BUILDERS)}")
-    return BUILDERS[name](seed=seed)
+    return BUILDERS[name](n_classes=n_classes, seed=seed)

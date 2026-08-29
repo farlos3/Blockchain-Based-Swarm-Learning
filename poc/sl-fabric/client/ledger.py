@@ -23,12 +23,12 @@ from typing import Any
 DEFAULT_URL = os.getenv("SL_GATEWAY_URL", "http://127.0.0.1:8899")
 
 
-def channel_for(model: str) -> str:
-    """Each model type trains on its own chain, named by the same rule network.sh uses.
+def channel_for(dataset: str, model: str) -> str:
+    """Each dataset-and-model pair trains on its own chain, named as network.sh names it.
 
-    Channel names allow only [a-z0-9.-], so the underscore in a model name becomes a dash.
+    Channel names allow only [a-z0-9.-], so underscores become dashes.
     """
-    return "swarm-" + model.replace("_", "-")
+    return f"swarm-{dataset.replace('_', '-')}-{model.replace('_', '-')}"
 
 
 class LedgerError(Exception):

@@ -103,6 +103,9 @@ def measure(before: Snapshot, after: Snapshot, rounds: int, nodes: int,
             "peer_cpu_seconds": round(peer_cpu / transactions, 3) if transactions else None,
             "ledger_bytes": int(ledger_bytes / transactions) if transactions else None,
         },
+        # the aggregate hides an uneven swarm: one peer endorsing far more than the
+        # others is worth seeing, and it is already computed here
+        "cpu_seconds_by_node": cpu_delta,
         "peak_resident_mb": {
             name: round(max(value, before.resident_mb.get(name, 0.0)), 1)
             for name, value in after.resident_mb.items()

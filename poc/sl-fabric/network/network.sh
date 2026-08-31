@@ -3,6 +3,8 @@
 #
 #   ./network.sh up       generate crypto material, start containers, create and join the channel
 #   ./network.sh deploy   build, install, approve and commit the sl-ledger chaincode
+#   ./network.sh stop     stop the containers, keeping the ledger
+#   ./network.sh start     start them again
 #   ./network.sh status   what is running and which peers joined the channel
 #   ./network.sh down     stop everything and delete all generated material
 #
@@ -265,6 +267,23 @@ network_status() {
   fi
 }
 
+# stop and start exist because `down` destroys the ledger. Nothing restarts by itself —
+# the containers carry restart: "no" — so this is how the network is paused between
+# sessions without losing the chains.
+network_stop() {
+  say "stopping the containers, keeping volumes"
+  CC_ID_ORG1=- CC_ID_ORG2=- CC_ID_ORG3=- CC_ID_ORG4=- CC_ID_ORG5=-     docker compose -f compose.yaml --profile chaincode stop
+  say "stopped — './network.sh start' brings it back with the ledger intact"
+}
+
+network_start() {
+  [[ -f .env ]] || die "no .env — run './network.sh up' and './network.sh deploy' first"
+  say "starting the containers"
+  docker compose -f compose.yaml --profile chaincode start
+  wait_for_orderer
+  network_status
+}
+
 network_down() {
   say "stopping every container in the project and removing volumes"
   # --profile chaincode tears those services down too; the placeholder ids only keep
@@ -279,7 +298,9 @@ network_down() {
 case "${1:-}" in
   up) network_up ;;
   deploy) deploy_chaincode ;;
+  stop) network_stop ;;
+  start) network_start ;;
   status) network_status ;;
   down) network_down ;;
-  *) die "usage: $0 {up|deploy|status|down}" ;;
+  *) die "usage: $0 {up|deploy|stop|start|status|down}" ;;
 esac

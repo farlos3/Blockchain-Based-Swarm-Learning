@@ -10,6 +10,10 @@
 # One compose project, so `docker compose ps`, Docker Desktop and `down` all treat the
 # orderer, the peers, the five chaincode services and the gateway as a single unit
 # instead of leaving stray containers behind.
+# Nothing restarts on its own: ./network.sh up starts the network, ./network.sh down
+# stops it, and starting Docker Desktop does neither. `on-failure` used to bring the
+# whole project back at every daemon start, because a container stopped by the daemon
+# exits 143 and that reads as a failure.
 name: sl-fabric
 
 networks:
@@ -26,7 +30,7 @@ volumes:
 
 x-peer: &peer-defaults
   image: hyperledger/fabric-peer:2.5.13
-  restart: on-failure
+  restart: "no"
   networks:
     - swarm_net
   environment: &peer-env
@@ -59,7 +63,7 @@ x-chaincode: &chaincode-defaults
   build:
     context: ../chaincode/sl-ledger
   image: sl-ledger:1.0
-  restart: on-failure
+  restart: "no"
   profiles: [chaincode]
   networks:
     - swarm_net
@@ -68,7 +72,7 @@ services:
   orderer.swarm.local:
     container_name: orderer.swarm.local
     image: hyperledger/fabric-orderer:2.5.13
-    restart: on-failure
+    restart: "no"
     networks:
       - swarm_net
     environment:
@@ -263,7 +267,7 @@ services:
     build:
       context: ../gateway
     image: sl-gateway:1.0
-    restart: on-failure
+    restart: "no"
     networks:
       - swarm_net
     environment:

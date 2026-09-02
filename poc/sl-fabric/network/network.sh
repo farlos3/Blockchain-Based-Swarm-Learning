@@ -181,9 +181,10 @@ deploy_chaincode() {
     peer lifecycle chaincode install "$ARTIFACTS/${CHAINCODE_NAME}-org${n}.tar.gz"
   done
 
-  local -a peer_args
+  local -a peer_args=()
   peer_env 1
-  mapfile -t peer_args < <(every_peer_args)
+  # a read loop rather than mapfile: macOS ships bash 3.2, which has no mapfile
+  while IFS= read -r arg; do peer_args+=("$arg"); done < <(every_peer_args)
 
   # install is per peer, but the definition has to be approved and committed on every
   # channel separately: each chain carries its own copy of the agreement

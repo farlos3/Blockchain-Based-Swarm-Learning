@@ -3,6 +3,7 @@
 #
 #   ./start.sh                 set up whatever is missing, bring the network up, deploy
 #   ./start.sh --fresh         tear the old network down first
+#   ./start.sh --no-open       do not open the monitor page in a browser
 #   ./start.sh --train         also run the experiment once the ledger is live
 #   ./start.sh --train -- --models cnn --rounds 5     args after -- go to run_experiment.py
 #
@@ -14,16 +15,19 @@ cd "$(dirname "$0")"
 
 FABRIC_VERSION=${FABRIC_VERSION:-2.5.13}
 GATEWAY_PORT=${SL_GATEWAY_PORT:-8899}
+TRAINER_PORT=${SL_TRAINER_PORT:-8900}
 DATASET_DIR="../image/dataset"
 DATASET_URL="https://huggingface.co/datasets/albertvillanova/medmnist-v2/resolve/main/data"
 PYTHON=${PYTHON:-}
 
 fresh=0
 train=0
+open_page=1
 train_args=()
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --fresh) fresh=1 ;;
+    --no-open) open_page=0 ;;
     --train) train=1 ;;
     --) shift; train_args=("$@"); break ;;
     -h|--help) sed -n '2,10p' "$0" | sed 's/^# \?//'; exit 0 ;;
@@ -98,6 +102,19 @@ else
   touch organizations/.sl-deployed
 fi
 
+# compose runs with restart: "no", so a Docker Desktop restart or a reboot leaves the
+# whole project exited with its ledger intact. Starting them back is not `up`.
+compose_ps() { docker compose -f network/compose.yaml --profile chaincode ps "$@" 2>/dev/null; }
+# --format prints a blank line when nothing matches, so count non-empty lines only
+services=$(compose_ps -a --format '{{.Name}}' | grep -c . || true)
+running=$(compose_ps --status running --format '{{.Name}}' | grep -c . || true)
+if (( running < services )); then
+  say "the containers are stopped — starting them"
+  bash network/network.sh start
+else
+  skip "all $running containers running"
+fi
+
 say "waiting for the gateway"
 for _ in $(seq 60); do
   if curl -sf "http://127.0.0.1:$GATEWAY_PORT/health" >/dev/null; then
@@ -108,19 +125,11 @@ done
 curl -sf "http://127.0.0.1:$GATEWAY_PORT/health" >/dev/null \
   || die "gateway did not answer on $GATEWAY_PORT — 'docker compose -f network/compose.yaml logs sl-gateway'"
 
-say "ready — monitor at http://127.0.0.1:$GATEWAY_PORT"
+# ---------------------------------------------------------------- the trainer
 
-# ---------------------------------------------------------------- the swarm
-
-(( train )) || {
-  echo
-  echo "  train:  cd client && python run_experiment.py --models logistic mlp cnn --rounds 10"
-  echo "  stop:   ./network.sh stop     (keeps the ledger)"
-  echo "  wipe:   ./network.sh down"
-  exit 0
-}
-
-# an absolute path, because the run itself happens from client/
+# The monitor's "start a run" button posts to trainer.py, which the gateway reaches at
+# host.docker.internal:8900. It runs on the host, not in compose, so nothing else
+# starts it. An absolute interpreter path, because the run happens from client/.
 if [[ -z "$PYTHON" ]]; then
   for candidate in ../.venv/bin/python .venv/bin/python python3 python; do
     if command -v "$candidate" >/dev/null 2>&1; then
@@ -131,8 +140,52 @@ fi
 [[ -n "$PYTHON" ]] || die "no python found — set PYTHON=/path/to/python"
 PYTHON=$(cd "$(dirname "$PYTHON")" && pwd)/$(basename "$PYTHON")
 
-"$PYTHON" -c 'import numpy, sklearn, psutil, torch' 2>/dev/null \
-  || die "missing python packages — $PYTHON -m pip install numpy scikit-learn psutil torch"
+python_ready=0
+if "$PYTHON" -c 'import numpy, sklearn, psutil, torch' 2>/dev/null; then
+  python_ready=1
+else
+  printf '\033[1;33m    no torch in %s — the trainer and --train stay off\033[0m\n' "$PYTHON"
+  printf '\033[1;33m    %s -m pip install numpy scikit-learn psutil torch\033[0m\n' "$PYTHON"
+fi
+
+if (( python_ready )); then
+  if curl -sf -m 2 "http://127.0.0.1:$TRAINER_PORT/health" >/dev/null; then
+    skip "trainer already listening on $TRAINER_PORT"
+  else
+    say "starting the trainer on $TRAINER_PORT"
+    # every descriptor is replaced: a trainer holding the caller's stdout keeps
+    # `./start.sh | tail` from ever finishing, long after this script has exited
+    (cd client && nohup "$PYTHON" trainer.py < /dev/null > ../trainer.log 2>&1 &
+     disown 2>/dev/null || true)
+    for _ in $(seq 30); do
+      curl -sf -m 2 "http://127.0.0.1:$TRAINER_PORT/health" >/dev/null && break
+      sleep 1
+    done
+    curl -sf -m 2 "http://127.0.0.1:$TRAINER_PORT/health" >/dev/null \
+      || die "the trainer did not come up — see trainer.log"
+  fi
+fi
+
+say "ready — monitor at http://127.0.0.1:$GATEWAY_PORT"
+
+# the demo itself: the page is what the whole setup exists to show
+if (( open_page )); then
+  case "$(uname -s)" in
+    Darwin) open "http://127.0.0.1:$GATEWAY_PORT" >/dev/null 2>&1 || true ;;
+    Linux)  xdg-open "http://127.0.0.1:$GATEWAY_PORT" >/dev/null 2>&1 || true ;;
+    *)      start "http://127.0.0.1:$GATEWAY_PORT" >/dev/null 2>&1 || true ;;
+  esac
+fi
+
+# ---------------------------------------------------------------- the swarm
+
+(( train )) || {
+  echo
+  echo "  run:    the monitor's start button, or --train here"
+  echo "  stop:   ./network.sh stop     (keeps the ledger)"
+  echo "  wipe:   ./network.sh down"
+  exit 0
+}
 
 say "running the swarm"
 (cd client && SL_GATEWAY_URL="http://127.0.0.1:$GATEWAY_PORT" \

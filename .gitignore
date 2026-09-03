@@ -119,3 +119,6 @@ poc/sl-fabric/client/__pycache__/
 # regenerated from the JSON results by client/export.py
 poc/sl-fabric/client/results/*.csv
 
+
+# the trainer log start.sh writes
+poc/sl-fabric/trainer.log

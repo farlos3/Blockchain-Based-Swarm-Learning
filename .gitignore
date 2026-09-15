@@ -122,3 +122,6 @@ poc/sl-fabric/client/results/*.csv
 
 # the trainer log start.sh writes
 poc/sl-fabric/trainer.log
+
+# --- Federated dataset candidates (downloaded, not source; see poc/Finding Dataset/Explore.ipynb) ---
+poc/Finding Dataset/data/

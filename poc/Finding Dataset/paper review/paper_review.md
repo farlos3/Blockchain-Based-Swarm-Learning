@@ -610,7 +610,7 @@
 
 ## 5 · ชุดข้อมูลสาย cybersecurity เทียบกับสถาปัตยกรรมของโปรเจกต์
 
-เกณฑ์ (0–2 ต่อข้อ, เต็ม 10) — ชุดเดียวกับ `Explore.ipynb` บวกความเข้ากับ client ของ sl-fabric:
+เกณฑ์ (0–2 ต่อข้อ, เต็ม 10) — ชุดเดียวกับ `../Explore.ipynb` บวกความเข้ากับ client ของ sl-fabric:
 
 - **partition** — มี partition ตามเจ้าของจริง (ไม่ต้องสุ่ม Dirichlet)
 - **baseline** — มีตัวเลขจาก paper SL/FL/blockchain-FL ให้เทียบ

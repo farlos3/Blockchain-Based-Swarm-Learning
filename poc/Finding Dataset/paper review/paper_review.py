@@ -1,4 +1,4 @@
-"""อ่าน paper ใน ../../paper แล้วสรุปว่าใช้ชุดข้อมูลอะไร ได้ผลอย่างไร และเข้ากับสถาปัตยกรรม swarm learning ของโปรเจกต์นี้แค่ไหน
+"""อ่าน paper ในโฟลเดอร์ paper/ ที่รากของ repo แล้วสรุปว่าใช้ชุดข้อมูลอะไร ได้ผลอย่างไร และเข้ากับสถาปัตยกรรม swarm learning ของโปรเจกต์นี้แค่ไหน
 
     python paper_review.py            # เขียน paper_review.md + paper_review.json
     python paper_review.py --no-pdf   # ข้ามการตรวจกับ PDF (ใช้เมื่อไม่มีไฟล์ paper)
@@ -29,7 +29,8 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-PAPER_DIR = HERE.parent.parent / "paper"
+# โฟลเดอร์ paper/ อยู่ที่รากของ repo — เดินขึ้นไปหาแทนการนับระดับ ย้ายสคริปต์แล้วไม่พัง
+PAPER_DIR = next((d / "paper" for d in HERE.parents if (d / "paper").is_dir()), HERE / "paper")
 OUT_MD = HERE / "paper_review.md"
 OUT_JSON = HERE / "paper_review.json"
 
@@ -875,7 +876,7 @@ def render(evidence: dict, mentions: dict) -> str:
     L.append(md_table(["งาน", "ข้อมูล", "ผล", "ลิงก์"], [[a, b, c, f"<{d}>"] for a, b, c, d in NON_CYBER_WEB]))
 
     L += ["", "## 5 · ชุดข้อมูลสาย cybersecurity เทียบกับสถาปัตยกรรมของโปรเจกต์", "",
-          "เกณฑ์ (0–2 ต่อข้อ, เต็ม 10) — ชุดเดียวกับ `Explore.ipynb` บวกความเข้ากับ client ของ sl-fabric:", ""]
+          "เกณฑ์ (0–2 ต่อข้อ, เต็ม 10) — ชุดเดียวกับ `../Explore.ipynb` บวกความเข้ากับ client ของ sl-fabric:", ""]
     L += [f"- **{k}** — {v}" for k, v in CRITERIA.items()]
     L.append("")
     ranked = sorted(CYBER_DATASETS, key=lambda d: -d.total)

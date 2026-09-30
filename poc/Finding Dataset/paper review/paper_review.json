@@ -334,7 +334,8 @@
         ]
       ],
       "links": [],
-      "headline": ""
+      "headline": "",
+      "tier": "B"
     },
     {
       "key": "han2022",
@@ -458,7 +459,8 @@
         ]
       ],
       "links": [],
-      "headline": ""
+      "headline": "",
+      "tier": "base"
     },
     {
       "key": "warnat2021",
@@ -561,7 +563,8 @@
         ]
       ],
       "links": [],
-      "headline": ""
+      "headline": "",
+      "tier": "base"
     },
     {
       "key": "shammar2025",
@@ -623,30 +626,154 @@
         ]
       ],
       "links": [],
-      "headline": ""
+      "headline": "",
+      "tier": "base"
+    },
+    {
+      "key": "adonis2023",
+      "title": "Swarm Learning and Knowledge Distillation Empowered Self-Driving Detection Against Threat Behavior for Intelligent IoT (ADONIS)",
+      "authors": "-",
+      "venue": "IEEE, 2023 · IEEE Xplore 10310124",
+      "origin": "web",
+      "cyber": "หลัก — ตรวจพฤติกรรมคุกคามของอุปกรณ์ IoT จาก traffic",
+      "problem": "เสนอ ADONIS ระบบตรวจความผิดปกติเล็ก ๆ (minor anomaly) ของอุปกรณ์ IoT แบบโต้ตอบได้ ใช้ swarm learning รวมความรู้จากหลายโหนดโดยไม่รวมข้อมูล ใช้ knowledge distillation ย่อโมเดลให้อุปกรณ์เล็กรันได้ และให้คนช่วยแก้ label ผ่าน human–computer interaction",
+      "datasets": [
+        "traffic dataset (ตาม Table 5 ของ survey; ยังไม่รู้ชื่อชุดจริง)"
+      ],
+      "data_detail": "-",
+      "method": "SL + knowledge distillation + human-in-the-loop label refinement",
+      "sl_setup": "swarm learning (swarm defense) — ไม่มี server กลาง",
+      "results": [
+        {
+          "setting": "ตามบทคัดย่อ/survey",
+          "metric": "-",
+          "values": {
+            "ADONIS": "ตรวจจับดีขึ้น ปกป้องความเป็นส่วนตัว ลด latency และลดความเสี่ยงจาก central node"
+          },
+          "source": "web"
+        }
+      ],
+      "findings": [
+        "เป็นงาน SL ที่ใช้กับ network traffic ของ IoT โดยตรงงานหนึ่งในไม่กี่งานที่ค้นเจอ",
+        "distillation ทำให้โมเดลเบาพอสำหรับอุปกรณ์ปลายทาง"
+      ],
+      "caveats": [
+        "ไม่รู้ชื่อชุดข้อมูล จำนวนโหนด และตัวเลขผล — ต้องอ่านฉบับเต็ม",
+        "ไม่ระบุว่าใช้ blockchain แบบไหน หรือใช้ HPE SL หรือเขียนเอง"
+      ],
+      "sl_fit": "สูง — เป็น SL ตรงตัว",
+      "fit_to_project": "ยืนยันว่า SL กับ IDS จาก traffic ไปด้วยกันได้ · distillation ช่วยลดขนาด parameter ที่ต้อง hash และส่งทุกรอบ",
+      "evidence": [],
+      "links": [
+        "https://ieeexplore.ieee.org/document/10310124/"
+      ],
+      "headline": "traffic ของ IoT: SL + knowledge distillation ตรวจพฤติกรรมคุกคาม (ยังไม่รู้ชื่อชุดข้อมูลและตัวเลข)",
+      "tier": "A"
+    },
+    {
+      "key": "rff2023",
+      "title": "Improved Swarm Learning with Differential Privacy for Radio Frequency Fingerprinting",
+      "authors": "-",
+      "venue": "IEEE, 2023 · IEEE Xplore 10211163",
+      "origin": "web",
+      "cyber": "หลัก — physical-layer authentication ของอุปกรณ์ IoT",
+      "problem": "RF fingerprint ใช้ยืนยันตัวตนอุปกรณ์ IoT ได้ แต่ข้อมูลสัญญาณรั่วได้ ผู้เขียนเติม differential privacy ให้ SL และออกแบบวิธีประเมินอุปกรณ์ประสงค์ร้าย เพื่อกันข้อมูล RFF รั่ว โดยยอมเสียความแม่นยำเล็กน้อย",
+      "datasets": [
+        "RFF dataset"
+      ],
+      "data_detail": "-",
+      "method": "SL + differential privacy + malicious device evaluation",
+      "sl_setup": "swarm learning",
+      "results": [
+        {
+          "setting": "ตามบทคัดย่อ",
+          "metric": "-",
+          "values": {
+            "SL+DP": "ความเป็นส่วนตัวสูงขึ้น แลกกับ precision ที่ลดลงเล็กน้อย"
+          },
+          "source": "web"
+        }
+      ],
+      "findings": [
+        "ใช้ DP ร่วมกับ SL ซึ่งสวนทางกับ Madni 2023 ที่อ้างว่า SL ไม่ต้องใช้ DP",
+        "มีกลไกคัดอุปกรณ์ประสงค์ร้ายออกจาก swarm"
+      ],
+      "caveats": [
+        "ไม่รู้ชื่อชุด RFF จำนวนอุปกรณ์ และค่า ε ของ DP",
+        "ข้อมูลเป็น IQ sample ไม่ใช่ network traffic"
+      ],
+      "sl_fit": "สูง — SL + DP",
+      "fit_to_project": "client ตอนนี้รับ tabular ต้องเพิ่ม CNN 1D ถ้าจะใช้ · ใช้อ้างเรื่องเติม DP ให้ swarm ได้",
+      "evidence": [],
+      "links": [
+        "https://ieeexplore.ieee.org/document/10211163/"
+      ],
+      "headline": "RF fingerprint: SL + differential privacy ยืนยันตัวตนอุปกรณ์ ความเป็นส่วนตัวสูงขึ้น precision ลดลงเล็กน้อย",
+      "tier": "A"
+    },
+    {
+      "key": "hbsl2022",
+      "title": "Integrating Human-in-the-loop into Swarm Learning for Decentralized Fake News Detection (HBSL)",
+      "authors": "X. Dong, S. Sarker, L. Qian",
+      "venue": "IDSTA 2022 · arXiv:2201.02048 · IEEE Xplore 9923043",
+      "origin": "web",
+      "cyber": "รอง — information security (ข่าวปลอม/misinformation)",
+      "problem": "ระบบตรวจข่าวปลอมแบบรวมศูนย์ต้องเก็บข้อมูลผู้ใช้ไว้ที่เดียว และใช้ feedback ของผู้ใช้ไม่ได้เต็มที่ HBSL ให้ผู้ใช้แต่ละโหนดให้ feedback กับผลทำนาย แล้วโหนดนำ feedback มาขยายชุดเทรนและ fine-tune โมเดลต่อใน swarm",
+      "datasets": [
+        "LIAR"
+      ],
+      "data_detail": "LIAR: ข้อความสั้นพร้อม label ความจริง 6 ระดับ (benchmark fake news)",
+      "method": "swarm learning + human-in-the-loop feedback",
+      "sl_setup": "swarm learning แบบกระจายหลายโหนด",
+      "results": [
+        {
+          "setting": "LIAR",
+          "metric": "ตามบทคัดย่อ",
+          "values": {
+            "HBSL vs SL": "HBSL ดีขึ้นอย่างมีนัยสำคัญในทุกโหนด"
+          },
+          "source": "web"
+        }
+      ],
+      "findings": [
+        "แสดงว่า SL รับข้อมูลใหม่จากผู้ใช้เข้ามาเทรนต่อได้เรื่อย ๆ (continual)"
+      ],
+      "caveats": [
+        "ข้อมูลเป็นข้อความ ไม่ใช่ network/IoT",
+        "ไม่รู้ตัวเลขผลและจำนวนโหนด"
+      ],
+      "sl_fit": "สูง — SL ตรงตัว",
+      "fit_to_project": "ต่ำสำหรับ IDS · ไอเดียเรื่อง feedback loop ใช้กับการติด label ทราฟฟิกที่ SOC ยืนยันแล้วได้",
+      "evidence": [],
+      "links": [
+        "https://arxiv.org/abs/2201.02048",
+        "https://ieeexplore.ieee.org/document/9923043/"
+      ],
+      "headline": "LIAR: SL + feedback ของผู้ใช้ ดีกว่า SL เดิมอย่างมีนัยสำคัญทุกโหนด",
+      "tier": "A"
     },
     {
       "key": "chen2023backdoor",
       "title": "Backdoor attacks against distributed swarm learning",
-      "authors": "Chen et al.",
-      "venue": "ISA Transactions, 2023",
+      "authors": "K. Chen, H. Zhang, X. Feng, X. Zhang, B. Mi, Z. Jin",
+      "venue": "ISA Transactions 141:59–72, 2023 · PMID 37012167",
       "origin": "web",
       "cyber": "หลัก — backdoor attack ต่อ SL",
-      "problem": "SL ไม่มี server กลางคอยกรอง update จึงถูกฝัง backdoor ได้ง่ายขึ้น โดยเฉพาะเมื่อข้อมูล non-IID",
+      "problem": "SL ไม่มี server กลางคอยกรอง update ผู้โจมตีจึงฝัง backdoor pattern ให้ global model จำผิดได้ ผู้เขียนวัดผลของ backdoor ใน SL หลายสถานการณ์และเสนอวิธีป้องกัน",
       "datasets": [
         "MNIST",
         "CIFAR-10",
         "SVHN"
       ],
-      "data_detail": "benchmark ภาพ 3 ชุด · ทดลองทั้ง IID และ non-IID · ขนาดเครือข่ายหลายระดับ",
+      "data_detail": "ทดลองทั้ง IID และ non-IID และขนาดเครือข่ายหลายระดับ",
       "method": "pixel-pattern backdoor · single vs multi-target · single-shot vs multiple-shot",
-      "sl_setup": "distributed SL (รายละเอียด framework ต้องดูฉบับเต็ม)",
+      "sl_setup": "distributed SL",
       "results": [
         {
-          "setting": "ผลตามบทคัดย่อ",
+          "setting": "ตามบทคัดย่อ",
           "metric": "-",
           "values": {
-            "การป้องกัน": "L2 regularization และ noise injection ลดผลของ backdoor ได้ตามการทดลอง"
+            "การป้องกัน": "L2 regularization และ noise injection ลดผลของ backdoor ได้"
           },
           "source": "web"
         }
@@ -655,113 +782,119 @@
         "เป็นงานแรก ๆ ที่วัด backdoor กับ SL โดยตรงและเสนอการป้องกันที่ไม่ต้องมี server"
       ],
       "caveats": [
-        "ยังไม่ได้ตัวเลข attack success rate — ต้องอ่านฉบับเต็ม"
+        "ยังไม่ได้ตัวเลข attack success rate",
+        "ใช้ภาพ benchmark ไม่ใช่ข้อมูล cyber — ยังไม่รู้ว่า backdoor บน traffic ทำงานเหมือนกันไหม"
       ],
-      "sl_fit": "โจมตีขั้น merge ของ SL ตรง ๆ ใช้ได้กับทุก SL ที่ใช้ FedAvg",
-      "fit_to_project": "ทำซ้ำได้ใน sl-fabric ทันที: ให้ Org หนึ่งเทรนบนข้อมูลที่ฝัง trigger แล้วดูว่า global model ติด backdoor ไหม · ledger ของโปรเจกต์จะบันทึก hash ของ update ที่มี backdoor ไว้ถาวร — ใช้ไล่หาต้นตอย้อนหลังได้ แต่ไม่ได้กันไว้ก่อน",
+      "sl_fit": "สูง — โจมตีขั้น merge ของ SL ตรง ๆ",
+      "fit_to_project": "ทำซ้ำบน N-BaIoT ใน sl-fabric ได้: ให้ Org หนึ่งเทรนบนทราฟฟิกที่ฝัง trigger แล้วดูว่า global model ติด backdoor ไหม · ledger บันทึก hash ของ update ที่มี backdoor ไว้ถาวร ใช้ไล่ต้นตอย้อนหลังได้แต่ไม่ได้กันไว้ก่อน",
       "evidence": [],
       "links": [
+        "https://pubmed.ncbi.nlm.nih.gov/37012167/",
         "https://www.sciencedirect.com/science/article/abs/pii/S0019057823001441"
       ],
-      "headline": ""
+      "headline": "",
+      "tier": "B"
     },
     {
       "key": "yang2022sse",
       "title": "Propagable Backdoors over Blockchain-based Federated Learning via Sample-Specific Eclipse",
-      "authors": "Yang et al.",
-      "venue": "IEEE conference, 2022",
+      "authors": "Z. Yang, G. Li, J. Wu, W. Yang",
+      "venue": "IEEE GLOBECOM 2022, pp. 2579–2584",
       "origin": "web",
       "cyber": "หลัก — eclipse attack บนชั้น P2P ของเชน + backdoor",
-      "problem": "ช่องโหว่ของ blockchain และของ FL ที่ดูไม่เกี่ยวกัน เมื่อรวมกันกลายเป็นภัยใหม่ต่อ SL",
+      "problem": "ช่องโหว่ของ blockchain และของ FL ที่ดูไม่เกี่ยวกัน เมื่อรวมกันกลายเป็นภัยใหม่ต่อ swarm learning ผู้เขียนเสนอ sample-specific eclipse (SSE) ที่ตัดการเชื่อมต่อโหนดที่ data contribution สูงแล้วป้อนโมเดลที่ฝัง backdoor",
       "datasets": [
         "(ต้องดูฉบับเต็ม)"
       ],
       "data_detail": "-",
-      "method": "sample-specific eclipse (SSE): เลือกตัดการเชื่อมต่อโหนดที่ data contribution สูง แล้วป้อน model ที่ฝัง backdoor ให้",
-      "sl_setup": "blockchain-based FL / SL",
+      "method": "eclipse attack เลือกเป้าตาม data contribution + backdoor poisoning",
+      "sl_setup": "blockchain-based FL (ผู้เขียนเรียกว่า swarm learning)",
       "results": [
         {
-          "setting": "ผลตามบทคัดย่อ",
+          "setting": "ตามบทคัดย่อ",
           "metric": "-",
           "values": {
-            "SSE": "backdoor แพร่เร็วขึ้นและต้นทุนการโจมตีต่ำลงเมื่อเล็งโหนดที่ contribution สูง"
+            "SSE": "backdoor แพร่เร็วขึ้นและต้นทุนการโจมตีต่ำลง"
           },
           "source": "web"
         }
       ],
       "findings": [
-        "แสดงว่าชั้นเครือข่ายของเชนเป็นพื้นผิวโจมตีของโมเดลได้ด้วย ไม่ใช่แค่ของ ledger"
+        "ชั้นเครือข่ายของเชนเป็นพื้นผิวโจมตีของโมเดลได้ ไม่ใช่แค่ของ ledger"
       ],
       "caveats": [
         "ยังไม่ได้ชุดข้อมูลและตัวเลข"
       ],
-      "sl_fit": "โจมตีจุดที่ SL ต่างจาก FL พอดี (P2P network)",
-      "fit_to_project": "PoC ปัจจุบันไม่มี P2P จริง (process เดียว) · ถ้าแยกเครื่อง ควรกำหนดให้ peer ของ Fabric ต่อกันผ่าน gossip หลายเส้นทาง",
+      "sl_fit": "สูง — โจมตีจุดที่ SL ต่างจาก FL (P2P)",
+      "fit_to_project": "PoC ปัจจุบันไม่มี P2P จริง (process เดียว) · ถ้าแยกเครื่องควรให้ peer ของ Fabric ต่อกันหลายเส้นทาง",
       "evidence": [],
       "links": [
         "https://ieeexplore.ieee.org/document/10001370/"
       ],
-      "headline": ""
+      "headline": "",
+      "tier": "B"
     },
     {
-      "key": "zta2024",
+      "key": "zta2023",
       "title": "Zero-Trust Empowered Decentralized Security Defense against Poisoning Attacks in SL-IoT: Joint Distance-Accuracy Detection Approach",
-      "authors": "Rongxuan et al.",
-      "venue": "IEEE conference, 2024 (โค้ด/ข้อมูลบน Zenodo 13874888)",
+      "authors": "R. Song, J. Wu, Q. Pan, M. Imran, N. Naser, R. Jones, C. Verikoukis",
+      "venue": "IEEE GLOBECOM 2023 · doi:10.1109/GLOBECOM54140.2023.10437789 · ฉบับเต็มบน Zenodo 13874888",
       "origin": "web",
-      "cyber": "หลัก — poisoning defense",
-      "problem": "งานป้องกันเดิมกันแต่ edge node แต่ใน SL leader (header) ที่ประสงค์ร้ายทำลาย global model ได้ง่ายกว่า",
+      "cyber": "หลัก — poisoning defense สำหรับ SL-IoT",
+      "problem": "ใน SL โหนด header (leader) เป็นผู้อัปเดต global parameter ถ้า header ประสงค์ร้ายจะทำลายโมเดลได้ง่ายกว่า edge node ผู้เขียนใช้ zero-trust คำนวณความเสี่ยงต่อเนื่อง วิเคราะห์พฤติกรรมการเรียน และตรวจ parameter ผิดปกติ",
       "datasets": [
         "(ต้องดูฉบับเต็ม)"
       ],
-      "data_detail": "-",
-      "method": "zero-trust: คำนวณความเสี่ยงต่อเนื่อง ใช้ Manhattan distance ระหว่าง update + ความต่างของ accuracy ตรวจทั้ง header และ edge node",
-      "sl_setup": "SL-IoT",
+      "data_detail": "ทดลองกับ edge node ประสงค์ร้ายแบบสุ่มและแบบปรับแต่ง",
+      "method": "zero-trust architecture · Manhattan distance ระหว่าง parameter + ความต่างของ accuracy",
+      "sl_setup": "SL-IoT (มี header หมุนเวียน)",
       "results": [
         {
-          "setting": "ผลตามบทคัดย่อ",
+          "setting": "ตามบทคัดย่อ",
           "metric": "-",
           "values": {
-            "ZTA defense": "ตรวจจับ poisoning ได้ทั้งจาก header และ edge node ตามการทดลองของผู้เขียน"
+            "ZTA defense": "accuracy สูงกว่าวิธีเดิมเมื่อมีโหนดประสงค์ร้าย"
           },
           "source": "web"
         }
       ],
       "findings": [
-        "เป็นงานเดียวที่เจอซึ่งมองว่า leader เองคือผู้โจมตี"
+        "เป็นงานเดียวที่ค้นเจอซึ่งมองว่า leader เองคือผู้โจมตี"
       ],
       "caveats": [
-        "ยังไม่ได้ตัวเลข"
+        "ยังไม่ได้ชุดข้อมูลและตัวเลข — ฉบับเต็มอยู่บน Zenodo ซึ่งถูกบล็อกจากเครื่องที่รัน"
       ],
-      "sl_fit": "ออกแบบมาเพื่อ SL โดยเฉพาะ (มี header หมุนเวียน)",
-      "fit_to_project": "เข้ากับโปรเจกต์ดีมาก: chaincode รู้ว่าใครคือ leader และมี hash ของทุก update อยู่แล้ว · ขยายได้โดยให้โหนดส่ง accuracy บน validation ของตัวเองกับ global model แล้วให้ chaincode ปฏิเสธรอบที่ accuracy ตกผิดปกติ",
+      "sl_fit": "สูง — ออกแบบมาเพื่อ SL โดยเฉพาะ",
+      "fit_to_project": "chaincode รู้ว่าใครคือ leader และมี hash ของทุก update อยู่แล้ว · ขยายได้โดยให้โหนดรายงาน accuracy บน validation ของตัวเองกับ global model แล้วให้ chaincode ปฏิเสธรอบที่ accuracy ตกผิดปกติ",
       "evidence": [],
       "links": [
         "https://ieeexplore.ieee.org/document/10437789/",
         "https://zenodo.org/records/13874888"
       ],
-      "headline": ""
+      "headline": "",
+      "tier": "B"
     },
     {
       "key": "swarmfhe2023",
       "title": "Swarm-FHE: Fully Homomorphic Encryption-based Swarm Learning for Malicious Clients",
-      "authors": "Madni et al. (กลุ่มเดียวกับ paper Madni 2023 ในเครื่อง)",
-      "venue": "International Journal of Neural Systems, 2023 · PubMed 37246573",
+      "authors": "H. A. Madni, R. M. Umer, G. L. Foresti (กลุ่มเดียวกับ Madni 2023 ในเครื่อง)",
+      "venue": "International Journal of Neural Systems 33(8):2350033, 2023 · PMID 37246573",
       "origin": "web",
       "cyber": "หลัก — gradient leakage เมื่อมี participant ประสงค์ร้าย",
-      "problem": "ต่อจาก Madni 2023: เมื่อ participant บางรายถูกยึด การส่ง parameter ดิบก็ยังรั่ว จึงเข้ารหัสด้วย FHE",
+      "problem": "ต่อจาก Madni 2023: GAN กู้ข้อมูลดิบจาก parameter ได้ และ participant บางรายอาจถูกยึด จึงเข้ารหัส parameter ด้วย FHE ก่อนแชร์ให้สมาชิกที่ลงทะเบียนผ่าน blockchain",
       "datasets": [
-        "(ต้องดูฉบับเต็ม)"
+        "CIFAR-10",
+        "MNIST"
       ],
-      "data_detail": "-",
-      "method": "เข้ารหัส model parameter ด้วย fully homomorphic encryption ก่อนแชร์ · สมาชิกลงทะเบียน/ยืนยันด้วย blockchain",
-      "sl_setup": "SL + FHE",
+      "data_detail": "เทรน CNN บน CIFAR-10 และ MNIST",
+      "method": "fully homomorphic encryption ของ model parameter · แชร์ ciphertext ระหว่างผู้ร่วม",
+      "sl_setup": "SL + blockchain registration + FHE",
       "results": [
         {
-          "setting": "ผลตามบทคัดย่อ",
+          "setting": "ตามบทคัดย่อ",
           "metric": "-",
           "values": {
-            "Swarm-FHE": "เทรนร่วมกันได้แม้มี participant ที่ถูกยึด โดยไม่ต้องเปิด parameter ดิบ"
+            "Swarm-FHE": "เทรนร่วมกันได้โดยไม่เปิด parameter ดิบ แม้มี participant ถูกยึด"
           },
           "source": "web"
         }
@@ -771,134 +904,437 @@
       ],
       "caveats": [
         "FHE หนักมาก ต้องดู overhead ในฉบับเต็ม",
-        "ยังไม่ได้ตรวจชื่อผู้แต่งครบจากฉบับเต็ม"
+        "ข้อมูลเป็นภาพ benchmark"
       ],
-      "sl_fit": "เพิ่มชั้น confidentiality ให้ SL โดยไม่เปลี่ยน workflow",
-      "fit_to_project": "aggregation เป็น FedAvg บน vector ทศนิยม ทำใน CKKS ได้ · ledger ยังเก็บ hash ของ ciphertext ได้เหมือนเดิม",
+      "sl_fit": "สูง — เพิ่มชั้น confidentiality ให้ SL โดยไม่เปลี่ยน workflow",
+      "fit_to_project": "FedAvg บน vector ทศนิยมทำใน CKKS ได้ · ledger เก็บ hash ของ ciphertext ได้เหมือนเดิม",
       "evidence": [],
       "links": [
         "https://pubmed.ncbi.nlm.nih.gov/37246573/"
       ],
-      "headline": ""
+      "headline": "",
+      "tier": "B"
     },
     {
-      "key": "adonis2023",
-      "title": "Swarm Learning and Knowledge Distillation Empowered Self-Driving Detection Against Threat Behavior for Intelligent IoT (ADONIS)",
-      "authors": "-",
-      "venue": "IEEE journal, 2023 · IEEE Xplore 10310124",
+      "key": "masl2023",
+      "title": "Multi-Region Asynchronous Swarm Learning for Data Sharing in Large-Scale Internet of Vehicles (MASL)",
+      "authors": "Yin et al.",
+      "venue": "2023",
       "origin": "web",
-      "cyber": "หลัก — IoT anomaly / threat behavior detection",
-      "problem": "ตรวจพฤติกรรมผิดปกติเล็ก ๆ ของอุปกรณ์ IoT โดยไม่รวมข้อมูลไว้ที่ศูนย์และให้อุปกรณ์เล็กรันได้",
+      "cyber": "รอง — identity verification + anomaly detection ใน IoV",
+      "problem": "IoV ขนาดใหญ่มีข้อมูล non-IID และต้องแชร์อย่างปลอดภัย MASL ใช้ hierarchical blockchain รันหลายภูมิภาคขนานกัน รวม identity verification กับการเทรนแบบ asynchronous",
       "datasets": [
-        "traffic dataset (ตาม Table 5 ของ survey)"
+        "GTSRB (ตาม Table 3 ของ survey)"
       ],
-      "data_detail": "-",
-      "method": "SL สำหรับ local data fusion + knowledge distillation ให้โมเดลเบาพอสำหรับอุปกรณ์ + human–computer interaction ช่วยแก้ label",
-      "sl_setup": "SL (swarm defense)",
+      "data_detail": "GTSRB เป็นภาพป้ายจราจร — ไม่ใช่ข้อมูล cyber",
+      "method": "asynchronous SL แบบหลายภูมิภาค + hierarchical blockchain",
+      "sl_setup": "SL หลายชั้น: ภายในภูมิภาค และข้ามภูมิภาค",
       "results": [
         {
-          "setting": "ผลตามบทคัดย่อ/survey",
+          "setting": "ตามบทคัดย่อ",
           "metric": "-",
           "values": {
-            "ADONIS": "ความปลอดภัยและประสิทธิภาพของ IoT ดีขึ้น ลด latency และลดความเสี่ยงจาก central node"
+            "MASL": "ทั้ง simulation และ hardware testbed ดีกว่าวิธีเดิมด้าน efficiency และ security"
           },
           "source": "web"
         }
       ],
       "findings": [
-        "เป็นตัวอย่าง SL ที่ใช้กับ network traffic โดยตรง"
+        "แนวคิด SL สองชั้นช่วยเรื่อง non-IID และการขยายขนาด"
       ],
       "caveats": [
-        "ยังไม่รู้ชื่อชุดข้อมูลจริงและตัวเลข"
-      ],
-      "sl_fit": "SL ตรงตัว + distillation สำหรับ edge",
-      "fit_to_project": "ใช้เป็นหลักฐานว่า SL กับ traffic-based IDS ไปด้วยกันได้ · distillation ตอบโจทย์ขนาด parameter ที่ต้อง hash/ส่งต่อรอบ",
-      "evidence": [],
-      "links": [
-        "https://ieeexplore.ieee.org/document/10310124/"
-      ],
-      "headline": ""
-    },
-    {
-      "key": "rff2023",
-      "title": "Improved Swarm Learning with Differential Privacy for Radio Frequency Fingerprinting",
-      "authors": "-",
-      "venue": "IEEE conference, 2023 · IEEE Xplore 10211163",
-      "origin": "web",
-      "cyber": "หลัก — physical-layer authentication ของอุปกรณ์ IoT",
-      "problem": "ยืนยันตัวตนอุปกรณ์ด้วยลายนิ้วมือคลื่นวิทยุ โดยไม่รวมสัญญาณดิบจากหลายเครื่องรับไว้ที่เดียว",
-      "datasets": [
-        "RFF dataset"
-      ],
-      "data_detail": "-",
-      "method": "SL + differential privacy + วิธีประเมินอุปกรณ์ประสงค์ร้าย",
-      "sl_setup": "SL",
-      "results": [
-        {
-          "setting": "ผลตามบทคัดย่อ",
-          "metric": "-",
-          "values": {
-            "SL+DP": "ความเป็นส่วนตัวสูงขึ้นและคัดอุปกรณ์ประสงค์ร้ายได้"
-          },
-          "source": "web"
-        }
-      ],
-      "findings": [
-        "ใช้ DP ร่วมกับ SL — คำตอบตรงข้ามกับ Madni ที่อ้างว่า SL ไม่ต้องใช้ DP"
-      ],
-      "caveats": [
+        "ข้อมูลเป็นภาพ ไม่ใช่ cyber",
         "ยังไม่ได้ตัวเลข"
       ],
-      "sl_fit": "SL + DP",
-      "fit_to_project": "ข้อมูล IQ sample ไม่เข้ากับ client ตอนนี้ (ต้องใช้ CNN 1D) · ใช้อ้างเรื่อง DP เป็นส่วนเสริมได้",
+      "sl_fit": "สูง — SL + blockchain",
+      "fit_to_project": "ถ้าขยายเกิน 5 org อาจแบ่ง channel ของ Fabric ตามภูมิภาคแล้วรวมอีกชั้น",
       "evidence": [],
       "links": [
-        "https://ieeexplore.ieee.org/document/10211163/"
+        "https://www.researchgate.net/publication/373856168_Multi-Region_Asynchronous_Swarm_Learning_for_Data_Sharing_in_Large-Scale_Internet_of_Vehicles"
       ],
-      "headline": ""
+      "headline": "",
+      "tier": "B"
     },
     {
-      "key": "siml2025",
-      "title": "Orchestrating machine learning models in a swarm architecture for IoT inline malware detection (SIML)",
-      "authors": "M. Hanif, E. U. Munir, M. M. Rehan, et al.",
-      "venue": "Scientific Reports, ธ.ค. 2025 · doi:10.1038/s41598-025-28859-w",
+      "key": "dsl2023",
+      "title": "DAG-based swarm learning: A secure asynchronous learning framework for Internet of Vehicles (DSL)",
+      "authors": "Huang et al.",
+      "venue": "Digital Communications and Networks (Elsevier), 2023",
       "origin": "web",
-      "cyber": "หลัก — IoT malware / inline traffic detection",
-      "problem": "IDS แบบตัวเดียวไม่ทันภัยใหม่ใน IoT จึงให้โมเดลหลายตัวทำงานร่วมกันเป็น swarm แบบ inline",
+      "cyber": "รอง — ตรวจรถประสงค์ร้ายระหว่างเทรน",
+      "problem": "ใช้ blockchain แบบ DAG กับ edge computing ให้รถเทรนแบบ asynchronous ได้ปลอดภัย มีวิธีตรวจรถประสงค์ร้ายจาก site confirmation rate และให้รางวัลตาม accuracy เพื่อจูงใจให้เทรนอย่างซื่อสัตย์",
       "datasets": [
-        "UNSW-NB15",
-        "BoT-IoT",
-        "Edge-IIoTset"
+        "GTSRB (ตาม Table 3 ของ survey)"
       ],
-      "data_detail": "UNSW-NB15 เป็นชุดหลัก · เทียบเพิ่มกับ BoT-IoT และ Edge-IIoTset",
-      "method": "Gradient-Boosting Tree ใน swarm-based inline ML",
-      "sl_setup": "swarm architecture ของโมเดล — ไม่ใช่ HPE SL และไม่มี blockchain",
+      "data_detail": "GTSRB เป็นภาพป้ายจราจร — ไม่ใช่ข้อมูล cyber",
+      "method": "DAG blockchain + dynamic vehicle association + malicious attack detection + incentive",
+      "sl_setup": "DAG-based SL (asynchronous)",
       "results": [
         {
-          "setting": "UNSW-NB15 (GBT)",
-          "metric": "จากผลค้น",
+          "setting": "ตามบทคัดย่อ",
+          "metric": "-",
           "values": {
-            "accuracy": "93.7%",
-            "precision": "95%",
-            "F-measure": "84.82% (อีก snippet หนึ่ง)"
+            "DSL": "accuracy, convergence และ security ดีกว่าวิธีเดิม"
           },
           "source": "web"
         }
       ],
       "findings": [
-        "ประสิทธิภาพลดลงเล็กน้อยเมื่อ throughput สูง"
+        "ตรวจผู้ร่วมประสงค์ร้ายจากพฤติกรรมบนเชน (confirmation rate) ไม่ต้องดูข้อมูลดิบ"
       ],
       "caveats": [
-        "คำว่า swarm ในงานนี้คือการจัด orchestration ของโมเดล ไม่ใช่ SL แบบ decentralized training — อย่าอ้างเป็น SL",
-        "สอง snippet ให้ตัวเลขต่างกัน (accuracy 93.7% vs F-measure 84.82%) ต้องอ่านฉบับเต็ม"
+        "ข้อมูลเป็นภาพ ไม่ใช่ cyber",
+        "ยังไม่ได้ตัวเลข"
       ],
-      "sl_fit": "ต่ำ — ไม่มีการเทรนร่วมแบบไม่แชร์ข้อมูล",
-      "fit_to_project": "ใช้เป็น baseline ตัวเลขบน UNSW-NB15/Edge-IIoTset ได้เท่านั้น",
+      "sl_fit": "สูง — SL + DAG blockchain",
+      "fit_to_project": "แนวคิด incentive ตาม accuracy ใช้ต่อยอดใน chaincode ได้ (บันทึก accuracy ต่อรอบอยู่แล้ว)",
       "evidence": [],
       "links": [
-        "https://www.nature.com/articles/s41598-025-28859-w"
+        "https://www.sciencedirect.com/science/article/pii/S2352864823001578"
       ],
-      "headline": "UNSW-NB15: accuracy 93.7%, precision 95% (GBT) — แต่ไม่ใช่ SL จริง"
+      "headline": "",
+      "tier": "B"
+    },
+    {
+      "key": "pentidef2026",
+      "title": "PenTiDef: Decentralized Federated Intrusion Detection System with Differential Privacy and Latent-Space Defense via Blockchain Coordination in IIoT",
+      "authors": "-",
+      "venue": "arXiv:2602.17973, 2026",
+      "origin": "web",
+      "cyber": "หลัก — IDS สำหรับ IIoT ที่ทนต่อ poisoning",
+      "problem": "DFL-IDS ที่ไม่มี server กลางต้องทั้งรักษาความลับและทนต่อ poisoning PenTiDef ใช้ distributed differential privacy ใช้ latent space ของ neural network ตรวจ update ประสงค์ร้าย และใช้ blockchain + smart contract จัดการ aggregation เก็บประวัติ update และบังคับ trust",
+      "datasets": [
+        "CIC-IDS2018",
+        "Edge-IIoTset"
+      ],
+      "data_detail": "ทดลองหลายสถานการณ์การโจมตีและหลายแบบการกระจายข้อมูล",
+      "method": "DFL + distributed DP + latent-space representation defense",
+      "sl_setup": "decentralized FL ประสานด้วย blockchain smart contract — ใกล้ SL มากที่สุดในกลุ่มนี้",
+      "results": [
+        {
+          "setting": "CIC-IDS2018, Edge-IIoTset",
+          "metric": "ตามบทคัดย่อ",
+          "values": {
+            "PenTiDef": "ดีกว่า FLARE และ FedCC ในทุกสถานการณ์การโจมตีที่ทดสอบ"
+          },
+          "source": "web"
+        }
+      ],
+      "findings": [
+        "รวม privacy (DP) กับ robustness (ตรวจ poisoning) ใน IDS แบบไม่มี server",
+        "ใช้ smart contract ติดตามประวัติ update เหมือน ledger ของโปรเจกต์"
+      ],
+      "caveats": [
+        "ยังไม่ได้ตัวเลข accuracy",
+        "preprint ยังไม่ผ่าน peer review (ณ ที่ค้นเจอ)"
+      ],
+      "sl_fit": "สูง — แทบเป็น SL บน IDS: ไม่มี server, เชนประสาน, ตรวจ update",
+      "fit_to_project": "ต้นแบบที่ใกล้ที่สุดสำหรับ sl-fabric บน Edge-IIoTset · เทียบ defense กับ FLARE/FedCC ได้ตรง",
+      "evidence": [],
+      "links": [
+        "https://arxiv.org/abs/2602.17973"
+      ],
+      "headline": "CIC-IDS2018 + Edge-IIoTset: DFL + DP + smart contract ชนะ FLARE/FedCC ทุกสถานการณ์โจมตี",
+      "tier": "C"
+    },
+    {
+      "key": "dofid2023",
+      "title": "Decentralized Online Federated G-Network Learning for Lightweight Intrusion Detection (DOF-ID)",
+      "authors": "M. Nakıp, B. C. Gül, E. Gelenbe",
+      "venue": "IEEE, 2023 · arXiv:2306.13029 · IEEE Xplore 10387644",
+      "origin": "web",
+      "cyber": "หลัก — IDS แบบ online",
+      "problem": "ให้ IDS หลายตัวในระบบเรียนจากประสบการณ์ของกันและกันโดยไม่แชร์ข้อมูล ใช้โมเดล G-Network เทรนแบบ decentralized และ online (เรียนต่อเนื่องระหว่างใช้งาน)",
+      "datasets": [
+        "Kitsune",
+        "BoT-IoT"
+      ],
+      "data_detail": "Kitsune และ BoT-IoT ชุดสาธารณะ",
+      "method": "G-Network (random neural network) + decentralized online federated learning",
+      "sl_setup": "decentralized FL — ไม่มี server กลาง ไม่มี blockchain",
+      "results": [
+        {
+          "setting": "Kitsune, BoT-IoT",
+          "metric": "ตามบทคัดย่อ",
+          "values": {
+            "DOF-ID": "accuracy สูงกว่าวิธีเทียบอย่างน้อย 15%",
+            "overhead": "เวลาคำนวณเพิ่มเฉลี่ย 30 ms ต่อโหนดต่อรอบ federated update"
+          },
+          "source": "web"
+        }
+      ],
+      "findings": [
+        "decentralized learning ช่วย IDS ได้มากเมื่อแต่ละโหนดเห็นการโจมตีต่างกัน",
+        "overhead ต่ำพอสำหรับอุปกรณ์เล็ก"
+      ],
+      "caveats": [
+        "ไม่มี ledger ตรวจสอบย้อนหลัง",
+        "ตัวเลข +15% เทียบกับ baseline แบบไหนต้องดูฉบับเต็ม"
+      ],
+      "sl_fit": "กลาง — decentralized จริงแต่ไม่มีเชนและไม่มี leader",
+      "fit_to_project": "Kitsune ใช้ฟีเจอร์ 115 ตัวแบบเดียวกับ N-BaIoT · ตัวเลข overhead 30 ms เทียบกับเวลาที่ ledger ของเราใช้ต่อรอบได้",
+      "evidence": [],
+      "links": [
+        "https://arxiv.org/abs/2306.13029",
+        "https://ieeexplore.ieee.org/document/10387644/"
+      ],
+      "headline": "Kitsune + BoT-IoT: decentralized online FL แม่นกว่า baseline ≥15%, overhead 30 ms/โหนด",
+      "tier": "C"
+    },
+    {
+      "key": "crowdsensing2026",
+      "title": "A Crowdsensing Intrusion Detection Dataset For Decentralized Federated Learning Models",
+      "authors": "-",
+      "venue": "Scientific Data, 2026 · arXiv:2507.13313",
+      "origin": "web",
+      "cyber": "หลัก — malware detection ใน IoT crowdsensing",
+      "problem": "เสนอชุดข้อมูลที่ออกแบบมาเพื่อ decentralized FL โดยตรง พร้อมผลเทียบ ML ทั่วไป, centralized FL และ DFL ในจำนวนโหนด topology และการกระจายข้อมูลต่าง ๆ",
+      "datasets": [
+        "IoT Crowdsensing DFL dataset"
+      ],
+      "data_detail": "benign + malware 8 ตระกูล · 21,582,484 record ดิบจาก system call, file system, resource usage, kernel event, I/O และ network · รวมเป็นหน้าต่าง 30 วินาทีได้ 342,106 ชุดข้อมูลสำหรับเทรน",
+      "method": "เทียบ ML / CFL / DFL บนแพลตฟอร์ม DFL",
+      "sl_setup": "DFL หลาย topology",
+      "results": [
+        {
+          "setting": "ตามบทคัดย่อ",
+          "metric": "-",
+          "values": {
+            "DFL vs CFL": "DFL ได้ผลใกล้เคียงและดีกว่า CFL ในเกือบทุกการตั้งค่า"
+          },
+          "source": "web"
+        }
+      ],
+      "findings": [
+        "เป็นชุดข้อมูล cyber ชุดเดียวที่เจอซึ่งออกแบบมาสำหรับ DFL และมีผลเทียบ CFL/DFL ในตัว"
+      ],
+      "caveats": [
+        "เป็น host-based (system call ฯลฯ) ผสม network ไม่ใช่ network flow ล้วน",
+        "ต้องตรวจว่าแบ่งโหนดตามอุปกรณ์จริงหรือไม่"
+      ],
+      "sl_fit": "สูงด้านข้อมูล — ออกแบบมาให้หลายโหนดเทรนร่วมกัน",
+      "fit_to_project": "ผู้สมัครชุดข้อมูลใหม่ที่น่าสนใจ: มี baseline DFL ให้เทียบตรงกับ swarm ของเรา",
+      "evidence": [],
+      "links": [
+        "https://arxiv.org/abs/2507.13313",
+        "https://www.nature.com/articles/s41597-026-07155-w"
+      ],
+      "headline": "ชุดข้อมูล malware 8 ตระกูลที่ทำมาเพื่อ DFL โดยตรง; DFL ดีกว่า CFL เกือบทุกการตั้งค่า",
+      "tier": "C"
+    },
+    {
+      "key": "flbcids2025",
+      "title": "FLBC-IDS: a federated learning and blockchain-based intrusion detection system for secure IoT environments",
+      "authors": "Govindaram, Jegatheesan",
+      "venue": "Multimedia Tools and Applications, 2025",
+      "origin": "web",
+      "cyber": "หลัก — IoT IDS",
+      "problem": "รวม horizontal FL, Hyperledger blockchain และ EfficientNet ตรวจการบุกรุกใน IoT Hyperledger บันทึก model update และข้อตกลงระหว่างโหนดแบบแก้ไขไม่ได้",
+      "datasets": [
+        "CIC-IDS2018",
+        "CICIoT2023"
+      ],
+      "data_detail": "สองชุดข้อมูล network traffic",
+      "method": "horizontal FL + EfficientNet + Hyperledger",
+      "sl_setup": "FL + Hyperledger (มี aggregator) — ใช้ Hyperledger เหมือนโปรเจกต์",
+      "results": [
+        {
+          "setting": "CIC-IDS2018 + CICIoT2023",
+          "metric": "ตามบทคัดย่อ",
+          "values": {
+            "accuracy": "98.89%",
+            "recall": "98.044%",
+            "F1": "98.29%",
+            "precision": "98.44%"
+          },
+          "source": "web"
+        }
+      ],
+      "findings": [
+        "ใช้ Hyperledger บันทึก update เหมือน sl-fabric"
+      ],
+      "caveats": [
+        "ยังมี aggregator กลาง ไม่ใช่ SL",
+        "รายงานตัวเลขรวมสองชุดข้อมูล ต้องดูแยก"
+      ],
+      "sl_fit": "กลาง",
+      "fit_to_project": "baseline ตัวเลขบน CICIoT2023 จากระบบที่ใช้ Hyperledger เหมือนกัน",
+      "evidence": [],
+      "links": [
+        "https://link.springer.com/article/10.1007/s11042-024-19777-6"
+      ],
+      "headline": "CIC-IDS2018 + CICIoT2023: accuracy 98.89% ด้วย FL + Hyperledger (ยังมี aggregator)",
+      "tier": "C"
+    },
+    {
+      "key": "hbfl2022",
+      "title": "HBFL: A Hierarchical Blockchain-based Federated Learning Framework for a Collaborative IoT Intrusion Detection",
+      "authors": "M. Sarhan, W. W. Lo, S. Layeghy, M. Portmann",
+      "venue": "Computers & Electrical Engineering, 2022 · arXiv:2204.04254",
+      "origin": "web",
+      "cyber": "หลัก — แชร์ threat intelligence ข้ามองค์กร",
+      "problem": "หลายองค์กรอยากแชร์ความรู้เรื่องภัย IoT โดยไม่เปิดข้อมูล HBFL ใช้ FL แบบลำดับชั้น cloud–fog–edge model update และขั้นตอนทั้งหมดอยู่บน ledger และ smart contract ตรวจว่าแต่ละขั้นทำถูก",
+      "datasets": [
+        "(ต้องดูฉบับเต็ม)"
+      ],
+      "data_detail": "-",
+      "method": "hierarchical FL + blockchain + smart contract",
+      "sl_setup": "ลำดับชั้น (endpoint → combiner → reducer) ยังมีจุดรวมในแต่ละชั้น",
+      "results": [
+        {
+          "setting": "ตามบทคัดย่อ",
+          "metric": "-",
+          "values": {
+            "HBFL": "IDS ตรวจการโจมตีได้หลากหลายโดยรักษาความเป็นส่วนตัวของข้อมูล"
+          },
+          "source": "web"
+        }
+      ],
+      "findings": [
+        "เรื่องเล่า 'แชร์ threat intelligence ข้ามองค์กร' ตรงกับเหตุผลที่โปรเจกต์ต้องมี ledger"
+      ],
+      "caveats": [
+        "ยังไม่รู้ชุดข้อมูลและตัวเลข"
+      ],
+      "sl_fit": "กลาง — มีเชนและ smart contract แต่ยังเป็นลำดับชั้น",
+      "fit_to_project": "ใช้อ้างเหตุผลเชิงองค์กรของ ledger ในบทนำวิทยานิพนธ์ได้",
+      "evidence": [],
+      "links": [
+        "https://arxiv.org/abs/2204.04254"
+      ],
+      "headline": "",
+      "tier": "C"
+    },
+    {
+      "key": "bflids2024",
+      "title": "BFLIDS: Blockchain-Driven Federated Learning for Intrusion Detection in IoMT Networks",
+      "authors": "Begum, Mozumder, et al.",
+      "venue": "Sensors (MDPI) 24(14):4591, 2024",
+      "origin": "web",
+      "cyber": "หลัก — IDS สำหรับ Internet of Medical Things",
+      "problem": "IDS แบบรวมศูนย์ขัดกับความเป็นส่วนตัวของอุปกรณ์การแพทย์ จึงใช้ FL + blockchain + IPFS",
+      "datasets": [
+        "Edge-IIoTset",
+        "TON_IoT"
+      ],
+      "data_detail": "สองชุดข้อมูล IIoT/IoT ที่มี label การโจมตี",
+      "method": "adaptive max-pooling CNN และ BiLSTM + attention · FedAvg ดัดแปลงด้วย KL divergence + adaptive weight",
+      "sl_setup": "blockchain เก็บบันทึก + IPFS เก็บโมเดล — ยังมีจุดรวม",
+      "results": [
+        {
+          "setting": "FL scenario",
+          "metric": "accuracy",
+          "values": {
+            "CNN · Edge-IIoTset": "97.43%",
+            "BiLSTM · Edge-IIoTset": "96.02%",
+            "CNN · TON_IoT": "98.21%",
+            "BiLSTM · TON_IoT": "97.42%"
+          },
+          "source": "web"
+        }
+      ],
+      "findings": [
+        "ผลใกล้ centralized ตามที่ผู้เขียนรายงาน"
+      ],
+      "caveats": [
+        "ไม่ใช่ SL — ใช้เป็น baseline ฝั่ง blockchain-FL"
+      ],
+      "sl_fit": "กลาง",
+      "fit_to_project": "แยก ledger (หลักฐาน) ออกจาก storage (IPFS) เหมือนที่โปรเจกต์แยก hash ออกจาก weight",
+      "evidence": [],
+      "links": [
+        "https://www.mdpi.com/1424-8220/24/14/4591"
+      ],
+      "headline": "Edge-IIoTset 97.43%, TON_IoT 98.21% (CNN) — blockchain-FL ไม่ใช่ SL",
+      "tier": "C"
+    },
+    {
+      "key": "bfl2026",
+      "title": "A blockchain-assisted secure federated learning architecture for intrusion detection in internet of things networks (B-FL)",
+      "authors": "-",
+      "venue": "Scientific Reports, 2026 · doi:10.1038/s41598-026-53053-x",
+      "origin": "web",
+      "cyber": "หลัก — IoT IDS",
+      "problem": "IDS แบบ federated ที่ต้องไว้ใจ aggregator และขาด audit จึงเพิ่ม blockchain",
+      "datasets": [
+        "CICIoT2023"
+      ],
+      "data_detail": "CICIoT2023 เป็น benchmark หลัก",
+      "method": "blockchain-enabled secure FL",
+      "sl_setup": "blockchain-assisted FL",
+      "results": [
+        {
+          "setting": "CICIoT2023",
+          "metric": "accuracy (ตามผลค้น)",
+          "values": {
+            "B-FL": "≈98%",
+            "FL": "≈95%",
+            "centralized": "≈93%",
+            "ML ทั่วไป": "≈90%"
+          },
+          "source": "web"
+        }
+      ],
+      "findings": [
+        "รายงานว่า B-FL ดีกว่าทั้ง FL และ centralized"
+      ],
+      "caveats": [
+        "centralized แพ้ FL เป็นเรื่องผิดปกติ ต้องดู setup ในฉบับเต็มก่อนอ้าง"
+      ],
+      "sl_fit": "กลาง",
+      "fit_to_project": "baseline บน CICIoT2023",
+      "evidence": [],
+      "links": [
+        "https://www.nature.com/articles/s41598-026-53053-x"
+      ],
+      "headline": "CICIoT2023: B-FL ≈98% vs FL ≈95% vs centralized ≈93% (centralized แพ้ผิดปกติ)",
+      "tier": "C"
+    },
+    {
+      "key": "uavids2025",
+      "title": "An Efficient Privacy-preserving Intrusion Detection Scheme for UAV Swarm Networks",
+      "authors": "Gharami, Moni",
+      "venue": "AIAA/IEEE DASC 2025 · arXiv:2511.22791 · โค้ด github.com/SPIRE-Lab-2025/UAV-IDS-FL",
+      "origin": "web",
+      "cyber": "หลัก — IDS สำหรับฝูงโดรน",
+      "problem": "ฝูง UAV ถูกโจมตีได้หลายแบบ จึงเสนอ IDS แบบ federated continuous learning ที่เบา เทรนกระจายข้ามฝูงโดยไม่แชร์ข้อมูล",
+      "datasets": [
+        "UKM-IDS",
+        "UAV-IDS",
+        "TLM-UAV",
+        "Cyber-Physical"
+      ],
+      "data_detail": "4 ชุดข้อมูลการบุกรุกของ UAV/เครือข่าย",
+      "method": "federated continuous learning + สถาปัตยกรรมสามส่วนรองรับข้อมูลต่างชนิด",
+      "sl_setup": "FL (มีการรวมโมเดล) — คำว่า swarm หมายถึงฝูงโดรน ไม่ใช่ swarm learning",
+      "results": [
+        {
+          "setting": "accuracy",
+          "metric": "ตามบทคัดย่อ",
+          "values": {
+            "UKM-IDS": "99.45%",
+            "UAV-IDS": "99.99%",
+            "TLM-UAV": "96.85%",
+            "Cyber-Physical": "98.05%"
+          },
+          "source": "web"
+        }
+      ],
+      "findings": [
+        "เปิดโค้ดบน GitHub ทำซ้ำได้"
+      ],
+      "caveats": [
+        "ไม่ใช่ SL และไม่มี blockchain",
+        "99.99% บน UAV-IDS บอกว่าชุดนั้นง่ายเกินจะแยกวิธี"
+      ],
+      "sl_fit": "ต่ำ–กลาง",
+      "fit_to_project": "ใช้เป็นตัวอย่าง continual learning บน IDS ได้",
+      "evidence": [],
+      "links": [
+        "https://arxiv.org/abs/2511.22791"
+      ],
+      "headline": "4 ชุด UAV IDS: 96.85–99.99% ด้วย federated continual learning (ไม่ใช่ SL)",
+      "tier": "C"
     },
     {
       "key": "swarmsense2026",
@@ -907,12 +1343,12 @@
       "venue": "arXiv:2606.11803 / IEEE, มิ.ย. 2026",
       "origin": "web",
       "cyber": "หลัก — consumer IoT anomaly detection",
-      "problem": "ตรวจจับความผิดปกติใน IoT ผู้บริโภคแบบ real-time โดยไม่มีจุดศูนย์กลาง",
+      "problem": "ตรวจความผิดปกติใน IoT ผู้บริโภคแบบ real-time โดยไม่มีจุดศูนย์กลาง ประสานงานแบบ pheromone (swarm intelligence)",
       "datasets": [
         "5 benchmark datasets (ต้องดูฉบับเต็ม)"
       ],
       "data_detail": "-",
-      "method": "hierarchical FL + GNN + attention · ประสานงานแบบ pheromone (swarm intelligence) · differential privacy",
+      "method": "hierarchical FL + GNN + attention · pheromone-inspired coordination · differential privacy",
       "sl_setup": "decentralized แต่ไม่ได้ใช้ blockchain ตามบทคัดย่อ",
       "results": [
         {
@@ -941,90 +1377,81 @@
       "links": [
         "https://arxiv.org/abs/2606.11803"
       ],
-      "headline": "accuracy เฉลี่ย 95.44% บน 5 ชุด, ลด communication 67% — decentralized แต่ไม่มี ledger"
+      "headline": "เฉลี่ย 5 ชุด: accuracy 95.44%, ลด communication 67% — decentralized แต่ไม่มี ledger",
+      "tier": "C"
+    }
+  ],
+  "tiers": {
+    "A": {
+      "name": "swarm learning + ชุดข้อมูลสาย cyber",
+      "description": "กลุ่มหลัก: เป็น swarm learning จริง และทดลองกับข้อมูลด้าน security (traffic, RF fingerprint, ข่าวปลอม)"
+    },
+    "B": {
+      "name": "swarm learning ในงาน security (ข้อมูลไม่ใช่ cyber)",
+      "description": "โจมตีหรือป้องกันตัว SL เอง เช่น backdoor, eclipse, poisoning, gradient leakage แต่ทดลองบนภาพ benchmark"
+    },
+    "C": {
+      "name": "ชุดข้อมูล cyber + สถาปัตยกรรมคล้าย SL",
+      "description": "กลุ่มรอง: IDS บนชุดข้อมูล cyber มาตรฐาน ที่เทรนแบบ decentralized หรือใช้ blockchain ประสาน แต่ไม่ใช่ SL ตรงตัว"
+    },
+    "base": {
+      "name": "พื้นฐานของ swarm learning (ไม่ใช่ cyber)",
+      "description": "paper ในโฟลเดอร์ `paper/` ที่นิยามและวัด SL แต่ใช้ข้อมูลการแพทย์/ทั่วไป"
+    }
+  },
+  "excluded": [
+    {
+      "work": "SIML · Orchestrating ML models in a swarm architecture for IoT inline malware detection (Sci Rep 2025)",
+      "reason": "คำว่า swarm คือการจัด orchestration ของโมเดลหลายตัว ไม่มีการเทรนร่วมแบบไม่แชร์ข้อมูล · ตัวเลข UNSW-NB15 accuracy 93.7% ใช้เป็น baseline ได้อย่างเดียว",
+      "link": "https://www.nature.com/articles/s41598-025-28859-w"
     },
     {
-      "key": "bflids2024",
-      "title": "BFLIDS: Blockchain-Driven Federated Learning for Intrusion Detection in IoMT Networks",
-      "authors": "Begum, Mozumder, et al.",
-      "venue": "Sensors (MDPI), 2024 · PMC11280944",
-      "origin": "web",
-      "cyber": "หลัก — IDS สำหรับ Internet of Medical Things",
-      "problem": "IDS แบบรวมศูนย์ขัดกับความเป็นส่วนตัวของอุปกรณ์การแพทย์",
-      "datasets": [
-        "Edge-IIoTset",
-        "TON_IoT"
-      ],
-      "data_detail": "สองชุดข้อมูล IIoT/IoT ที่มี label การโจมตี",
-      "method": "adaptive max-pooling CNN และ BiLSTM + attention + residual · FedAvg ดัดแปลงด้วย KL divergence + adaptive weight",
-      "sl_setup": "blockchain เก็บบันทึกธุรกรรม + IPFS เก็บโมเดล + MongoDB — ยังเป็น FL (มีจุดรวม) ไม่ใช่ SL",
-      "results": [
-        {
-          "setting": "FL scenario",
-          "metric": "accuracy",
-          "values": {
-            "CNN · Edge-IIoTset": "97.43%",
-            "BiLSTM · Edge-IIoTset": "96.02%",
-            "CNN · TON_IoT": "98.21%",
-            "BiLSTM · TON_IoT": "97.42%"
-          },
-          "source": "web"
-        }
-      ],
-      "findings": [
-        "ผลใกล้ centralized ตามที่ผู้เขียนรายงาน"
-      ],
-      "caveats": [
-        "ไม่ใช่ SL — ใช้เป็น baseline ฝั่ง blockchain-FL"
-      ],
-      "sl_fit": "กลาง — มีเชนเก็บหลักฐานเหมือนโปรเจกต์แต่ยังมี aggregator",
-      "fit_to_project": "แยก ledger (หลักฐาน) ออกจาก storage (IPFS) เหมือนที่โปรเจกต์แยก hash ออกจาก weight · baseline ตัวเลขบน Edge-IIoTset/TON_IoT",
-      "evidence": [],
-      "links": [
-        "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11280944/"
-      ],
-      "headline": "CNN: Edge-IIoTset 97.43%, TON_IoT 98.21% ในโหมด FL — blockchain-FL ไม่ใช่ SL"
+      "work": "งาน PSO / ACO / Salp swarm / Cat swarm สำหรับ IDS และ fraud detection",
+      "reason": "เป็น swarm intelligence ใช้เลือกฟีเจอร์หรือจูน hyperparameter ไม่ใช่ swarm learning",
+      "link": ""
     },
     {
-      "key": "bfl2026",
-      "title": "A blockchain-assisted secure federated learning architecture for intrusion detection in internet of things networks (B-FL)",
-      "authors": "-",
-      "venue": "Scientific Reports, 2026 · doi:10.1038/s41598-026-53053-x",
-      "origin": "web",
-      "cyber": "หลัก — IoT IDS",
-      "problem": "IDS แบบ federated ที่ต้องไว้ใจ aggregator และขาด audit",
-      "datasets": [
-        "CICIoT2023"
-      ],
-      "data_detail": "CICIoT2023 เป็น benchmark หลัก",
-      "method": "blockchain-enabled secure FL · วัด accuracy, precision, recall, F1, detection rate",
-      "sl_setup": "blockchain-assisted FL",
-      "results": [
-        {
-          "setting": "CICIoT2023",
-          "metric": "accuracy (ตามผลค้น)",
-          "values": {
-            "B-FL": "≈98%",
-            "FL": "≈95%",
-            "centralized": "≈93%",
-            "ML ทั่วไป": "≈90%"
-          },
-          "source": "web"
-        }
-      ],
-      "findings": [
-        "รายงานว่า B-FL ดีกว่าทั้ง FL และ centralized"
-      ],
-      "caveats": [
-        "centralized แพ้ FL เป็นเรื่องผิดปกติ ต้องดู setup ในฉบับเต็มก่อนอ้าง"
-      ],
-      "sl_fit": "กลาง",
-      "fit_to_project": "baseline บน CICIoT2023",
-      "evidence": [],
-      "links": [
-        "https://www.nature.com/articles/s41598-026-53053-x"
-      ],
-      "headline": "CICIoT2023: B-FL ≈98% vs FL ≈95% vs centralized ≈93% (centralized แพ้ผิดปกติ ต้องตรวจ)"
+      "work": "HLF-FSL · Decentralized Federated Split Learning on Hyperledger Fabric (arXiv 2507.07637)",
+      "reason": "สถาปัตยกรรมใกล้ sl-fabric มาก (chaincode ทำ aggregation แบบ P2P) แต่ทดลองบน CIFAR-10/MNIST ไม่ใช่ข้อมูล cyber — เก็บไว้อ้างเรื่องสถาปัตยกรรม",
+      "link": "https://arxiv.org/abs/2507.07637"
+    }
+  ],
+  "architecture": [
+    {
+      "layer": "identity / onboarding",
+      "hpe_sl": "SPIFFE/SPIRE + X.509 + smart contract",
+      "sl_fabric": "X.509 ต่อ org ตรวจโดย MSP ของ peer",
+      "gap": "—"
+    },
+    {
+      "layer": "leader election",
+      "hpe_sl": "ไม่เปิดซอร์ส สงสัยว่าเป็น PoS, ภาระไม่เท่ากัน",
+      "sl_fabric": "sha256(round+members) mod n เปิดเผย ตรวจย้อนได้",
+      "gap": "รู้ leader ล่วงหน้า → เป้าของ eclipse/DoS (Yang 2022) และ leader ประสงค์ร้าย (ZTA 2023)"
+    },
+    {
+      "layer": "merge",
+      "hpe_sl": "avg / weighted / min / max / median",
+      "sl_fabric": "FedAvg ถ่วงด้วยจำนวนตัวอย่าง",
+      "gap": "robust aggregation ต้าน backdoor/poisoning (Chen 2023, ZTA 2023, PenTiDef)"
+    },
+    {
+      "layer": "สิ่งที่อยู่บนเชน",
+      "hpe_sl": "metadata: สถานะโมเดล, ความคืบหน้า",
+      "sl_fabric": "hash ของ weight, ผู้ส่ง, leader, accuracy ต่อรอบ",
+      "gap": "ประวัติ update + trust score (PenTiDef, DSL)"
+    },
+    {
+      "layer": "ความลับของ parameter",
+      "hpe_sl": "ส่งดิบระหว่างโหนด",
+      "sl_fabric": "ส่งดิบ (นอกเชน)",
+      "gap": "HE/FHE (Swarm-FHE) หรือ distributed DP (PenTiDef, RFF-SL)"
+    },
+    {
+      "layer": "ผู้ร่วมขั้นต่ำ",
+      "hpe_sl": "min_peers",
+      "sl_fabric": "quorum ใน chaincode",
+      "gap": "timeout เมื่อ leader หาย"
     }
   ],
   "non_cyber_web": [
@@ -1100,8 +1527,8 @@
       "size": "รุ่น ML ≈157k แถว · รุ่น DNN ≈2.2 ล้านแถว · 61 ฟีเจอร์",
       "labels": "normal + 14 การโจมตีใน 5 กลุ่ม",
       "used_by": [
+        "PenTiDef (DFL + blockchain)",
         "BFLIDS (CNN 97.43%)",
-        "SIML",
         "Madni 2023 อ้างถึงใน related work [12]"
       ],
       "scores": {
@@ -1111,7 +1538,7 @@
         ],
         "baseline": [
           2,
-          "ออกแบบมาเพื่อ 'centralized and federated learning' ตั้งแต่ชื่อ paper และมีตัวเลข blockchain-FL"
+          "ออกแบบมาเพื่อ 'centralized and federated learning' ตั้งแต่ชื่อ paper · มีงาน DFL + blockchain (PenTiDef) และ blockchain-FL (BFLIDS)"
         ],
         "size": [
           2,
@@ -1168,6 +1595,7 @@
       "size": "หลายสิบล้าน flow · 46 ฟีเจอร์",
       "labels": "benign + 33 การโจมตีใน 7 กลุ่ม",
       "used_by": [
+        "FLBC-IDS (Hyperledger, 98.89%)",
         "B-FL Sci Rep 2026 (≈98%)"
       ],
       "scores": {
@@ -1176,8 +1604,8 @@
           "ไฟล์ CSV เรียงตามการโจมตี ไม่มีเจ้าของให้แบ่ง ต้องสุ่ม"
         ],
         "baseline": [
-          1,
-          "มีงาน blockchain-FL แต่ตัวเลขยังน่าสงสัย (centralized แพ้ FL)"
+          2,
+          "มีสองงาน blockchain-FL (หนึ่งใช้ Hyperledger) แต่ตัวเลข B-FL น่าสงสัย (centralized แพ้ FL)"
         ],
         "size": [
           1,
@@ -1193,6 +1621,73 @@
         ]
       },
       "note": "ใหม่และใหญ่ เหมาะเป็นชุดยืนยันผลรอบสอง",
+      "total": 7
+    },
+    {
+      "name": "IoT Crowdsensing DFL",
+      "kind": "behavior ของอุปกรณ์ crowdsensing: system call, file, resource, kernel, I/O, network (Sci Data 2026)",
+      "size": "21.6 ล้าน record ดิบ → 342,106 หน้าต่าง 30 วินาที",
+      "labels": "benign + malware 8 ตระกูล",
+      "used_by": [
+        "Crowdsensing DFL dataset paper (ผลเทียบ ML/CFL/DFL ในตัว)"
+      ],
+      "scores": {
+        "partition": [
+          1,
+          "เก็บจากหลายอุปกรณ์และทดลองหลาย topology แต่ต้องตรวจไฟล์ว่ามีคอลัมน์ระบุอุปกรณ์หรือไม่"
+        ],
+        "baseline": [
+          2,
+          "มีผล DFL vs CFL ให้เทียบตรงกับ swarm"
+        ],
+        "size": [
+          2,
+          "342k หน้าต่าง รันบนเครื่องเดียวได้"
+        ],
+        "audit": [
+          2,
+          "malware ข้ามผู้ให้บริการ crowdsensing"
+        ],
+        "model": [
+          2,
+          "tabular"
+        ]
+      },
+      "note": "ชุดข้อมูลใหม่ที่ออกแบบมาเพื่อ decentralized FL โดยตรง — ผู้สมัครที่ควรโหลดมาสำรวจใน Explore.ipynb",
+      "total": 9
+    },
+    {
+      "name": "CIC-IDS2018",
+      "kind": "network flow จาก AWS testbed ขององค์กรจำลอง (CIC, UNB)",
+      "size": "≈16 ล้าน flow · ราว 80 ฟีเจอร์",
+      "labels": "benign + 7 กลุ่มการโจมตี (brute force, DoS, DDoS, web, infiltration, botnet)",
+      "used_by": [
+        "PenTiDef (DFL + blockchain)",
+        "FLBC-IDS (Hyperledger)"
+      ],
+      "scores": {
+        "partition": [
+          0,
+          "ไม่มีเจ้าของข้อมูล แบ่งได้แค่ตามวัน/เครื่องใน testbed"
+        ],
+        "baseline": [
+          2,
+          "มีทั้ง DFL+blockchain และ FL+Hyperledger"
+        ],
+        "size": [
+          1,
+          "ใหญ่ ต้อง subsample"
+        ],
+        "audit": [
+          1,
+          "องค์กรเดียวใน testbed"
+        ],
+        "model": [
+          2,
+          "tabular"
+        ]
+      },
+      "note": "baseline แข็งแรงแต่ partition ต้องสังเคราะห์ เหมือน CIC-IDS2017",
       "total": 6
     },
     {
@@ -1201,7 +1696,7 @@
       "size": "2.54 ล้าน record · 49 ฟีเจอร์ (ชุด train/test ทางการ ≈257k)",
       "labels": "normal + 9 กลุ่มการโจมตี",
       "used_by": [
-        "SIML (acc 93.7%)",
+        "SIML (acc 93.7%, ไม่ใช่ SL)",
         "งาน IDS ทั่วไปจำนวนมาก"
       ],
       "scores": {
@@ -1235,7 +1730,7 @@
       "size": ">72 ล้าน record · subset 5% ≈3.6 ล้าน",
       "labels": "DDoS, DoS, reconnaissance, theft",
       "used_by": [
-        "SIML",
+        "DOF-ID (decentralized online FL)",
         "งาน FL IDS หลายงาน"
       ],
       "scores": {
@@ -1269,6 +1764,7 @@
       "size": "9 capture แยกไฟล์ · 115 ฟีเจอร์ AfterImage (ชุดเดียวกับ N-BaIoT)",
       "labels": "1 การโจมตีต่อ capture (ARP MitM, SSDP flood, Mirai, SYN DoS, …)",
       "used_by": [
+        "DOF-ID (decentralized online FL, ≥15% ดีกว่า baseline)",
         "N-BaIoT_Kitsune.ipynb ของโปรเจกต์"
       ],
       "scores": {
@@ -1277,8 +1773,8 @@
           "capture = โหนด ได้ แต่แต่ละโหนดเห็นการโจมตีชนิดเดียว — skew สุดขั้ว"
         ],
         "baseline": [
-          1,
-          "มีงาน anomaly detection แต่ไม่ใช่ FL มากนัก"
+          2,
+          "มีงาน decentralized FL โดยตรง (DOF-ID)"
         ],
         "size": [
           1,
@@ -1294,7 +1790,7 @@
         ]
       },
       "note": "ใช้เป็นชุดทดสอบข้ามโดเมนของโมเดลที่เทรนบน N-BaIoT",
-      "total": 6
+      "total": 7
     },
     {
       "name": "CIC-IDS2017",

@@ -335,7 +335,8 @@
       ],
       "links": [],
       "headline": "",
-      "tier": "B"
+      "tier": "X",
+      "data_type": "ภาพ"
     },
     {
       "key": "han2022",
@@ -460,7 +461,8 @@
       ],
       "links": [],
       "headline": "",
-      "tier": "base"
+      "tier": "base",
+      "data_type": "ภาพ X-ray, ภาพ, ข้อความรีวิว"
     },
     {
       "key": "warnat2021",
@@ -564,7 +566,8 @@
       ],
       "links": [],
       "headline": "",
-      "tier": "base"
+      "tier": "base",
+      "data_type": "transcriptome + ภาพ X-ray"
     },
     {
       "key": "shammar2025",
@@ -627,7 +630,8 @@
       ],
       "links": [],
       "headline": "",
-      "tier": "base"
+      "tier": "base",
+      "data_type": "survey (ไม่มีข้อมูลของตัวเอง)"
     },
     {
       "key": "adonis2023",
@@ -668,7 +672,8 @@
         "https://ieeexplore.ieee.org/document/10310124/"
       ],
       "headline": "traffic ของ IoT: SL + knowledge distillation ตรวจพฤติกรรมคุกคาม (ยังไม่รู้ชื่อชุดข้อมูลและตัวเลข)",
-      "tier": "A"
+      "tier": "A",
+      "data_type": "network traffic ของ IoT"
     },
     {
       "key": "rff2023",
@@ -709,7 +714,8 @@
         "https://ieeexplore.ieee.org/document/10211163/"
       ],
       "headline": "RF fingerprint: SL + differential privacy ยืนยันตัวตนอุปกรณ์ ความเป็นส่วนตัวสูงขึ้น precision ลดลงเล็กน้อย",
-      "tier": "A"
+      "tier": "X",
+      "data_type": "สัญญาณวิทยุ (RF / IQ sample)"
     },
     {
       "key": "hbsl2022",
@@ -750,7 +756,8 @@
         "https://ieeexplore.ieee.org/document/9923043/"
       ],
       "headline": "LIAR: SL + feedback ของผู้ใช้ ดีกว่า SL เดิมอย่างมีนัยสำคัญทุกโหนด",
-      "tier": "A"
+      "tier": "X",
+      "data_type": "ข้อความข่าว"
     },
     {
       "key": "chen2023backdoor",
@@ -793,7 +800,8 @@
         "https://www.sciencedirect.com/science/article/abs/pii/S0019057823001441"
       ],
       "headline": "",
-      "tier": "B"
+      "tier": "X",
+      "data_type": "ภาพ"
     },
     {
       "key": "yang2022sse",
@@ -832,7 +840,8 @@
         "https://ieeexplore.ieee.org/document/10001370/"
       ],
       "headline": "",
-      "tier": "B"
+      "tier": "X",
+      "data_type": "ไม่ระบุ"
     },
     {
       "key": "zta2023",
@@ -872,7 +881,8 @@
         "https://zenodo.org/records/13874888"
       ],
       "headline": "",
-      "tier": "B"
+      "tier": "X",
+      "data_type": "ไม่ระบุ"
     },
     {
       "key": "swarmfhe2023",
@@ -913,7 +923,8 @@
         "https://pubmed.ncbi.nlm.nih.gov/37246573/"
       ],
       "headline": "",
-      "tier": "B"
+      "tier": "X",
+      "data_type": "ภาพ"
     },
     {
       "key": "masl2023",
@@ -953,7 +964,8 @@
         "https://www.researchgate.net/publication/373856168_Multi-Region_Asynchronous_Swarm_Learning_for_Data_Sharing_in_Large-Scale_Internet_of_Vehicles"
       ],
       "headline": "",
-      "tier": "B"
+      "tier": "X",
+      "data_type": "ภาพป้ายจราจร"
     },
     {
       "key": "dsl2023",
@@ -993,7 +1005,8 @@
         "https://www.sciencedirect.com/science/article/pii/S2352864823001578"
       ],
       "headline": "",
-      "tier": "B"
+      "tier": "X",
+      "data_type": "ภาพป้ายจราจร"
     },
     {
       "key": "pentidef2026",
@@ -1035,7 +1048,8 @@
         "https://arxiv.org/abs/2602.17973"
       ],
       "headline": "CIC-IDS2018 + Edge-IIoTset: DFL + DP + smart contract ชนะ FLARE/FedCC ทุกสถานการณ์โจมตี",
-      "tier": "C"
+      "tier": "B",
+      "data_type": "network flow"
     },
     {
       "key": "dofid2023",
@@ -1079,7 +1093,8 @@
         "https://ieeexplore.ieee.org/document/10387644/"
       ],
       "headline": "Kitsune + BoT-IoT: decentralized online FL แม่นกว่า baseline ≥15%, overhead 30 ms/โหนด",
-      "tier": "C"
+      "tier": "B",
+      "data_type": "network traffic (packet features)"
     },
     {
       "key": "crowdsensing2026",
@@ -1120,7 +1135,8 @@
         "https://www.nature.com/articles/s41597-026-07155-w"
       ],
       "headline": "ชุดข้อมูล malware 8 ตระกูลที่ทำมาเพื่อ DFL โดยตรง; DFL ดีกว่า CFL เกือบทุกการตั้งค่า",
-      "tier": "C"
+      "tier": "B",
+      "data_type": "host log (system call, file, kernel, I/O) + network"
     },
     {
       "key": "flbcids2025",
@@ -1164,7 +1180,8 @@
         "https://link.springer.com/article/10.1007/s11042-024-19777-6"
       ],
       "headline": "CIC-IDS2018 + CICIoT2023: accuracy 98.89% ด้วย FL + Hyperledger (ยังมี aggregator)",
-      "tier": "C"
+      "tier": "B",
+      "data_type": "network flow"
     },
     {
       "key": "hbfl2022",
@@ -1203,7 +1220,8 @@
         "https://arxiv.org/abs/2204.04254"
       ],
       "headline": "",
-      "tier": "C"
+      "tier": "B",
+      "data_type": "network traffic (ต้องยืนยันชื่อชุด)"
     },
     {
       "key": "bflids2024",
@@ -1246,7 +1264,8 @@
         "https://www.mdpi.com/1424-8220/24/14/4591"
       ],
       "headline": "Edge-IIoTset 97.43%, TON_IoT 98.21% (CNN) — blockchain-FL ไม่ใช่ SL",
-      "tier": "C"
+      "tier": "B",
+      "data_type": "network traffic + IoT telemetry"
     },
     {
       "key": "bfl2026",
@@ -1288,7 +1307,8 @@
         "https://www.nature.com/articles/s41598-026-53053-x"
       ],
       "headline": "CICIoT2023: B-FL ≈98% vs FL ≈95% vs centralized ≈93% (centralized แพ้ผิดปกติ)",
-      "tier": "C"
+      "tier": "B",
+      "data_type": "network flow"
     },
     {
       "key": "uavids2025",
@@ -1334,7 +1354,51 @@
         "https://arxiv.org/abs/2511.22791"
       ],
       "headline": "4 ชุด UAV IDS: 96.85–99.99% ด้วย federated continual learning (ไม่ใช่ SL)",
-      "tier": "C"
+      "tier": "B",
+      "data_type": "network traffic + UAV telemetry"
+    },
+    {
+      "key": "fedlog2024",
+      "title": "Anomaly detection in log-event sequences: A federated deep learning approach and open challenges",
+      "authors": "-",
+      "venue": "Machine Learning with Applications (Elsevier), 2024",
+      "origin": "web",
+      "cyber": "หลัก — ตรวจความผิดปกติจาก system log",
+      "problem": "log ของระบบกระจายอยู่ตามองค์กรและมีข้อมูลอ่อนไหว จึงเทรนโมเดลตรวจความผิดปกติของลำดับ log-event แบบ federated โดยไม่ย้าย log ออกจากเจ้าของ และสรุปความท้าทายที่ยังเปิดอยู่",
+      "datasets": [
+        "HDFS",
+        "Thunderbird"
+      ],
+      "data_detail": "HDFS: log ของ Hadoop บน Amazon EC2 · Thunderbird: log ของ supercomputer (ทั้งสองชุดอยู่ใน Loghub)",
+      "method": "1D convolution บนลำดับ log-event + federated learning",
+      "sl_setup": "FL (มี server รวมโมเดล) — ไม่ใช่ decentralized",
+      "results": [
+        {
+          "setting": "HDFS, Thunderbird",
+          "metric": "ตามผลค้น",
+          "values": {
+            "federated 1D-CNN": "ตัวเลขต้องดูฉบับเต็ม"
+          },
+          "source": "web"
+        }
+      ],
+      "findings": [
+        "เป็นงานเดียวที่เจอซึ่งเทรนร่วมกันบน log ของระบบโดยตรง แทนที่จะเป็น network traffic"
+      ],
+      "caveats": [
+        "ยังมี server กลาง",
+        "HDFS/Thunderbird ส่วนใหญ่เป็นความผิดปกติจากความล้มเหลวของระบบ ไม่ใช่การโจมตีโดยเจตนา",
+        "ยังไม่ได้ตัวเลข"
+      ],
+      "sl_fit": "ต่ำ–กลาง — ข้อมูลตรงโจทย์ แต่สถาปัตยกรรมยังรวมศูนย์",
+      "fit_to_project": "ถ้าจะทำ SL บน log ต้องเปลี่ยน client เป็นโมเดลลำดับ (1D-CNN/LSTM) · ใช้เป็น baseline FL บน log ได้",
+      "evidence": [],
+      "links": [
+        "https://www.sciencedirect.com/science/article/pii/S2666827024000306"
+      ],
+      "headline": "HDFS + Thunderbird: federated 1D-CNN บน system log (ยังมี server, ยังไม่ได้ตัวเลข)",
+      "tier": "B",
+      "data_type": "system log (log-event sequence)"
     },
     {
       "key": "swarmsense2026",
@@ -1378,24 +1442,25 @@
         "https://arxiv.org/abs/2606.11803"
       ],
       "headline": "เฉลี่ย 5 ชุด: accuracy 95.44%, ลด communication 67% — decentralized แต่ไม่มี ledger",
-      "tier": "C"
+      "tier": "B",
+      "data_type": "IoT traffic/telemetry (ต้องยืนยันชื่อชุด)"
     }
   ],
   "tiers": {
     "A": {
-      "name": "swarm learning + ชุดข้อมูลสาย cyber",
-      "description": "กลุ่มหลัก: เป็น swarm learning จริง และทดลองกับข้อมูลด้าน security (traffic, RF fingerprint, ข่าวปลอม)"
+      "name": "swarm learning + ข้อมูล cyber โดยตรง",
+      "description": "กลุ่มหลัก: เป็น swarm learning จริง และเทรนบน traffic หรือ log"
     },
     "B": {
-      "name": "swarm learning ในงาน security (ข้อมูลไม่ใช่ cyber)",
-      "description": "โจมตีหรือป้องกันตัว SL เอง เช่น backdoor, eclipse, poisoning, gradient leakage แต่ทดลองบนภาพ benchmark"
+      "name": "ข้อมูล cyber โดยตรง + สถาปัตยกรรมคล้าย SL",
+      "description": "กลุ่มรอง: IDS บนข้อมูล cyber ที่เทรนแบบ decentralized, ประสานด้วย blockchain หรือ federated แต่ไม่ใช่ SL ตรงตัว"
     },
-    "C": {
-      "name": "ชุดข้อมูล cyber + สถาปัตยกรรมคล้าย SL",
-      "description": "กลุ่มรอง: IDS บนชุดข้อมูล cyber มาตรฐาน ที่เทรนแบบ decentralized หรือใช้ blockchain ประสาน แต่ไม่ใช่ SL ตรงตัว"
+    "X": {
+      "name": "ภาคผนวก: งาน SL ด้าน security ที่ไม่ได้ใช้ข้อมูล cyber",
+      "description": "ศึกษาการโจมตี/ป้องกันตัว SL หรือใช้ SL ในงานใกล้เคียง แต่ข้อมูลเป็นภาพ ข้อความ หรือสัญญาณวิทยุ — ไม่นับเป็นงานหลัก เก็บไว้เพราะยังให้แนวคิดด้านสถาปัตยกรรม"
     },
     "base": {
-      "name": "พื้นฐานของ swarm learning (ไม่ใช่ cyber)",
+      "name": "ภาคผนวก: พื้นฐานของ swarm learning",
       "description": "paper ในโฟลเดอร์ `paper/` ที่นิยามและวัด SL แต่ใช้ข้อมูลการแพทย์/ทั่วไป"
     }
   },
@@ -1857,41 +1922,6 @@
       },
       "note": "เรื่องเล่า audit ดีที่สุด แต่ partition อ่อน",
       "total": 6
-    },
-    {
-      "name": "MNIST / CIFAR-10 / SVHN",
-      "kind": "benchmark ภาพ ใช้วัด 'การโจมตีต่อ SL' ไม่ใช่ข้อมูล cyber",
-      "size": "60k–70k ภาพต่อชุด",
-      "labels": "10 คลาส",
-      "used_by": [
-        "Madni 2023",
-        "Chen et al. 2023 (backdoor)",
-        "CB-DSL"
-      ],
-      "scores": {
-        "partition": [
-          0,
-          "ต้องใช้ Dirichlet"
-        ],
-        "baseline": [
-          2,
-          "ตัวเลข SL ภายใต้การโจมตีมีเฉพาะชุดพวกนี้"
-        ],
-        "size": [
-          2,
-          "เล็ก"
-        ],
-        "audit": [
-          0,
-          "ไม่มีเรื่องเล่าเจ้าของข้อมูล"
-        ],
-        "model": [
-          1,
-          "CNN จำเป็นสำหรับ CIFAR/SVHN (client มี cnn อยู่แล้ว)"
-        ]
-      },
-      "note": "ใช้เมื่ออยากทำซ้ำ backdoor/gradient leakage ให้ตรงกับ paper ไม่ใช่เป็นชุดหลัก",
-      "total": 5
     }
   ],
   "evidence": {

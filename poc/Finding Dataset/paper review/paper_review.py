@@ -127,7 +127,8 @@ class Paper:
     evidence: list[tuple[int, str]] = field(default_factory=list)  # (หน้า, ประโยคที่ต้องมีใน PDF)
     links: list[str] = field(default_factory=list)
     headline: str = ""  # ผลเด่นในตารางภาพรวม ถ้าว่างใช้ findings[0]
-    tier: str = "base"  # A / B / C / base — ดูคำอธิบายที่หัวข้อ 4
+    tier: str = "base"  # A / B / X / base — ดูคำอธิบายที่หัวข้อ 4
+    data_type: str = ""  # ชนิดข้อมูลจริง เช่น network traffic, host log, ภาพ — ตัดสินว่าเป็นข้อมูล cyber โดยตรงหรือไม่
 
 
 # ---------------------------------------------------------------------------
@@ -188,7 +189,8 @@ def madni_results() -> list[Result]:
 LOCAL_PAPERS = [
     Paper(
         key="madni2023",
-        tier="B",
+        data_type="ภาพ",
+        tier="X",
         title="Blockchain-Based Swarm Learning for the Mitigation of Gradient Leakage in Federated Learning",
         authors="H. A. Madni, R. M. Umer, G. L. Foresti",
         venue="IEEE Access vol. 11, pp. 16549–16556, 2023 · doi:10.1109/ACCESS.2023.3246126",
@@ -251,6 +253,7 @@ LOCAL_PAPERS = [
     ),
     Paper(
         key="han2022",
+        data_type="ภาพ X-ray, ภาพ, ข้อความรีวิว",
         title="Demystifying Swarm Learning: A New Paradigm of Blockchain-based Decentralized Federated Learning",
         authors="J. Han, Y. Ma, Y. Han (Peking University)",
         venue="arXiv:2201.05286v2, ม.ค. 2022",
@@ -320,6 +323,7 @@ LOCAL_PAPERS = [
     ),
     Paper(
         key="warnat2021",
+        data_type="transcriptome + ภาพ X-ray",
         title="Swarm Learning for decentralized and confidential clinical machine learning",
         authors="S. Warnat-Herresthal, H. Schultze, … , J. L. Schultze (DZNE + HPE)",
         venue="Nature 594, 265–270, 2021 · doi:10.1038/s41586-021-03583-3",
@@ -380,6 +384,7 @@ LOCAL_PAPERS = [
     ),
     Paper(
         key="shammar2025",
+        data_type="survey (ไม่มีข้อมูลของตัวเอง)",
         title="Swarm Learning: A Survey of Concepts, Applications, and Trends",
         authors="E. Shammar, X. Cui (Wuhan Univ.), M. A. A. Al-qaness",
         venue="arXiv:2405.00556v2, ก.พ. 2025 (ตีพิมพ์ใน ACM Transactions on Privacy and Security)",
@@ -436,17 +441,21 @@ LOCAL_PAPERS = [
 # 4 · paper จาก web search
 #     อ่านได้แค่บทคัดย่อ/ผลค้น เพราะเว็บสำนักพิมพ์ถูกบล็อกจากเครื่องที่รัน ตัวเลขจึงเป็น source="web"
 #
+#     "ข้อมูล cyber โดยตรง" = network traffic / flow / packet capture / system–host log / telemetry ที่มี label การโจมตี
+#     ภาพ ข้อความ และสัญญาณวิทยุไม่นับ แม้ paper จะศึกษาเรื่อง security ก็ตาม
+#
 #     tier บอกว่า paper อยู่กลุ่มไหน (ลำดับความสำคัญตามโจทย์ของโปรเจกต์):
-#       A  swarm learning + ชุดข้อมูลสาย cyber โดยตรง
-#       B  swarm learning ในงาน security (โจมตี/ป้องกัน SL) แต่ทดลองบนข้อมูลที่ไม่ใช่ cyber
-#       C  ชุดข้อมูลสาย cyber + สถาปัตยกรรมคล้าย SL (decentralized / blockchain-coordinated learning)
-#       base  งานพื้นฐานของ SL ที่ไม่เกี่ยวกับ cyber (Nature 2021, Han 2022, survey)
+#       A     swarm learning + ข้อมูล cyber โดยตรง
+#       B     ข้อมูล cyber โดยตรง + สถาปัตยกรรมคล้าย SL (decentralized / blockchain-coordinated / federated)
+#       X     ภาคผนวก: งานด้าน security ของ SL ที่ไม่ได้ใช้ข้อมูล cyber โดยตรง (ภาพ ข้อความ สัญญาณวิทยุ)
+#       base  ภาคผนวก: งานพื้นฐานของ SL ใน paper/ (การแพทย์/ทั่วไป)
 # ---------------------------------------------------------------------------
 
 WEB_PAPERS = [
     # ---- A · SL + ชุดข้อมูล cyber --------------------------------------------------------
     Paper(
         key="adonis2023",
+        data_type="network traffic ของ IoT",
         tier="A",
         title="Swarm Learning and Knowledge Distillation Empowered Self-Driving Detection Against Threat Behavior for Intelligent IoT (ADONIS)",
         authors="-",
@@ -476,7 +485,8 @@ WEB_PAPERS = [
     ),
     Paper(
         key="rff2023",
-        tier="A",
+        data_type="สัญญาณวิทยุ (RF / IQ sample)",
+        tier="X",
         title="Improved Swarm Learning with Differential Privacy for Radio Frequency Fingerprinting",
         authors="-",
         venue="IEEE, 2023 · IEEE Xplore 10211163",
@@ -501,7 +511,8 @@ WEB_PAPERS = [
     ),
     Paper(
         key="hbsl2022",
-        tier="A",
+        data_type="ข้อความข่าว",
+        tier="X",
         title="Integrating Human-in-the-loop into Swarm Learning for Decentralized Fake News Detection (HBSL)",
         authors="X. Dong, S. Sarker, L. Qian",
         venue="IDSTA 2022 · arXiv:2201.02048 · IEEE Xplore 9923043",
@@ -527,7 +538,8 @@ WEB_PAPERS = [
     # ---- B · SL ในงาน security (ข้อมูลไม่ใช่ cyber) ---------------------------------------
     Paper(
         key="chen2023backdoor",
-        tier="B",
+        data_type="ภาพ",
+        tier="X",
         title="Backdoor attacks against distributed swarm learning",
         authors="K. Chen, H. Zhang, X. Feng, X. Zhang, B. Mi, Z. Jin",
         venue="ISA Transactions 141:59–72, 2023 · PMID 37012167",
@@ -553,7 +565,8 @@ WEB_PAPERS = [
     ),
     Paper(
         key="yang2022sse",
-        tier="B",
+        data_type="ไม่ระบุ",
+        tier="X",
         title="Propagable Backdoors over Blockchain-based Federated Learning via Sample-Specific Eclipse",
         authors="Z. Yang, G. Li, J. Wu, W. Yang",
         venue="IEEE GLOBECOM 2022, pp. 2579–2584",
@@ -576,7 +589,8 @@ WEB_PAPERS = [
     ),
     Paper(
         key="zta2023",
-        tier="B",
+        data_type="ไม่ระบุ",
+        tier="X",
         title="Zero-Trust Empowered Decentralized Security Defense against Poisoning Attacks in SL-IoT: Joint Distance-Accuracy Detection Approach",
         authors="R. Song, J. Wu, Q. Pan, M. Imran, N. Naser, R. Jones, C. Verikoukis",
         venue="IEEE GLOBECOM 2023 · doi:10.1109/GLOBECOM54140.2023.10437789 · ฉบับเต็มบน Zenodo 13874888",
@@ -602,7 +616,8 @@ WEB_PAPERS = [
     ),
     Paper(
         key="swarmfhe2023",
-        tier="B",
+        data_type="ภาพ",
+        tier="X",
         title="Swarm-FHE: Fully Homomorphic Encryption-based Swarm Learning for Malicious Clients",
         authors="H. A. Madni, R. M. Umer, G. L. Foresti (กลุ่มเดียวกับ Madni 2023 ในเครื่อง)",
         venue="International Journal of Neural Systems 33(8):2350033, 2023 · PMID 37246573",
@@ -625,7 +640,8 @@ WEB_PAPERS = [
     ),
     Paper(
         key="masl2023",
-        tier="B",
+        data_type="ภาพป้ายจราจร",
+        tier="X",
         title="Multi-Region Asynchronous Swarm Learning for Data Sharing in Large-Scale Internet of Vehicles (MASL)",
         authors="Yin et al.",
         venue="2023",
@@ -648,7 +664,8 @@ WEB_PAPERS = [
     ),
     Paper(
         key="dsl2023",
-        tier="B",
+        data_type="ภาพป้ายจราจร",
+        tier="X",
         title="DAG-based swarm learning: A secure asynchronous learning framework for Internet of Vehicles (DSL)",
         authors="Huang et al.",
         venue="Digital Communications and Networks (Elsevier), 2023",
@@ -673,7 +690,8 @@ WEB_PAPERS = [
     # ---- C · ชุดข้อมูล cyber + สถาปัตยกรรมคล้าย SL ------------------------------------------
     Paper(
         key="pentidef2026",
-        tier="C",
+        data_type="network flow",
+        tier="B",
         title="PenTiDef: Decentralized Federated Intrusion Detection System with Differential Privacy and Latent-Space Defense via Blockchain Coordination in IIoT",
         authors="-",
         venue="arXiv:2602.17973, 2026",
@@ -698,7 +716,8 @@ WEB_PAPERS = [
     ),
     Paper(
         key="dofid2023",
-        tier="C",
+        data_type="network traffic (packet features)",
+        tier="B",
         title="Decentralized Online Federated G-Network Learning for Lightweight Intrusion Detection (DOF-ID)",
         authors="M. Nakıp, B. C. Gül, E. Gelenbe",
         venue="IEEE, 2023 · arXiv:2306.13029 · IEEE Xplore 10387644",
@@ -723,7 +742,8 @@ WEB_PAPERS = [
     ),
     Paper(
         key="crowdsensing2026",
-        tier="C",
+        data_type="host log (system call, file, kernel, I/O) + network",
+        tier="B",
         title="A Crowdsensing Intrusion Detection Dataset For Decentralized Federated Learning Models",
         authors="-",
         venue="Scientific Data, 2026 · arXiv:2507.13313",
@@ -750,7 +770,8 @@ WEB_PAPERS = [
     ),
     Paper(
         key="flbcids2025",
-        tier="C",
+        data_type="network flow",
+        tier="B",
         title="FLBC-IDS: a federated learning and blockchain-based intrusion detection system for secure IoT environments",
         authors="Govindaram, Jegatheesan",
         venue="Multimedia Tools and Applications, 2025",
@@ -774,7 +795,8 @@ WEB_PAPERS = [
     ),
     Paper(
         key="hbfl2022",
-        tier="C",
+        data_type="network traffic (ต้องยืนยันชื่อชุด)",
+        tier="B",
         title="HBFL: A Hierarchical Blockchain-based Federated Learning Framework for a Collaborative IoT Intrusion Detection",
         authors="M. Sarhan, W. W. Lo, S. Layeghy, M. Portmann",
         venue="Computers & Electrical Engineering, 2022 · arXiv:2204.04254",
@@ -797,7 +819,8 @@ WEB_PAPERS = [
     ),
     Paper(
         key="bflids2024",
-        tier="C",
+        data_type="network traffic + IoT telemetry",
+        tier="B",
         title="BFLIDS: Blockchain-Driven Federated Learning for Intrusion Detection in IoMT Networks",
         authors="Begum, Mozumder, et al.",
         venue="Sensors (MDPI) 24(14):4591, 2024",
@@ -819,7 +842,8 @@ WEB_PAPERS = [
     ),
     Paper(
         key="bfl2026",
-        tier="C",
+        data_type="network flow",
+        tier="B",
         title="A blockchain-assisted secure federated learning architecture for intrusion detection in internet of things networks (B-FL)",
         authors="-",
         venue="Scientific Reports, 2026 · doi:10.1038/s41598-026-53053-x",
@@ -840,7 +864,8 @@ WEB_PAPERS = [
     ),
     Paper(
         key="uavids2025",
-        tier="C",
+        data_type="network traffic + UAV telemetry",
+        tier="B",
         title="An Efficient Privacy-preserving Intrusion Detection Scheme for UAV Swarm Networks",
         authors="Gharami, Moni",
         venue="AIAA/IEEE DASC 2025 · arXiv:2511.22791 · โค้ด github.com/SPIRE-Lab-2025/UAV-IDS-FL",
@@ -860,8 +885,35 @@ WEB_PAPERS = [
         headline="4 ชุด UAV IDS: 96.85–99.99% ด้วย federated continual learning (ไม่ใช่ SL)",
     ),
     Paper(
+        key="fedlog2024",
+        tier="B",
+        data_type="system log (log-event sequence)",
+        title="Anomaly detection in log-event sequences: A federated deep learning approach and open challenges",
+        authors="-",
+        venue="Machine Learning with Applications (Elsevier), 2024",
+        origin="web",
+        cyber="หลัก — ตรวจความผิดปกติจาก system log",
+        problem=(
+            "log ของระบบกระจายอยู่ตามองค์กรและมีข้อมูลอ่อนไหว จึงเทรนโมเดลตรวจความผิดปกติของลำดับ log-event "
+            "แบบ federated โดยไม่ย้าย log ออกจากเจ้าของ และสรุปความท้าทายที่ยังเปิดอยู่"
+        ),
+        datasets=["HDFS", "Thunderbird"],
+        data_detail="HDFS: log ของ Hadoop บน Amazon EC2 · Thunderbird: log ของ supercomputer (ทั้งสองชุดอยู่ใน Loghub)",
+        method="1D convolution บนลำดับ log-event + federated learning",
+        sl_setup="FL (มี server รวมโมเดล) — ไม่ใช่ decentralized",
+        results=[Result("HDFS, Thunderbird", "ตามผลค้น", {"federated 1D-CNN": "ตัวเลขต้องดูฉบับเต็ม"}, "web")],
+        findings=["เป็นงานเดียวที่เจอซึ่งเทรนร่วมกันบน log ของระบบโดยตรง แทนที่จะเป็น network traffic"],
+        caveats=["ยังมี server กลาง", "HDFS/Thunderbird ส่วนใหญ่เป็นความผิดปกติจากความล้มเหลวของระบบ ไม่ใช่การโจมตีโดยเจตนา",
+                 "ยังไม่ได้ตัวเลข"],
+        sl_fit="ต่ำ–กลาง — ข้อมูลตรงโจทย์ แต่สถาปัตยกรรมยังรวมศูนย์",
+        fit_to_project="ถ้าจะทำ SL บน log ต้องเปลี่ยน client เป็นโมเดลลำดับ (1D-CNN/LSTM) · ใช้เป็น baseline FL บน log ได้",
+        links=["https://www.sciencedirect.com/science/article/pii/S2666827024000306"],
+        headline="HDFS + Thunderbird: federated 1D-CNN บน system log (ยังมี server, ยังไม่ได้ตัวเลข)",
+    ),
+    Paper(
         key="swarmsense2026",
-        tier="C",
+        data_type="IoT traffic/telemetry (ต้องยืนยันชื่อชุด)",
+        tier="B",
         title="SwarmSense-DNN: A Trustworthy and Decentralized Neural Framework for Proactive Anomaly Defense in Consumer IoT",
         authors="-",
         venue="arXiv:2606.11803 / IEEE, มิ.ย. 2026",
@@ -1043,13 +1095,6 @@ CYBER_DATASETS = [
              "audit": (2, "ผู้กำกับดูแลการเงินต้องการ audit trail"),
              "model": (1, "ฟีเจอร์ 72 ตัวเป็นค่ารวมจากเพื่อนบ้าน แบ่งกราฟแล้วคำนวณไม่ครบ")},
             "เรื่องเล่า audit ดีที่สุด แต่ partition อ่อน"),
-    Dataset("MNIST / CIFAR-10 / SVHN", "benchmark ภาพ ใช้วัด 'การโจมตีต่อ SL' ไม่ใช่ข้อมูล cyber",
-            "60k–70k ภาพต่อชุด", "10 คลาส",
-            ["Madni 2023", "Chen et al. 2023 (backdoor)", "CB-DSL"],
-            {"partition": (0, "ต้องใช้ Dirichlet"), "baseline": (2, "ตัวเลข SL ภายใต้การโจมตีมีเฉพาะชุดพวกนี้"),
-             "size": (2, "เล็ก"), "audit": (0, "ไม่มีเรื่องเล่าเจ้าของข้อมูล"),
-             "model": (1, "CNN จำเป็นสำหรับ CIFAR/SVHN (client มี cnn อยู่แล้ว)")},
-            "ใช้เมื่ออยากทำซ้ำ backdoor/gradient leakage ให้ตรงกับ paper ไม่ใช่เป็นชุดหลัก"),
 ]
 
 
@@ -1120,16 +1165,19 @@ def render_paper(p: Paper, ev=None, found=None) -> str:
     return "\n".join(s)
 
 
+CYBER_DATA_DEF = ("ข้อมูล cyber โดยตรง คือ network traffic, flow, packet capture, system/host log หรือ telemetry ที่มี label การโจมตี "
+                  "ภาพ ข้อความ และสัญญาณวิทยุไม่นับ แม้ paper จะศึกษาเรื่อง security ก็ตาม")
 TIERS = {
-    "A": ("swarm learning + ชุดข้อมูลสาย cyber",
-          "กลุ่มหลัก: เป็น swarm learning จริง และทดลองกับข้อมูลด้าน security (traffic, RF fingerprint, ข่าวปลอม)"),
-    "B": ("swarm learning ในงาน security (ข้อมูลไม่ใช่ cyber)",
-          "โจมตีหรือป้องกันตัว SL เอง เช่น backdoor, eclipse, poisoning, gradient leakage แต่ทดลองบนภาพ benchmark"),
-    "C": ("ชุดข้อมูล cyber + สถาปัตยกรรมคล้าย SL",
-          "กลุ่มรอง: IDS บนชุดข้อมูล cyber มาตรฐาน ที่เทรนแบบ decentralized หรือใช้ blockchain ประสาน แต่ไม่ใช่ SL ตรงตัว"),
-    "base": ("พื้นฐานของ swarm learning (ไม่ใช่ cyber)",
+    "A": ("swarm learning + ข้อมูล cyber โดยตรง",
+          "กลุ่มหลัก: เป็น swarm learning จริง และเทรนบน traffic หรือ log"),
+    "B": ("ข้อมูล cyber โดยตรง + สถาปัตยกรรมคล้าย SL",
+          "กลุ่มรอง: IDS บนข้อมูล cyber ที่เทรนแบบ decentralized, ประสานด้วย blockchain หรือ federated แต่ไม่ใช่ SL ตรงตัว"),
+    "X": ("ภาคผนวก: งาน SL ด้าน security ที่ไม่ได้ใช้ข้อมูล cyber",
+          "ศึกษาการโจมตี/ป้องกันตัว SL หรือใช้ SL ในงานใกล้เคียง แต่ข้อมูลเป็นภาพ ข้อความ หรือสัญญาณวิทยุ — ไม่นับเป็นงานหลัก เก็บไว้เพราะยังให้แนวคิดด้านสถาปัตยกรรม"),
+    "base": ("ภาคผนวก: พื้นฐานของ swarm learning",
              "paper ในโฟลเดอร์ `paper/` ที่นิยามและวัด SL แต่ใช้ข้อมูลการแพทย์/ทั่วไป"),
 }
+MAIN_TIERS = ("A", "B")
 
 
 def by_tier(tier: str) -> list[Paper]:
@@ -1142,29 +1190,41 @@ def render(evidence: dict, mentions: dict) -> str:
          "ที่มาของตัวเลขแต่ละแถวบอกไว้ในคอลัมน์ “ที่มา”: ข้อความใน PDF (ตรวจอัตโนมัติ) · ภาพตารางใน PDF (คัดลอกด้วยตา) · "
          "อ่านจากกราฟ (ค่าประมาณ ±0.02) · เว็บ/บทคัดย่อ (ยังไม่ได้อ่านฉบับเต็ม เพราะเว็บของสำนักพิมพ์ถูกบล็อกจากเครื่องที่รัน)", "",
          "## 0 · การจัดกลุ่ม", ""]
+    L += [CYBER_DATA_DEF, ""]
     L += [f"- **{t}. {name}** ({len(by_tier(t))} ฉบับ) — {desc}" for t, (name, desc) in TIERS.items()]
-    L += ["", "ข้อสังเกตหลัก: เท่าที่ค้นเจอ งาน swarm learning ที่ทดลองบนชุดข้อมูล IDS มาตรฐาน (N-BaIoT, CIC-IDS, TON_IoT, "
-          "Edge-IIoTset, CICIoT2023) ยังไม่มีเลย งานที่ใช้ชุดเหล่านี้ล้วนเป็น FL/DFL/blockchain-FL (กลุ่ม C) "
-          "ช่องว่างนี้คือจุดที่ sl-fabric เติมได้โดยตรง", ""]
+    L += ["", "ข้อสังเกตหลัก: เท่าที่ค้นเจอ งาน swarm learning ที่เทรนบนข้อมูล cyber โดยตรงมีแค่ ADONIS งานเดียว "
+          "และไม่มีงาน SL ใดใช้ชุดข้อมูล IDS มาตรฐาน (N-BaIoT, CIC-IDS, TON_IoT, Edge-IIoTset, CICIoT2023) หรือ system log เลย "
+          "ชุดเหล่านี้ถูกใช้เฉพาะในงาน FL/DFL/blockchain-FL (กลุ่ม B) ช่องว่างนี้คือจุดที่ sl-fabric เติมได้โดยตรง", ""]
 
     L += ["## 1 · ภาพรวม: paper × ชุดข้อมูล × ผล", ""]
-    rows = [[p.tier, p.key, "เครื่อง" if p.origin.startswith("local") else "เว็บ",
-             ", ".join(p.datasets), p.headline or p.findings[0]]
-            for t in TIERS for p in by_tier(t)]
-    L.append(md_table(["กลุ่ม", "paper", "แหล่ง", "ชุดข้อมูล", "ผลเด่น"], rows))
+    rows = [[p.tier, p.key, ", ".join(p.datasets), p.data_type, p.headline or p.findings[0]]
+            for t in MAIN_TIERS for p in by_tier(t)]
+    L.append(md_table(["กลุ่ม", "paper", "ชุดข้อมูล", "ประเภทข้อมูล", "ผลเด่น"], rows))
 
-    for n, (t, (name, desc)) in enumerate(TIERS.items(), 2):
+    n = 2
+    for t in MAIN_TIERS:
+        name, desc = TIERS[t]
         L += ["", f"## {n} · กลุ่ม {t}: {name}", "", desc, ""]
         for p in by_tier(t):
             L.append(render_paper(p, evidence.get(p.key), mentions.get(p.key)))
+        n += 1
+    for t in ("X", "base"):
+        name, desc = TIERS[t]
+        L += ["", f"## {n} · {name}", "", desc, ""]
+        L.append(md_table(["paper", "ชุดข้อมูล", "ประเภทข้อมูล", "ใช้ประโยชน์อะไรได้", "ลิงก์"],
+                          [[p.title, ", ".join(p.datasets), p.data_type, p.fit_to_project,
+                            " · ".join(f"<{u}>" for u in p.links) or f"`paper/{p.origin.removeprefix('local:')}`"]
+                           for p in by_tier(t)]))
+        n += 1
+    L += ["", "รายละเอียดเต็มของงานในภาคผนวก (บทคัดย่อ ผลลัพธ์ หลักฐานจาก PDF) อยู่ใน `paper_review.json`", ""]
 
-    L += ["## 6 · งานที่ค้นเจอแต่คัดออก", ""]
+    L += ["## 6 · งานที่ค้นเจอแต่คัดออก (ไม่ใช่ swarm learning)", ""]
     L.append(md_table(["งาน", "เหตุผล", "ลิงก์"], [[a, b, f"<{c}>" if c else "-"] for a, b, c in EXCLUDED]))
 
     L += ["", "## 7 · งาน SL สายการแพทย์ที่เจอระหว่างค้น (ไว้เทียบ)", ""]
     L.append(md_table(["งาน", "ข้อมูล", "ผล", "ลิงก์"], [[a, b, c, f"<{d}>"] for a, b, c, d in NON_CYBER_WEB]))
 
-    L += ["", "## 8 · ชุดข้อมูลสาย cybersecurity เทียบกับสถาปัตยกรรมของโปรเจกต์", "",
+    L += ["", "## 8 · ชุดข้อมูล cyber โดยตรง เทียบกับสถาปัตยกรรมของโปรเจกต์", "",
           "เกณฑ์ (0–2 ต่อข้อ, เต็ม 10) — ชุดเดียวกับ `../Explore.ipynb` บวกความเข้ากับ client ของ sl-fabric:", ""]
     L += [f"- **{k}** — {v}" for k, v in CRITERIA.items()]
     L.append("")

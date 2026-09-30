@@ -484,7 +484,6 @@ paper ในโฟลเดอร์ `paper/` ที่นิยามและ�
 | CIC-IDS2018 | 0 | 2 | 1 | 1 | 2 | **6** | PenTiDef (DFL + blockchain); FLBC-IDS (Hyperledger) |
 | BoT-IoT | 0 | 2 | 1 | 1 | 2 | **6** | DOF-ID (decentralized online FL); งาน FL IDS หลายงาน |
 | CIC-IDS2017 | 0 | 2 | 1 | 1 | 2 | **6** | งาน IDS/FL จำนวนมาก |
-| Elliptic | 0 | 1 | 2 | 2 | 1 | **6** | Explore.ipynb ของโปรเจกต์ |
 
 ### Edge-IIoTset — 9/10
 
@@ -605,18 +604,6 @@ network flow 5 วันทำงาน (CIC, UNB) · ≈2.8 ล้าน flow �
 - model: 2 — tabular
 
 > ปัญหาที่ Explore.ipynb ระบุไว้แล้ว: partition ต้องสังเคราะห์ เทียบข้าม paper ยาก
-
-### Elliptic — 6/10
-
-ธุรกรรมบิตคอยน์ 203,769 โหนด 234,355 เส้น · 166 ฟีเจอร์ · 49 time step · label: licit / illicit / unknown
-
-- partition: 0 — กราฟก้อนเดียว ต้องแบ่งตาม time step หรือสุ่ม
-- baseline: 1 — มี baseline centralized (Weber 2019)
-- size: 2 — ≈700 MB
-- audit: 2 — ผู้กำกับดูแลการเงินต้องการ audit trail
-- model: 1 — ฟีเจอร์ 72 ตัวเป็นค่ารวมจากเพื่อนบ้าน แบ่งกราฟแล้วคำนวณไม่ครบ
-
-> เรื่องเล่า audit ดีที่สุด แต่ partition อ่อน
 
 ## 9 · ความเข้ากันได้กับสถาปัตยกรรม swarm learning — สรุป
 

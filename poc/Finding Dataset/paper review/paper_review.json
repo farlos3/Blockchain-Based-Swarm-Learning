@@ -676,6 +676,48 @@
       "data_type": "network traffic ของ IoT"
     },
     {
+      "key": "iotfkgdlsl2024",
+      "title": "IoT-FKGDL-SL: Anomaly Detection Framework Integrating Knowledge Distillation and a Swarm Learning for 5G IoT",
+      "authors": "-",
+      "venue": "IEEE Internet of Things Journal 11(23):38601–38614, ธ.ค. 2024 · IEEE Xplore 10654372",
+      "origin": "web",
+      "cyber": "หลัก — ตรวจ traffic ผิดปกติและอุปกรณ์ล้มเหลวใน 5G IoT",
+      "problem": "การตรวจความผิดปกติจาก multivariate time series ของอุปกรณ์ 5G IoT ยังจับความสัมพันธ์ระยะยาวหลายมิติไม่ได้ และการเรียนแบบกระจายยังติดเรื่องภาระทรัพยากร ความเป็นส่วนตัว และความปลอดภัยของข้อมูล ผู้เขียนเสนอโมเดล IoT-FKGD แล้วนำไปเทรนแบบ swarm learning ร่วมกับ knowledge distillation",
+      "datasets": [
+        "(ต้องดูฉบับเต็ม)"
+      ],
+      "data_detail": "multivariate time series ของ traffic อุปกรณ์ IoT · ชื่อชุดข้อมูลและจำนวนโหนดต้องดูฉบับเต็ม",
+      "method": "จัดกลุ่มตัวแปรเพื่อจับความสัมพันธ์ระหว่างตัวแปร · IoT-FKGD: multiscale dilated convolution + locality-sensitive hashing (LSH) attention สำหรับลำดับเวลายาว · knowledge distillation ลดขนาดโมเดล",
+      "sl_setup": "swarm learning + knowledge distillation",
+      "results": [
+        {
+          "setting": "long time scale",
+          "metric": "ตามบทคัดย่อ",
+          "values": {
+            "IoT-FKGDL-SL": "precision, recall และ F1 สูงกว่า baseline ทุกตัว"
+          },
+          "source": "web"
+        }
+      ],
+      "findings": [
+        "เป็นงาน SL บนข้อมูล cyber โดยตรงงานที่สองที่ค้นเจอ ต่อจาก ADONIS และใช้ distillation เหมือนกัน",
+        "รายงาน precision/recall/F1 ไม่ใช่ accuracy อย่างเดียว"
+      ],
+      "caveats": [
+        "ยังไม่รู้ชื่อชุดข้อมูล จำนวนโหนด การแบ่งข้อมูล และตัวเลข",
+        "ไม่รู้ว่าเทียบกับ FL หรือ centralized หรือเปล่า"
+      ],
+      "sl_fit": "สูง — SL ตรงตัวบน traffic",
+      "fit_to_project": "client ของ sl-fabric รับ tabular ต้องเพิ่มโมเดลลำดับเวลาถ้าจะใช้แบบเดียวกัน · distillation ช่วยลดขนาด parameter ที่ต้อง hash ต่อรอบ",
+      "evidence": [],
+      "links": [
+        "https://ieeexplore.ieee.org/document/10654372/"
+      ],
+      "headline": "5G IoT traffic (time series): SL + distillation, precision/recall/F1 สูงกว่า baseline (ยังไม่ได้ตัวเลข)",
+      "tier": "A",
+      "data_type": "multivariate time series ของ traffic อุปกรณ์ IoT"
+    },
+    {
       "key": "rff2023",
       "title": "Improved Swarm Learning with Differential Privacy for Radio Frequency Fingerprinting",
       "authors": "-",

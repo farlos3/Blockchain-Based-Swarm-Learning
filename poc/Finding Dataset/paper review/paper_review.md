@@ -8,18 +8,19 @@
 
 ข้อมูล cyber โดยตรง คือ network traffic, flow, packet capture, system/host log หรือ telemetry ที่มี label การโจมตี ภาพ ข้อความ และสัญญาณวิทยุไม่นับ แม้ paper จะศึกษาเรื่อง security ก็ตาม
 
-- **A. swarm learning + ข้อมูล cyber โดยตรง** (1 ฉบับ) — กลุ่มหลัก: เป็น swarm learning จริง และเทรนบน traffic หรือ log
+- **A. swarm learning + ข้อมูล cyber โดยตรง** (2 ฉบับ) — กลุ่มหลัก: เป็น swarm learning จริง และเทรนบน traffic หรือ log
 - **B. ข้อมูล cyber โดยตรง + สถาปัตยกรรมคล้าย SL** (10 ฉบับ) — กลุ่มรอง: IDS บนข้อมูล cyber ที่เทรนแบบ decentralized, ประสานด้วย blockchain หรือ federated แต่ไม่ใช่ SL ตรงตัว
 - **X. ภาคผนวก: งาน SL ด้าน security ที่ไม่ได้ใช้ข้อมูล cyber** (9 ฉบับ) — ศึกษาการโจมตี/ป้องกันตัว SL หรือใช้ SL ในงานใกล้เคียง แต่ข้อมูลเป็นภาพ ข้อความ หรือสัญญาณวิทยุ — ไม่นับเป็นงานหลัก เก็บไว้เพราะยังให้แนวคิดด้านสถาปัตยกรรม
 - **base. ภาคผนวก: พื้นฐานของ swarm learning** (3 ฉบับ) — paper ในโฟลเดอร์ `paper/` ที่นิยามและวัด SL แต่ใช้ข้อมูลการแพทย์/ทั่วไป
 
-ข้อสังเกตหลัก: เท่าที่ค้นเจอ งาน swarm learning ที่เทรนบนข้อมูล cyber โดยตรงมีแค่ ADONIS งานเดียว และไม่มีงาน SL ใดใช้ชุดข้อมูล IDS มาตรฐาน (N-BaIoT, CIC-IDS, TON_IoT, Edge-IIoTset, CICIoT2023) หรือ system log เลย ชุดเหล่านี้ถูกใช้เฉพาะในงาน FL/DFL/blockchain-FL (กลุ่ม B) ช่องว่างนี้คือจุดที่ sl-fabric เติมได้โดยตรง
+ข้อสังเกตหลัก: เท่าที่ค้นเจอ งาน swarm learning ที่เทรนบนข้อมูล cyber โดยตรงมีแค่ 2 งาน (ADONIS และ IoT-FKGDL-SL) และทั้งคู่ยังไม่มีตัวเลขในส่วนที่เข้าถึงได้ และไม่มีงาน SL ใดใช้ชุดข้อมูล IDS มาตรฐาน (N-BaIoT, CIC-IDS, TON_IoT, Edge-IIoTset, CICIoT2023) หรือ system log เลย ชุดเหล่านี้ถูกใช้เฉพาะในงาน FL/DFL/blockchain-FL (กลุ่ม B) ช่องว่างนี้คือจุดที่ sl-fabric เติมได้โดยตรง
 
 ## 1 · ภาพรวม: paper × ชุดข้อมูล × ผล
 
 | กลุ่ม | paper | ชุดข้อมูล | ประเภทข้อมูล | ผลเด่น |
 |---|---|---|---|---|
 | A | adonis2023 | traffic dataset (ตาม Table 5 ของ survey; ยังไม่รู้ชื่อชุดจริง) | network traffic ของ IoT | traffic ของ IoT: SL + knowledge distillation ตรวจพฤติกรรมคุกคาม (ยังไม่รู้ชื่อชุดข้อมูลและตัวเลข) |
+| A | iotfkgdlsl2024 | (ต้องดูฉบับเต็ม) | multivariate time series ของ traffic อุปกรณ์ IoT | 5G IoT traffic (time series): SL + distillation, precision/recall/F1 สูงกว่า baseline (ยังไม่ได้ตัวเลข) |
 | B | pentidef2026 | CIC-IDS2018, Edge-IIoTset | network flow | CIC-IDS2018 + Edge-IIoTset: DFL + DP + smart contract ชนะ FLARE/FedCC ทุกสถานการณ์โจมตี |
 | B | dofid2023 | Kitsune, BoT-IoT | network traffic (packet features) | Kitsune + BoT-IoT: decentralized online FL แม่นกว่า baseline ≥15%, overhead 30 ms/โหนด |
 | B | crowdsensing2026 | IoT Crowdsensing DFL dataset | host log (system call, file, kernel, I/O) + network | ชุดข้อมูล malware 8 ตระกูลที่ทำมาเพื่อ DFL โดยตรง; DFL ดีกว่า CFL เกือบทุกการตั้งค่า |
@@ -69,6 +70,41 @@
 **ความเข้ากันได้กับสถาปัตยกรรม SL** — สูง — เป็น SL ตรงตัว
 
 **เทียบกับ `poc/sl-fabric`** — ยืนยันว่า SL กับ IDS จาก traffic ไปด้วยกันได้ · distillation ช่วยลดขนาด parameter ที่ต้อง hash และส่งทุกรอบ
+
+### IoT-FKGDL-SL: Anomaly Detection Framework Integrating Knowledge Distillation and a Swarm Learning for 5G IoT
+
+*-* · IEEE Internet of Things Journal 11(23):38601–38614, ธ.ค. 2024 · IEEE Xplore 10654372
+
+| หัวข้อ | รายละเอียด |
+|---|---|
+| แหล่ง | web search |
+| ความเกี่ยวกับ cybersecurity | หลัก — ตรวจ traffic ผิดปกติและอุปกรณ์ล้มเหลวใน 5G IoT |
+| ลิงก์ | <https://ieeexplore.ieee.org/document/10654372/> |
+| สรุปบทคัดย่อ | การตรวจความผิดปกติจาก multivariate time series ของอุปกรณ์ 5G IoT ยังจับความสัมพันธ์ระยะยาวหลายมิติไม่ได้ และการเรียนแบบกระจายยังติดเรื่องภาระทรัพยากร ความเป็นส่วนตัว และความปลอดภัยของข้อมูล ผู้เขียนเสนอโมเดล IoT-FKGD แล้วนำไปเทรนแบบ swarm learning ร่วมกับ knowledge distillation |
+| ชุดข้อมูล | (ต้องดูฉบับเต็ม) |
+| รายละเอียดข้อมูล/การแบ่งโหนด | multivariate time series ของ traffic อุปกรณ์ IoT · ชื่อชุดข้อมูลและจำนวนโหนดต้องดูฉบับเต็ม |
+| วิธี/โมเดล | จัดกลุ่มตัวแปรเพื่อจับความสัมพันธ์ระหว่างตัวแปร · IoT-FKGD: multiscale dilated convolution + locality-sensitive hashing (LSH) attention สำหรับลำดับเวลายาว · knowledge distillation ลดขนาดโมเดล |
+| การตั้งค่า SL | swarm learning + knowledge distillation |
+
+**ผลลัพธ์**
+
+| เงื่อนไข | ตัวชี้วัด | ค่า | ที่มา |
+|---|---|---|---|
+| long time scale | ตามบทคัดย่อ | IoT-FKGDL-SL: precision, recall และ F1 สูงกว่า baseline ทุกตัว | เว็บ/บทคัดย่อ |
+
+**ประเด็นสำคัญ**
+
+- เป็นงาน SL บนข้อมูล cyber โดยตรงงานที่สองที่ค้นเจอ ต่อจาก ADONIS และใช้ distillation เหมือนกัน
+- รายงาน precision/recall/F1 ไม่ใช่ accuracy อย่างเดียว
+
+**ช่องโหว่ / ข้อจำกัด**
+
+- ยังไม่รู้ชื่อชุดข้อมูล จำนวนโหนด การแบ่งข้อมูล และตัวเลข
+- ไม่รู้ว่าเทียบกับ FL หรือ centralized หรือเปล่า
+
+**ความเข้ากันได้กับสถาปัตยกรรม SL** — สูง — SL ตรงตัวบน traffic
+
+**เทียบกับ `poc/sl-fabric`** — client ของ sl-fabric รับ tabular ต้องเพิ่มโมเดลลำดับเวลาถ้าจะใช้แบบเดียวกัน · distillation ช่วยลดขนาด parameter ที่ต้อง hash ต่อรอบ
 
 
 ## 3 · กลุ่ม B: ข้อมูล cyber โดยตรง + สถาปัตยกรรมคล้าย SL

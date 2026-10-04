@@ -1044,6 +1044,55 @@ SHARING_TAKEAWAYS = [
     "สิ่งที่ sl-fabric ควรรายงานเพื่อตอบคำถามนี้: เทรนเดี่ยวต่อ org / swarm / centralized บนโมเดลเดียวกัน · แบ่งข้อมูลตามอุปกรณ์หรือชนิดการโจมตี (ไม่สุ่ม) · macro-F1 และ DR ของการโจมตีที่ org นั้นไม่เคยเห็น",
 ]
 
+# ตารางสรุปกลุ่ม A/B: สถาปัตยกรรม · ผลเด่น · baseline · วัดผลการแชร์ได้ไหม · ความน่าเชื่อถือ (ดี / กลาง / ต่ำ)
+SUMMARY = [
+    {"key": "adonis2023", "name": "ADONIS", "venue": "IEEE TMC 2024", "arch": "SL (จำลอง) + KD",
+     "best": "SL 89.4%", "local": "67.6%", "central": "92.2%", "measurable": "ได้: +22 จุด",
+     "reliability": "ดี", "note": "มีแค่ accuracy"},
+    {"key": "iotfkgdlsl2024", "name": "IoT-FKGDL-SL", "venue": "IEEE IoT-J 2024", "arch": "SL + KD",
+     "best": "F1 0.937 (20 ผู้ร่วม)", "local": "F1 0.910", "central": "ไม่มี", "measurable": "ได้: +0.026",
+     "reliability": "กลาง", "note": "ข้อความขัดกับกราฟ"},
+    {"key": "hbfl2022", "name": "HBFL", "venue": "C&EE 2022", "arch": "ลำดับชั้น FL + permissioned blockchain",
+     "best": "accuracy เฉลี่ย 99.71%", "local": "DR การโจมตีที่ไม่เคยเห็น 27.9–44.1%", "central": "ไม่มี",
+     "measurable": "ได้: DR → 90.5–98.6%", "reliability": "ดี", "note": ""},
+    {"key": "dofid2023", "name": "DOF-ID", "venue": "MASCOTS 2023", "arch": "decentralized ไม่มี server",
+     "best": "≈0.93", "local": "≈0.80", "central": "ไม่มี", "measurable": "ได้: FedAvg ≈0.36 แย่กว่าเดี่ยว",
+     "reliability": "ดี", "note": "อ่านจาก box plot"},
+    {"key": "crowdsensing2026", "name": "Crowdsensing DFL", "venue": "Sci Data 2026", "arch": "DFL (Nebula) เทียบ CFL",
+     "best": "F1 0.950 (4 โหนด)", "local": "ไม่มี", "central": "F1 0.963", "measurable": "ไม่ได้ (เทียบ DFL ≥ CFL ได้)",
+     "reliability": "ดี", "note": ""},
+    {"key": "pentidef2026", "name": "PenTiDef", "venue": "arXiv 2026", "arch": "DFL บน Hyperledger Fabric + IPFS",
+     "best": "0.90–0.95 (non-IID, ถูกโจมตี)", "local": "ไม่มี", "central": "ไม่มี", "measurable": "ไม่ได้",
+     "reliability": "กลาง", "note": "preprint"},
+    {"key": "uavids2025", "name": "UAV Swarm IDS", "venue": "DASC 2025", "arch": "FL มี server แชร์แค่ encoder",
+     "best": "96.85–99.99%", "local": "ไม่มี", "central": "ไม่มี", "measurable": "ไม่ได้",
+     "reliability": "กลาง", "note": ""},
+    {"key": "bflids2024", "name": "BFLIDS", "venue": "Sensors 2024", "arch": "FL + Ethereum + IPFS",
+     "best": "0.97 (IID) / 0.93–0.95 (non-IID)", "local": "ไม่มี", "central": "มี (กราฟ)", "measurable": "ไม่ได้",
+     "reliability": "ต่ำ", "note": "ตาราง 0.97 vs เนื้อหา 85.31%"},
+    {"key": "flbcids2025", "name": "FLBC-IDS", "venue": "MTAP 2025", "arch": "FL + Hyperledger",
+     "best": "98.89%", "local": "ไม่มี", "central": "ไม่มี", "measurable": "ไม่ได้",
+     "reliability": "ต่ำ", "note": "recall ของคลาส 0.006% ได้ 98%"},
+    {"key": "bfl2026", "name": "B-FL", "venue": "Sci Rep 2026", "arch": "FL + blockchain trust",
+     "best": "98.9%", "local": "ไม่มี", "central": "98.2% (เนื้อหาบอก 93%)", "measurable": "ไม่ได้",
+     "reliability": "ต่ำ", "note": "ไม่ระบุโมเดล"},
+    {"key": "swarmsense2026", "name": "SwarmSense-DNN", "venue": "arXiv 2026", "arch": "swarm intelligence + FL ไม่มี blockchain",
+     "best": "95.44%", "local": "ไม่มี", "central": "88.46% (ต่ำผิดปกติ)", "measurable": "ไม่ได้",
+     "reliability": "ต่ำ", "note": ""},
+    {"key": "fedlog2024", "name": "Log-event FL", "venue": "MLWA 2024", "arch": "FL มี server",
+     "best": "ยังไม่ได้อ่าน", "local": "–", "central": "–", "measurable": "–",
+     "reliability": "ไม่ทราบ", "note": "ไฟล์ที่อัปโหลดเป็น paper MRI"},
+]
+SUMMARY_COUNTS = [
+    ("paper ที่อ่านฉบับเต็มแล้ว", "11 / 12"),
+    ("เป็น swarm learning ตรงตัว (กลุ่ม A)", "2"),
+    ("มี baseline เทรนเดี่ยว (วัดผลการแชร์ได้)", "4 (ADONIS, IoT-FKGDL-SL, HBFL, DOF-ID)"),
+    ("มี baseline รวมศูนย์", "5"),
+    ("บอกวิธีแบ่งข้อมูลให้โหนดชัดเจน", "5 (HBFL, DOF-ID, Crowdsensing, PenTiDef, UAV)"),
+    ("ใช้ Hyperledger Fabric แบบเดียวกับ sl-fabric", "2 (PenTiDef, FLBC-IDS)"),
+    ("ตัวเลขในเนื้อหาขัดกับตาราง/กราฟ", "3 (BFLIDS, B-FL, IoT-FKGDL-SL)"),
+]
+
 
 WEB_PAPERS = [
     # ---- A · SL + ชุดข้อมูล cyber --------------------------------------------------------
@@ -1543,6 +1592,13 @@ def render(evidence: dict, mentions: dict) -> str:
             for t in MAIN_TIERS for p in by_tier(t)]
     L.append(md_table(["กลุ่ม", "paper", "ชุดข้อมูล", "ประเภทข้อมูล", "ผลเด่น"], rows))
 
+    by_key = {p.key: p for p in ALL_PAPERS}
+    L += ["", "## 1a · ตารางสรุป", ""]
+    L.append(md_table(["paper", "กลุ่ม", "สถาปัตยกรรม", "ชุดข้อมูล", "ผลเด่น", "เทรนเดี่ยว", "รวมศูนย์", "วัดผลการแชร์ได้ไหม", "ความน่าเชื่อถือ"],
+                      [[f"{r['name']} ({r['venue']})", by_key[r["key"]].tier, r["arch"], ", ".join(by_key[r["key"]].datasets), r["best"],
+                        r["local"], r["central"], r["measurable"], r["reliability"] + (f" — {r['note']}" if r["note"] else "")]
+                       for r in SUMMARY]))
+    L += ["", md_table(["ประเด็น", "จำนวน"], [list(c) for c in SUMMARY_COUNTS])]
     L += ["", "## 1b · การแชร์ความรู้เมื่อข้อมูลแต่ละโหนดต่างกัน", "", SHARING_INTRO, ""]
     L.append(md_table(["paper", "แบ่งข้อมูลให้โหนด", "โหนด", "baseline เทรนเดี่ยว", "baseline รวมศูนย์", "ตัวชี้วัด", "ผลของการแชร์"],
                       [[r["key"], r["partition"], r["nodes"], r["local"], r["central"], r["metric"], r["gain"]] for r in SHARING]))
@@ -1610,6 +1666,7 @@ def main() -> None:
     OUT_MD.write_text(render(evidence, mentions), encoding="utf-8")
     OUT_JSON.write_text(json.dumps({
         "papers": [asdict(p) for p in ALL_PAPERS],
+        "summary": {"rows": SUMMARY, "counts": [dict(zip(["item", "value"], c)) for c in SUMMARY_COUNTS]},
         "sharing": {"intro": SHARING_INTRO, "rows": SHARING, "takeaways": SHARING_TAKEAWAYS},
         "tiers": {t: {"name": n, "description": d} for t, (n, d) in TIERS.items()},
         "excluded": [dict(zip(["work", "reason", "link"], r)) for r in EXCLUDED],

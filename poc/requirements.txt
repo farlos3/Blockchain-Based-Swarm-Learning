@@ -6,3 +6,4 @@ matplotlib
 ipykernel
 cryptography
 pypdf
+openpyxl

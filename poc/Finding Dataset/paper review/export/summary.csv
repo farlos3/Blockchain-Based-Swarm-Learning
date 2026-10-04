@@ -1,0 +1,13 @@
+﻿paper,แหล่งตีพิมพ์,กลุ่ม,สถาปัตยกรรม,ชุดข้อมูล,ผลเด่น,เทรนเดี่ยว,รวมศูนย์,วัดผลการแชร์ได้ไหม,ความน่าเชื่อถือ,หมายเหตุ
+ADONIS,IEEE TMC 2024,A,SL (จำลอง) + KD,home IoT traffic (เก็บเอง ไม่เปิดเผย),SL 89.4%,67.6%,92.2%,ได้: +22 จุด,ดี,มีแค่ accuracy
+IoT-FKGDL-SL,IEEE IoT-J 2024,A,SL + KD,LW5G-KPI (China Mobile Research Institute),F1 0.937 (20 ผู้ร่วม),F1 0.910,ไม่มี,ได้: +0.026,กลาง,ข้อความขัดกับกราฟ
+HBFL,C&EE 2022,B,ลำดับชั้น FL + permissioned blockchain,NF-BoT-IoT-v2,accuracy เฉลี่ย 99.71%,DR การโจมตีที่ไม่เคยเห็น 27.9–44.1%,ไม่มี,ได้: DR → 90.5–98.6%,ดี,
+DOF-ID,MASCOTS 2023,B,decentralized ไม่มี server,"Kitsune (Mirai), BoT-IoT (DoS HTTP, DDoS HTTP)",≈0.93,≈0.80,ไม่มี,ได้: FedAvg ≈0.36 แย่กว่าเดี่ยว,ดี,อ่านจาก box plot
+Crowdsensing DFL,Sci Data 2026,B,DFL (Nebula) เทียบ CFL,IoT Crowdsensing DFL dataset,F1 0.950 (4 โหนด),ไม่มี,F1 0.963,ไม่ได้ (เทียบ DFL ≥ CFL ได้),ดี,
+PenTiDef,arXiv 2026,B,DFL บน Hyperledger Fabric + IPFS,"CIC-IDS2018, Edge-IIoTset","0.90–0.95 (non-IID, ถูกโจมตี)",ไม่มี,ไม่มี,ไม่ได้,กลาง,preprint
+UAV Swarm IDS,DASC 2025,B,FL มี server แชร์แค่ encoder,"UAV-IDS, UKM-IDS, TLM-IDS, Cyber-Physical",96.85–99.99%,ไม่มี,ไม่มี,ไม่ได้,กลาง,
+BFLIDS,Sensors 2024,B,FL + Ethereum + IPFS,"Edge-IIoTset, TON_IoT",0.97 (IID) / 0.93–0.95 (non-IID),ไม่มี,มี (กราฟ),ไม่ได้,ต่ำ,ตาราง 0.97 vs เนื้อหา 85.31%
+FLBC-IDS,MTAP 2025,B,FL + Hyperledger,"CIC-IDS2018, CICIoT2023",98.89%,ไม่มี,ไม่มี,ไม่ได้,ต่ำ,recall ของคลาส 0.006% ได้ 98%
+B-FL,Sci Rep 2026,B,FL + blockchain trust,CICIoT2023,98.9%,ไม่มี,98.2% (เนื้อหาบอก 93%),ไม่ได้,ต่ำ,ไม่ระบุโมเดล
+SwarmSense-DNN,arXiv 2026,B,swarm intelligence + FL ไม่มี blockchain,"IoT-23, NSL-KDD, CICIDS2017, UNSW-NB15, Industrial IoT",95.44%,ไม่มี,88.46% (ต่ำผิดปกติ),ไม่ได้,ต่ำ,
+Log-event FL,MLWA 2024,B,FL มี server,"HDFS, Thunderbird",ยังไม่ได้อ่าน,–,–,–,ไม่ทราบ,ไฟล์ที่อัปโหลดเป็น paper MRI

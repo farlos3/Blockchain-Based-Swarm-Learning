@@ -19,14 +19,13 @@ HERE = Path(__file__).resolve().parent
 OUT = HERE / "export"
 
 HEADER = ["paper", "แหล่งตีพิมพ์", "กลุ่ม", "สถาปัตยกรรม", "ชุดข้อมูล", "ผลเด่น",
-          "เทรนเดี่ยว", "รวมศูนย์", "วัดผลการแชร์ได้ไหม", "ความน่าเชื่อถือ", "หมายเหตุ"]
-REL_COLOR = {"ดี": "0D6B69", "กลาง": "8A5300", "ต่ำ": "B3261E"}
+          "เทรนเดี่ยว", "รวมศูนย์", "วัดผลการแชร์ได้ไหม"]
 
 
 def rows(d: dict) -> list[list[str]]:
     papers = {p["key"]: p for p in d["papers"]}
     return [[r["name"], r["venue"], papers[r["key"]]["tier"], r["arch"], ", ".join(papers[r["key"]]["datasets"]),
-             r["best"], r["local"], r["central"], r["measurable"], r["reliability"], r["note"]]
+             r["best"], r["local"], r["central"], r["measurable"]]
             for r in d["summary"]["rows"]]
 
 
@@ -40,14 +39,10 @@ def write_xlsx(path: Path, body: list[list[str]], counts: list[dict]) -> None:
     head = PatternFill("solid", fgColor="17212B")
     for c in ws[1]:
         c.font, c.fill = Font(bold=True, color="FFFFFF"), head
-    for row in ws.iter_rows(min_row=2):
-        rel = row[9]
-        if rel.value in REL_COLOR:
-            rel.font = Font(bold=True, color=REL_COLOR[rel.value])
     for row in ws.iter_rows():
         for c in row:
             c.alignment = Alignment(wrap_text=True, vertical="top")
-    for col, w in zip("ABCDEFGHIJK", (16, 16, 7, 26, 28, 24, 20, 18, 26, 13, 26)):
+    for col, w in zip("ABCDEFGHI", (16, 16, 7, 26, 28, 24, 20, 18, 26)):
         ws.column_dimensions[col].width = w
     ws.freeze_panes = "A2"
 
@@ -64,9 +59,7 @@ def write_xlsx(path: Path, body: list[list[str]], counts: list[dict]) -> None:
 def write_html(path: Path, body: list[list[str]]) -> None:
     e = html.escape
     tr = "".join(
-        "<tr>" + "".join(
-            f"<td class='rel' style='color:#{REL_COLOR.get(c, '5a6674')}'>{e(c)}</td>" if i == 9 else f"<td>{e(c)}</td>"
-            for i, c in enumerate(r)) + "</tr>"
+        "<tr>" + "".join(f"<td>{e(c)}</td>" for c in r) + "</tr>"
         for r in body)
     path.write_text(f"""<!doctype html><meta charset="utf-8">
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
@@ -77,7 +70,6 @@ table {{ border-collapse: collapse; width: 1600px; font-size: 14px; }}
 th {{ background: #17212b; color: #fff; text-align: left; padding: 8px; font-weight: 600; }}
 td {{ border-bottom: 1px solid #dce2e8; padding: 8px; vertical-align: top; }}
 tr:nth-child(even) td {{ background: #f4f6f8; }}
-td.rel {{ font-weight: 600; }}
 </style>
 <h1>สรุป paper: swarm learning และงานคล้าย SL บนข้อมูล cyber</h1>
 <table><thead><tr>{''.join(f'<th>{e(h)}</th>' for h in HEADER)}</tr></thead><tbody>{tr}</tbody></table>

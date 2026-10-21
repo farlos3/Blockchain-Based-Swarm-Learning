@@ -1,7 +1,9 @@
 # sl-fabric
 
-Swarm learning on **Hyperledger Fabric 2.5**: five organizations, one per swarm node,
-training image classifiers on BloodMNIST while every round is recorded on a real ledger.
+Swarm learning on **Hyperledger Fabric 2.5**: one organization per swarm node, training
+image classifiers on BloodMNIST while every round is recorded on a real ledger. The same
+network also carries the IDS replication in [`architecture/centric`](../../architecture/centric),
+whose largest swarm has ten nodes, so it runs ten organizations.
 
 This is the step after [`../sl-blockchain`](../sl-blockchain), which built the same rules
 on a hand-written hash chain. What changes here is who enforces them:
@@ -11,46 +13,49 @@ on a hand-written hash chain. What changes here is who enforces them:
 | identity | ed25519 keys managed by the code | X.509 per org, checked by the peer's MSP |
 | who is the submitter | a field in the transaction | the client certificate — nothing to forge |
 | immutability | hand-written hash chain + `validate()` | ordering service and the peers' block store |
-| who agrees | one leader signs the block | a **majority of the 5 organizations** endorse it |
-| processes | one | 11 containers, real gRPC between them |
+| who agrees | one leader signs the block | a **majority of the swarm's organizations** endorse it |
+| processes | one | 22 containers, real gRPC between them |
 
 ## Layout
 
 | Path | What it is |
 |---|---|
-| `network/` | the 5-org network: `crypto-config.yaml`, `configtx.yaml`, `compose.yaml`, `network.sh` |
+| `network/` | the 10-org network: `swarms.conf`, `crypto-config.yaml`, `configtx.yaml`, `compose.yaml`, `network.sh` |
 | `chaincode/sl-ledger/` | the smart contract (Go) plus its Dockerfile |
 | `gateway/` | a Go REST service holding one Fabric identity per org, and the monitor page |
-| `network/.env` | package ids written by `deploy`, read by compose (generated, not source) |
+| `network/.env` | channel list and package ids written by `network.sh`, read by compose (generated, not source) |
 | `client/` | the Python swarm: data partition, models, the round loop, the experiment runner |
 
 ## Running it
 
 ```bash
-# 1. everything that runs in Docker: orderer, 5 peers, 5 chaincode services, gateway
+# 1. everything that runs in Docker: orderer, 10 peers, 10 chaincode services, gateway
 cd network
 ./network.sh up          # certificates, containers, channel  (~2 minutes cold)
-./network.sh deploy      # package, install, approve, commit the chaincode
+./network.sh deploy      # package, install, approve, commit the chaincode (re-runnable)
 
-# 2. the swarm itself, on the host
-cd ../client
-python run_experiment.py --models logistic mlp cnn --rounds 10
+# 2. the swarm itself, on the host — the IDS replication of ../../architecture/centric
+cd ../../architecture/centric
+python run.py
 ```
+
+(`client/` below is a separate, earlier PoC — image classification on BloodMNIST/PathMNIST.
+It needs its own line in `network/swarms.conf`, commented out by default; see below.)
 
 The monitor is at **http://127.0.0.1:8899** as soon as `up` finishes.
 
 Everything runs as one compose project named `sl-fabric`, so `docker compose ps`, Docker
-Desktop and `down` all treat the twelve containers as a single unit rather than leaving
+Desktop and `down` all treat the 22 containers as a single unit rather than leaving
 strays behind:
 
 ```
-orderer.swarm.local          peer0.org1..5.swarm.local
-sl-ledger.org1..5.swarm.local (chaincode)     sl-gateway
+orderer.swarm.local          peer0.org1..10.swarm.local
+sl-ledger.org1..10.swarm.local (chaincode)    sl-gateway
 ```
 
 `./network.sh down` removes every container, volume, generated certificate and the
-`.env` compose reads package ids from; `up` rebuilds them all from the two YAML files,
-so a broken run is never worth debugging.
+`.env` compose reads; `up` rebuilds them all from `swarms.conf` and the YAML files, so a
+broken run is never worth debugging.
 
 To move the monitor off 8899:
 
@@ -67,16 +72,47 @@ native Windows executables and depend on MSYS rewriting `/d/...` arguments to `D
 
 ## The network
 
-Five peer organizations, one peer each, and a single-node Raft orderer:
+Ten peer organizations, one peer each, and a single-node Raft orderer:
 
 ```
-Org1MSP  peer0.org1.swarm.local  localhost:7051
-Org2MSP  peer0.org2.swarm.local  localhost:8051
-Org3MSP  peer0.org3.swarm.local  localhost:9051
-Org4MSP  peer0.org4.swarm.local  localhost:10051
-Org5MSP  peer0.org5.swarm.local  localhost:11051
-orderer.swarm.local              localhost:7050 (admin 7053)
+Org1MSP   peer0.org1.swarm.local   localhost:7051     ...one port block of 1000 per org...
+Org5MSP   peer0.org5.swarm.local   localhost:11051
+Org10MSP  peer0.org10.swarm.local  localhost:16051
+orderer.swarm.local                localhost:7050 (admin 7053)
 ```
+
+**Which swarms and models the network runs is configuration**, in `network/swarms.conf`:
+one line per dataset with its number of organizations and the models trained on it.
+Every dataset-model pair gets its own channel, `swarm-<dataset>-<model>`, holding only the
+organizations of that swarm, always Org1..OrgN (`SwarmN` profiles in `configtx.yaml`).
+`network.sh` writes the channel list into `.env`; the gateway and its monitor read it from
+there, and `architecture/centric/run.py` refuses a model that has no channel. The shipped
+file runs only the paper's two IDS backbones, on the paper's four federations:
+
+```
+# dataset   orgs  models
+edge        6     lstm transformer
+cic         10    lstm transformer
+tii         5     lstm transformer
+combined    3     lstm transformer
+```
+
+To bring back the earlier image swarm (`client/`, BloodMNIST/PathMNIST, models `logistic
+mlp cnn`), add its lines back (`blood 5 logistic mlp cnn` and `path 5 logistic mlp cnn`)
+and run `./network.sh deploy`. To use another model, put it on its dataset's line and run
+`./network.sh deploy`: it creates the channels that do not exist yet on the running network
+and deploys the chaincode on them, leaving the existing chains as they are. It also
+restarts the gateway so it serves the new list, so do it while nothing is training. A
+model taken off the file keeps its chain until the next `down`, but the gateway no longer
+serves it. `network.sh` checks the file first: unknown sizes (no `SwarmN` profile), more
+than 10 organizations, a dataset listed twice or names a channel cannot carry stop it
+before anything is created.
+
+So "majority endorsement" is always a majority of that swarm, and orgs 6-10 existing
+changes nothing for a five-org swarm. The quorum `InitSwarm` records is a
+majority of the members. `deploy` skips whatever is already installed, approved,
+committed or initialised: with ten peers behind Docker Desktop's port forwarding a
+connection occasionally times out, and running `deploy` again finishes the job.
 
 One orderer is enough for the property this project needs. What must not be possible is a
 single *swarm member* committing a round alone, and that is stopped by the endorsement
@@ -149,7 +185,7 @@ binary talks to `localhost` and the published ports, which is handy when debuggi
 outside Docker (`go build -o sl-gateway.exe . && ./sl-gateway.exe`).
 
 Demo scope: only its own port is published, it has no authentication of its own, and it
-loads all five identities into one process. In a real deployment each organization runs its
+loads all ten identities into one process. In a real deployment each organization runs its
 own copy with only its own key.
 
 ## The monitor

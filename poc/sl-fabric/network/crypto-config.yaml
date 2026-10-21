@@ -77,3 +77,63 @@ PeerOrgs:
         - localhost
     Users:
       Count: 1
+
+  - Name: Org6
+    Domain: org6.swarm.local
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+      # clients run on the host and reach the peer as localhost:<port>, so the TLS
+      # certificate has to name localhost as well as the container hostname
+      SANS:
+        - localhost
+    Users:
+      Count: 1
+
+  - Name: Org7
+    Domain: org7.swarm.local
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+      # clients run on the host and reach the peer as localhost:<port>, so the TLS
+      # certificate has to name localhost as well as the container hostname
+      SANS:
+        - localhost
+    Users:
+      Count: 1
+
+  - Name: Org8
+    Domain: org8.swarm.local
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+      # clients run on the host and reach the peer as localhost:<port>, so the TLS
+      # certificate has to name localhost as well as the container hostname
+      SANS:
+        - localhost
+    Users:
+      Count: 1
+
+  - Name: Org9
+    Domain: org9.swarm.local
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+      # clients run on the host and reach the peer as localhost:<port>, so the TLS
+      # certificate has to name localhost as well as the container hostname
+      SANS:
+        - localhost
+    Users:
+      Count: 1
+
+  - Name: Org10
+    Domain: org10.swarm.local
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+      # clients run on the host and reach the peer as localhost:<port>, so the TLS
+      # certificate has to name localhost as well as the container hostname
+      SANS:
+        - localhost
+    Users:
+      Count: 1

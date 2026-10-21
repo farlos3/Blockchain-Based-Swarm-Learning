@@ -11,7 +11,7 @@
 // as another node by changing a request body — only by holding another org's private key.
 //
 // Demo scope: it listens on localhost, has no authentication of its own, and loads all
-// five identities. In a real deployment each organization would run its own copy with
+// ten identities. In a real deployment each organization would run its own copy with
 // only its own key.
 package main
 
@@ -37,10 +37,6 @@ import (
 )
 
 const chaincodeName = "sl-ledger"
-
-// defaultChannels is only a fallback: ./network.sh deploy writes the real list into .env
-// and compose passes it in as SL_CHANNELS.
-const defaultChannels = "swarm-blood-logistic,swarm-blood-mlp,swarm-blood-cnn," + "swarm-path-logistic,swarm-path-mlp,swarm-path-cnn"
 
 // The monitor page is compiled into the binary, so the gateway is the only thing that
 // has to be running to watch the ledger. It reads through the same endpoints the Python
@@ -106,8 +102,8 @@ func (s *server) channelOf(r *http.Request) (string, error) {
 // peer's own ports, from the host it uses localhost and the published ports. Everything
 // else — identities, TLS roots, the API — is identical either way.
 func orgConfigs(orgsDir string, inCluster bool) []orgConfig {
-	ports := []string{"7051", "8051", "9051", "10051", "11051"}
-	hostOpsPorts := []string{"9441", "9442", "9443", "9444", "9445"}
+	ports := []string{"7051", "8051", "9051", "10051", "11051", "12051", "13051", "14051", "15051", "16051"}
+	hostOpsPorts := []string{"9441", "9442", "9443", "9444", "9445", "9446", "9447", "9448", "9449", "9450"}
 	configs := make([]orgConfig, 0, len(ports))
 	for i, port := range ports {
 		n := i + 1
@@ -268,16 +264,18 @@ func splitChannel(channel string) (dataset, model string) {
 	return dataset, strings.ReplaceAll(tail, "-", "_")
 }
 
-// reader returns a contract for the requested channel, using any identity: a read gives
-// the same answer whoever asks, and it is evaluated on one peer either way.
+// reader returns a contract for the requested channel: a read gives the same answer
+// whoever asks, and it is evaluated on one peer either way. It asks in declaration order,
+// not map order, because a channel holds only its own swarm (Org1..OrgN, see configtx's
+// SwarmN profiles): Org1 is in every one, Org7 only in the ten-org chains.
 func (s *server) reader(w http.ResponseWriter, r *http.Request) (*client.Contract, bool) {
 	channel, err := s.channelOf(r)
 	if err != nil {
 		writeJSON(w, http.StatusNotFound, map[string]string{"error": err.Error()})
 		return nil, false
 	}
-	for _, n := range s.nodes {
-		if contract, ok := n.contract(channel); ok {
+	for _, cfg := range s.orgs {
+		if contract, ok := s.nodes[cfg.MSPID].contract(channel); ok {
 			return contract, true
 		}
 	}
@@ -478,11 +476,10 @@ func (s *server) reset(w http.ResponseWriter, r *http.Request) {
 		targets = s.channels
 	}
 
-	// any member may reset, so the first identity is as good as another
+	// any member may reset; Org1 is a member of every channel (see reader)
 	var actor *node
-	for _, n := range s.nodes {
-		actor = n
-		break
+	if len(s.orgs) > 0 {
+		actor = s.nodes[s.orgs[0].MSPID]
 	}
 	if actor == nil {
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "no identity loaded"})
@@ -670,9 +667,12 @@ func main() {
 		ordererOps = "http://orderer.swarm.local:9440"
 	}
 
+	// the channels come from network/swarms.conf, which ./network.sh writes into .env and
+	// compose passes in; outside compose, set SL_CHANNELS to the same comma-separated list
 	channelList := os.Getenv("SL_CHANNELS")
-	if channelList == "" {
-		channelList = defaultChannels
+	if strings.TrimSpace(channelList) == "" {
+		log.Fatal("SL_CHANNELS is empty: start the gateway with ./network.sh up, which lists " +
+			"the channels of network/swarms.conf in network/.env")
 	}
 	channels := strings.Split(channelList, ",")
 	for i := range channels {

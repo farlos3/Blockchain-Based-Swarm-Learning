@@ -1,12 +1,14 @@
 # Channel configuration for the swarm network.
 #
-# Five peer organizations, one per swarm node, and a single-node Raft ordering service.
+# Ten peer organizations, one per swarm node, and a single-node Raft ordering service.
+# A channel holds only the organizations of its own swarm (the SwarmN profiles below), so
+# "majority endorsement" always means a majority of that swarm, never of the whole network.
 # One orderer is enough here: the property the thesis needs is that no single *swarm
 # member* can commit a round on its own, and that comes from the endorsement policy
 # below, not from orderer replication. A production deployment would run 3 or 5 orderers.
 #
 # Build the genesis block with:
-#   configtxgen -profile SwarmChannel -outputBlock ... -channelID swarm-channel
+#   configtxgen -profile Swarm5 -outputBlock ... -channelID swarm-channel
 
 Organizations:
   - &OrdererOrg
@@ -141,6 +143,121 @@ Organizations:
       - Host: peer0.org5.swarm.local
         Port: 11051
 
+  - &Org6
+    Name: Org6MSP
+    ID: Org6MSP
+    MSPDir: ../organizations/peerOrganizations/org6.swarm.local/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('Org6MSP.admin', 'Org6MSP.peer', 'Org6MSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('Org6MSP.admin', 'Org6MSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('Org6MSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('Org6MSP.peer')"
+    # baked into the genesis block so peers can discover each other across orgs
+    # from the moment they join; the Gateway needs that to gather endorsements
+    AnchorPeers:
+      - Host: peer0.org6.swarm.local
+        Port: 12051
+
+  - &Org7
+    Name: Org7MSP
+    ID: Org7MSP
+    MSPDir: ../organizations/peerOrganizations/org7.swarm.local/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('Org7MSP.admin', 'Org7MSP.peer', 'Org7MSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('Org7MSP.admin', 'Org7MSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('Org7MSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('Org7MSP.peer')"
+    # baked into the genesis block so peers can discover each other across orgs
+    # from the moment they join; the Gateway needs that to gather endorsements
+    AnchorPeers:
+      - Host: peer0.org7.swarm.local
+        Port: 13051
+
+  - &Org8
+    Name: Org8MSP
+    ID: Org8MSP
+    MSPDir: ../organizations/peerOrganizations/org8.swarm.local/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('Org8MSP.admin', 'Org8MSP.peer', 'Org8MSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('Org8MSP.admin', 'Org8MSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('Org8MSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('Org8MSP.peer')"
+    # baked into the genesis block so peers can discover each other across orgs
+    # from the moment they join; the Gateway needs that to gather endorsements
+    AnchorPeers:
+      - Host: peer0.org8.swarm.local
+        Port: 14051
+
+  - &Org9
+    Name: Org9MSP
+    ID: Org9MSP
+    MSPDir: ../organizations/peerOrganizations/org9.swarm.local/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('Org9MSP.admin', 'Org9MSP.peer', 'Org9MSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('Org9MSP.admin', 'Org9MSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('Org9MSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('Org9MSP.peer')"
+    # baked into the genesis block so peers can discover each other across orgs
+    # from the moment they join; the Gateway needs that to gather endorsements
+    AnchorPeers:
+      - Host: peer0.org9.swarm.local
+        Port: 15051
+
+  - &Org10
+    Name: Org10MSP
+    ID: Org10MSP
+    MSPDir: ../organizations/peerOrganizations/org10.swarm.local/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('Org10MSP.admin', 'Org10MSP.peer', 'Org10MSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('Org10MSP.admin', 'Org10MSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('Org10MSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('Org10MSP.peer')"
+    # baked into the genesis block so peers can discover each other across orgs
+    # from the moment they join; the Gateway needs that to gather endorsements
+    AnchorPeers:
+      - Host: peer0.org10.swarm.local
+        Port: 16051
+
 Capabilities:
   Channel: &ChannelCapabilities
     V2_0: true
@@ -183,8 +300,9 @@ Orderer: &OrdererDefaults
         Port: 7050
         ClientTLSCert: ../organizations/ordererOrganizations/swarm.local/orderers/orderer.swarm.local/tls/server.crt
         ServerTLSCert: ../organizations/ordererOrganizations/swarm.local/orderers/orderer.swarm.local/tls/server.crt
-  # A swarm round produces six transactions (five updates plus one aggregation), so the
-  # batch is cut on the timeout far more often than on size. Two seconds keeps a round
+  # A swarm round produces one transaction per node plus one aggregation (six for the
+  # five-org swarm, eleven for the largest), so the batch is cut on the timeout far more
+  # often than on size. Two seconds keeps a round
   # snappy without cutting a block per transaction.
   BatchTimeout: 2s
   BatchSize:
@@ -221,7 +339,27 @@ Channel: &ChannelDefaults
     <<: *ChannelCapabilities
 
 Profiles:
-  SwarmChannel:
+  # One profile per swarm size. Every swarm is Org1..OrgN, which is how network.sh picks
+  # the profile for a dataset (members_of) and how the gateway knows Org1 can read any chain.
+
+  # the combined federation: one client per dataset
+  Swarm3:
+    <<: *ChannelDefaults
+    Orderer:
+      <<: *OrdererDefaults
+      Organizations:
+        - *OrdererOrg
+      Capabilities: *OrdererCapabilities
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - *Org1
+        - *Org2
+        - *Org3
+      Capabilities: *ApplicationCapabilities
+
+  # the image experiments, and TII-SSRC-23's five clients
+  Swarm5:
     <<: *ChannelDefaults
     Orderer:
       <<: *OrdererDefaults
@@ -236,4 +374,46 @@ Profiles:
         - *Org3
         - *Org4
         - *Org5
+      Capabilities: *ApplicationCapabilities
+
+  # Edge-IIoTset's six clients
+  Swarm6:
+    <<: *ChannelDefaults
+    Orderer:
+      <<: *OrdererDefaults
+      Organizations:
+        - *OrdererOrg
+      Capabilities: *OrdererCapabilities
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - *Org1
+        - *Org2
+        - *Org3
+        - *Org4
+        - *Org5
+        - *Org6
+      Capabilities: *ApplicationCapabilities
+
+  # CIC-IoT2023's ten clients
+  Swarm10:
+    <<: *ChannelDefaults
+    Orderer:
+      <<: *OrdererDefaults
+      Organizations:
+        - *OrdererOrg
+      Capabilities: *OrdererCapabilities
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - *Org1
+        - *Org2
+        - *Org3
+        - *Org4
+        - *Org5
+        - *Org6
+        - *Org7
+        - *Org8
+        - *Org9
+        - *Org10
       Capabilities: *ApplicationCapabilities

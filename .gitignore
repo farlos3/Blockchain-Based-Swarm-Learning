@@ -116,12 +116,22 @@ poc/sl-fabric/gateway/vendor/
 poc/sl-fabric/gateway/sl-gateway.exe
 poc/sl-fabric/network/.env
 poc/sl-fabric/client/__pycache__/
+# ledger snapshots taken before a network rebuild; they hold private keys
+poc/sl-fabric/backup/
 # regenerated from the JSON results by client/export.py
 poc/sl-fabric/client/results/*.csv
 
 
 # the trainer log start.sh writes
 poc/sl-fabric/trainer.log
+
+# --- IDS replication (architecture/centric) ---
+# the run records are the source REPORT.md is built from, so keep them despite runs/ above;
+# the raw datasets (data/) and per-lane progress logs (logs/) stay out
+!architecture/centric/results/*/runs/
+architecture/centric/results/**/*.out
+architecture/centric/results/*.log
+architecture/centric/.venv/
 
 # --- Federated dataset candidates (downloaded, not source; see poc/Finding Dataset/Explore.ipynb) ---
 poc/Finding Dataset/data/

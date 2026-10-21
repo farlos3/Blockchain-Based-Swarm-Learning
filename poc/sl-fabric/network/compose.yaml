@@ -1,4 +1,8 @@
-# The swarm network: one Raft orderer and five peers, one peer per organization.
+# The swarm network: one Raft orderer and ten peers, one peer per organization.
+#
+# Ten because the largest federation in architecture/centric (CIC-IoT2023, Bilal et al.)
+# has ten clients. Each channel holds only the organizations of its own swarm, so the
+# five-org image experiments are unaffected by orgs 6-10 existing.
 #
 # Ledger data lives in named volumes so `network.sh down` can wipe a run completely and
 # `network.sh up` always starts from a known state — a half-migrated ledger is the most
@@ -8,7 +12,7 @@
 # containers. That is how Fabric's default (non-external) chaincode lifecycle works.
 
 # One compose project, so `docker compose ps`, Docker Desktop and `down` all treat the
-# orderer, the peers, the five chaincode services and the gateway as a single unit
+# orderer, the peers, the chaincode services and the gateway as a single unit
 # instead of leaving stray containers behind.
 # Nothing restarts on its own: ./network.sh up starts the network, ./network.sh down
 # stops it, and starting Docker Desktop does neither. `on-failure` used to bring the
@@ -27,6 +31,11 @@ volumes:
   peer0.org3.swarm.local:
   peer0.org4.swarm.local:
   peer0.org5.swarm.local:
+  peer0.org6.swarm.local:
+  peer0.org7.swarm.local:
+  peer0.org8.swarm.local:
+  peer0.org9.swarm.local:
+  peer0.org10.swarm.local:
 
 x-peer: &peer-defaults
   image: hyperledger/fabric-peer:2.5.13
@@ -223,6 +232,121 @@ services:
       - ../organizations/peerOrganizations/org5.swarm.local/peers/peer0.org5.swarm.local/tls:/etc/hyperledger/fabric/tls:ro
       - peer0.org5.swarm.local:/var/hyperledger/production
 
+  peer0.org6.swarm.local:
+    <<: *peer-defaults
+    container_name: peer0.org6.swarm.local
+    environment:
+      <<: *peer-env
+      CORE_PEER_ID: peer0.org6.swarm.local
+      CORE_PEER_ADDRESS: peer0.org6.swarm.local:12051
+      CORE_PEER_LISTENADDRESS: 0.0.0.0:12051
+      CORE_PEER_CHAINCODEADDRESS: peer0.org6.swarm.local:12052
+      CORE_PEER_CHAINCODELISTENADDRESS: 0.0.0.0:12052
+      CORE_PEER_GOSSIP_BOOTSTRAP: peer0.org6.swarm.local:12051
+      CORE_PEER_GOSSIP_EXTERNALENDPOINT: peer0.org6.swarm.local:12051
+      CORE_PEER_LOCALMSPID: Org6MSP
+      CORE_PEER_MSPCONFIGPATH: /etc/hyperledger/fabric/msp
+    ports:
+      - "12051:12051"
+      - "9446:9440"
+    volumes:
+      - /var/run/docker.sock:/host/var/run/docker.sock
+      - ../organizations/peerOrganizations/org6.swarm.local/peers/peer0.org6.swarm.local/msp:/etc/hyperledger/fabric/msp:ro
+      - ../organizations/peerOrganizations/org6.swarm.local/peers/peer0.org6.swarm.local/tls:/etc/hyperledger/fabric/tls:ro
+      - peer0.org6.swarm.local:/var/hyperledger/production
+
+  peer0.org7.swarm.local:
+    <<: *peer-defaults
+    container_name: peer0.org7.swarm.local
+    environment:
+      <<: *peer-env
+      CORE_PEER_ID: peer0.org7.swarm.local
+      CORE_PEER_ADDRESS: peer0.org7.swarm.local:13051
+      CORE_PEER_LISTENADDRESS: 0.0.0.0:13051
+      CORE_PEER_CHAINCODEADDRESS: peer0.org7.swarm.local:13052
+      CORE_PEER_CHAINCODELISTENADDRESS: 0.0.0.0:13052
+      CORE_PEER_GOSSIP_BOOTSTRAP: peer0.org7.swarm.local:13051
+      CORE_PEER_GOSSIP_EXTERNALENDPOINT: peer0.org7.swarm.local:13051
+      CORE_PEER_LOCALMSPID: Org7MSP
+      CORE_PEER_MSPCONFIGPATH: /etc/hyperledger/fabric/msp
+    ports:
+      - "13051:13051"
+      - "9447:9440"
+    volumes:
+      - /var/run/docker.sock:/host/var/run/docker.sock
+      - ../organizations/peerOrganizations/org7.swarm.local/peers/peer0.org7.swarm.local/msp:/etc/hyperledger/fabric/msp:ro
+      - ../organizations/peerOrganizations/org7.swarm.local/peers/peer0.org7.swarm.local/tls:/etc/hyperledger/fabric/tls:ro
+      - peer0.org7.swarm.local:/var/hyperledger/production
+
+  peer0.org8.swarm.local:
+    <<: *peer-defaults
+    container_name: peer0.org8.swarm.local
+    environment:
+      <<: *peer-env
+      CORE_PEER_ID: peer0.org8.swarm.local
+      CORE_PEER_ADDRESS: peer0.org8.swarm.local:14051
+      CORE_PEER_LISTENADDRESS: 0.0.0.0:14051
+      CORE_PEER_CHAINCODEADDRESS: peer0.org8.swarm.local:14052
+      CORE_PEER_CHAINCODELISTENADDRESS: 0.0.0.0:14052
+      CORE_PEER_GOSSIP_BOOTSTRAP: peer0.org8.swarm.local:14051
+      CORE_PEER_GOSSIP_EXTERNALENDPOINT: peer0.org8.swarm.local:14051
+      CORE_PEER_LOCALMSPID: Org8MSP
+      CORE_PEER_MSPCONFIGPATH: /etc/hyperledger/fabric/msp
+    ports:
+      - "14051:14051"
+      - "9448:9440"
+    volumes:
+      - /var/run/docker.sock:/host/var/run/docker.sock
+      - ../organizations/peerOrganizations/org8.swarm.local/peers/peer0.org8.swarm.local/msp:/etc/hyperledger/fabric/msp:ro
+      - ../organizations/peerOrganizations/org8.swarm.local/peers/peer0.org8.swarm.local/tls:/etc/hyperledger/fabric/tls:ro
+      - peer0.org8.swarm.local:/var/hyperledger/production
+
+  peer0.org9.swarm.local:
+    <<: *peer-defaults
+    container_name: peer0.org9.swarm.local
+    environment:
+      <<: *peer-env
+      CORE_PEER_ID: peer0.org9.swarm.local
+      CORE_PEER_ADDRESS: peer0.org9.swarm.local:15051
+      CORE_PEER_LISTENADDRESS: 0.0.0.0:15051
+      CORE_PEER_CHAINCODEADDRESS: peer0.org9.swarm.local:15052
+      CORE_PEER_CHAINCODELISTENADDRESS: 0.0.0.0:15052
+      CORE_PEER_GOSSIP_BOOTSTRAP: peer0.org9.swarm.local:15051
+      CORE_PEER_GOSSIP_EXTERNALENDPOINT: peer0.org9.swarm.local:15051
+      CORE_PEER_LOCALMSPID: Org9MSP
+      CORE_PEER_MSPCONFIGPATH: /etc/hyperledger/fabric/msp
+    ports:
+      - "15051:15051"
+      - "9449:9440"
+    volumes:
+      - /var/run/docker.sock:/host/var/run/docker.sock
+      - ../organizations/peerOrganizations/org9.swarm.local/peers/peer0.org9.swarm.local/msp:/etc/hyperledger/fabric/msp:ro
+      - ../organizations/peerOrganizations/org9.swarm.local/peers/peer0.org9.swarm.local/tls:/etc/hyperledger/fabric/tls:ro
+      - peer0.org9.swarm.local:/var/hyperledger/production
+
+  peer0.org10.swarm.local:
+    <<: *peer-defaults
+    container_name: peer0.org10.swarm.local
+    environment:
+      <<: *peer-env
+      CORE_PEER_ID: peer0.org10.swarm.local
+      CORE_PEER_ADDRESS: peer0.org10.swarm.local:16051
+      CORE_PEER_LISTENADDRESS: 0.0.0.0:16051
+      CORE_PEER_CHAINCODEADDRESS: peer0.org10.swarm.local:16052
+      CORE_PEER_CHAINCODELISTENADDRESS: 0.0.0.0:16052
+      CORE_PEER_GOSSIP_BOOTSTRAP: peer0.org10.swarm.local:16051
+      CORE_PEER_GOSSIP_EXTERNALENDPOINT: peer0.org10.swarm.local:16051
+      CORE_PEER_LOCALMSPID: Org10MSP
+      CORE_PEER_MSPCONFIGPATH: /etc/hyperledger/fabric/msp
+    ports:
+      - "16051:16051"
+      - "9450:9440"
+    volumes:
+      - /var/run/docker.sock:/host/var/run/docker.sock
+      - ../organizations/peerOrganizations/org10.swarm.local/peers/peer0.org10.swarm.local/msp:/etc/hyperledger/fabric/msp:ro
+      - ../organizations/peerOrganizations/org10.swarm.local/peers/peer0.org10.swarm.local/tls:/etc/hyperledger/fabric/tls:ro
+      - peer0.org10.swarm.local:/var/hyperledger/production
+
   # ---------- chaincode services, one per organization ----------
 
   sl-ledger.org1.swarm.local:
@@ -260,6 +384,41 @@ services:
       CHAINCODE_ID: ${CC_ID_ORG5:-}
       CHAINCODE_SERVER_ADDRESS: 0.0.0.0:9999
 
+  sl-ledger.org6.swarm.local:
+    <<: *chaincode-defaults
+    container_name: sl-ledger.org6.swarm.local
+    environment:
+      CHAINCODE_ID: ${CC_ID_ORG6:-}
+      CHAINCODE_SERVER_ADDRESS: 0.0.0.0:9999
+
+  sl-ledger.org7.swarm.local:
+    <<: *chaincode-defaults
+    container_name: sl-ledger.org7.swarm.local
+    environment:
+      CHAINCODE_ID: ${CC_ID_ORG7:-}
+      CHAINCODE_SERVER_ADDRESS: 0.0.0.0:9999
+
+  sl-ledger.org8.swarm.local:
+    <<: *chaincode-defaults
+    container_name: sl-ledger.org8.swarm.local
+    environment:
+      CHAINCODE_ID: ${CC_ID_ORG8:-}
+      CHAINCODE_SERVER_ADDRESS: 0.0.0.0:9999
+
+  sl-ledger.org9.swarm.local:
+    <<: *chaincode-defaults
+    container_name: sl-ledger.org9.swarm.local
+    environment:
+      CHAINCODE_ID: ${CC_ID_ORG9:-}
+      CHAINCODE_SERVER_ADDRESS: 0.0.0.0:9999
+
+  sl-ledger.org10.swarm.local:
+    <<: *chaincode-defaults
+    container_name: sl-ledger.org10.swarm.local
+    environment:
+      CHAINCODE_ID: ${CC_ID_ORG10:-}
+      CHAINCODE_SERVER_ADDRESS: 0.0.0.0:9999
+
   # ---------- the gateway and its monitor page ----------
 
   gateway:
@@ -277,8 +436,8 @@ services:
       # the trainer runs on the host: it needs torch and the dataset, which would make
       # this image several gigabytes for no benefit in a demo
       SL_TRAINER_URL: http://host.docker.internal:8900
-      # one channel per model, written into .env by ./network.sh deploy
-      SL_CHANNELS: ${SL_CHANNELS:-swarm-blood-logistic,swarm-blood-mlp,swarm-blood-cnn,swarm-path-logistic,swarm-path-mlp,swarm-path-cnn}
+      # one channel per dataset-model pair of swarms.conf, written into .env by network.sh
+      SL_CHANNELS: ${SL_CHANNELS:-}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
@@ -292,3 +451,8 @@ services:
       - peer0.org3.swarm.local
       - peer0.org4.swarm.local
       - peer0.org5.swarm.local
+      - peer0.org6.swarm.local
+      - peer0.org7.swarm.local
+      - peer0.org8.swarm.local
+      - peer0.org9.swarm.local
+      - peer0.org10.swarm.local

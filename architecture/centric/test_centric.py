@@ -94,23 +94,25 @@ def test_release_share_reweights_a_capped_pool():
     assert pool.release_share(pool.common) == {"a": 0.4, "b": 0.4, "c": 0.2}
 
 
-def _ready(name: str) -> str | None:
-    """The source a data test can use without first sampling a full release (minutes)."""
-    if name in data.available("subset"):
-        return "subset"
-    if (data.POOLS / f"{name}-{data.FAMILY_CAP}-per-family.parquet").exists():
-        return "full"
-    return None
+# data.py's own pool cache name for a dataset, where it differs from the dataset name
+# (see _load_cic_full: kept apart from the pool of the 39-feature release it replaced)
+_POOL_NAME = {"cic": "cic-neto"}
+
+
+def _pool_ready(name: str) -> bool:
+    """Whether a data test can use this dataset without first sampling its full release
+    (minutes): true once something has already cached its pool under data/raw/pools."""
+    cache = _POOL_NAME.get(name, name)
+    return (data.POOLS / f"{cache}-{data.FAMILY_CAP}-per-family.parquet").exists()
 
 
 def test_partition_follows_fig3_coverage():
     # a client never holds a class Fig. 3 does not give it; under a full release's real
     # proportions it can lack the rarest of the ones it is given
     for spec in (data.EDGE, data.CIC):
-        source = _ready(spec.name)
-        if source is None:
+        if not _pool_ready(spec.name):
             continue
-        fed = data.build(spec.name, 20_000, source=source)
+        fed = data.build(spec.name, 20_000)
         for client, cspec in zip(fed.clients, spec.clients):
             held = {fed.classes[k] for k in np.unique(np.concatenate([client.y_train, client.y_test]))}
             assert data.BENIGN in held and held <= {data.BENIGN, *cspec.families}, (cspec.key, held)
@@ -118,10 +120,9 @@ def test_partition_follows_fig3_coverage():
 
 def test_partition_is_identical_across_processes():
     # string hashing is salted per process; a partition that depended on it would differ
-    source = _ready("edge")
-    if source is None:
+    if not _pool_ready("edge"):
         return
-    probe = (f"import hashlib, data; f = data.build('edge', 5000, source='{source}'); "
+    probe = ("import hashlib, data; f = data.build('edge', 5000); "
              "print(hashlib.sha256(b''.join(c.y_train.tobytes() for c in f.clients)).hexdigest())")
     digests = {subprocess.run([sys.executable, "-c", probe], cwd=HERE, capture_output=True,
                               text=True, check=True).stdout.strip() for _ in range(2)}

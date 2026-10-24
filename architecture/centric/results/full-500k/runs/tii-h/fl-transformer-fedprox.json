@@ -1,0 +1,765 @@
+{
+ "scenario": "tii-h",
+ "model": "transformer",
+ "algorithm": "fedprox",
+ "architecture": "fl",
+ "rounds": 50,
+ "seed": 42,
+ "device": "cuda",
+ "hyper": {
+  "epochs": 5,
+  "batch": 128,
+  "weight_decay": 0.0001,
+  "mu": 0.001,
+  "target_accuracy": 0.95
+ },
+ "learning_rate": 0.0005,
+ "classes": [
+  "Benign",
+  "DoS",
+  "Recon",
+  "BruteForce"
+ ],
+ "n_features": 10,
+ "features": [
+  "fin",
+  "syn",
+  "rst",
+  "psh",
+  "ack",
+  "ece",
+  "cwr",
+  "tcp",
+  "udp",
+  "icmp"
+ ],
+ "source": "full",
+ "rows_drawn": 500000,
+ "sources": [
+  "tii"
+ ],
+ "release_rows": {
+  "tii": 8656767
+ },
+ "clients": [
+  {
+   "key": "stratified random flows",
+   "train": 73698,
+   "val": 8189,
+   "test": 20472,
+   "local_steps": 2880
+  },
+  {
+   "key": "stratified random flows",
+   "train": 73698,
+   "val": 8189,
+   "test": 20472,
+   "local_steps": 2880
+  },
+  {
+   "key": "stratified random flows",
+   "train": 69603,
+   "val": 7734,
+   "test": 19335,
+   "local_steps": 2720
+  },
+  {
+   "key": "stratified random flows",
+   "train": 69603,
+   "val": 7734,
+   "test": 19335,
+   "local_steps": 2720
+  },
+  {
+   "key": "stratified random flows",
+   "train": 69603,
+   "val": 7734,
+   "test": 19335,
+   "local_steps": 2720
+  }
+ ],
+ "n_parameters": 67460,
+ "test": {
+  "accuracy": 0.8755722644998939,
+  "precision": 0.5704871234207969,
+  "recall": 0.3795487356354309,
+  "f1": 0.42255665978903123,
+  "auc": 0.8593340016513833,
+  "fpr": 0.8,
+  "fnr": 2.0215497200153636e-05,
+  "confusion": [
+   [
+    3,
+    8,
+    0,
+    4
+   ],
+   [
+    2,
+    86505,
+    0,
+    26
+   ],
+   [
+    0,
+    11995,
+    0,
+    1
+   ],
+   [
+    0,
+    276,
+    0,
+    129
+   ]
+  ],
+  "n": 98949
+ },
+ "rounds_to_target": null,
+ "history": [
+  {
+   "round": 1,
+   "val_accuracy": 0.8753916119252148,
+   "val_f1": 0.33382907005297524,
+   "train_seconds": 70.07243620000008,
+   "global_hash": "2f1af56125df876765163e5bcccdb3c83020e00c0e988af8dbc3b17e413741aa",
+   "aggregate_seconds": 0.0021610999974654987,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 2,
+   "val_accuracy": 0.8754168772107125,
+   "val_f1": 0.3463454195365239,
+   "train_seconds": 70.08737279999696,
+   "global_hash": "0d1d8f13554a2ee12c4db6137d24c0dbd52e9a05649f72c5a05b17c096ff7849",
+   "aggregate_seconds": 0.0019441000004007947,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 3,
+   "val_accuracy": 0.8754168772107125,
+   "val_f1": 0.3440139032849654,
+   "train_seconds": 70.10541319999902,
+   "global_hash": "afefe07ec32f836497bf4797149f1736ddb5c271b3552534a702ad2ef08ea0e0",
+   "aggregate_seconds": 0.0015282999993360136,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 4,
+   "val_accuracy": 0.8752400202122284,
+   "val_f1": 0.3324499684825046,
+   "train_seconds": 69.91205339999942,
+   "global_hash": "2cde5d699fa8f819a22b2de4f5862c330ca3fd3d2949d36220a216bb91f8eb3d",
+   "aggregate_seconds": 0.003020199997990858,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 5,
+   "val_accuracy": 0.8753410813542193,
+   "val_f1": 0.34633462732060183,
+   "train_seconds": 70.0127567999989,
+   "global_hash": "b8a8f5c38db4af11ac6b1939598634789931f88962bceeda1932ba957b5edade",
+   "aggregate_seconds": 0.0013384999983827583,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 6,
+   "val_accuracy": 0.8754168772107125,
+   "val_f1": 0.34662302008600626,
+   "train_seconds": 69.92027690000032,
+   "global_hash": "deb256295285a0efbcdae63fc668e6443b0acbfb554599ba89620c0e327b17e1",
+   "aggregate_seconds": 0.0025838999972620513,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 7,
+   "val_accuracy": 0.8753410813542193,
+   "val_f1": 0.34633462732060183,
+   "train_seconds": 69.27413859999797,
+   "global_hash": "fa215d807d8814768e9f65bee24cfe5647a72af2a1aa7f90bab5a2f5e284479b",
+   "aggregate_seconds": 0.0014086999981373083,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 8,
+   "val_accuracy": 0.8753410813542193,
+   "val_f1": 0.34633462732060183,
+   "train_seconds": 69.48511000000144,
+   "global_hash": "44c0a0bf344959417d746023f499fc006473816dfc9fd7cc288c4cc619beaf26",
+   "aggregate_seconds": 0.0023579000007885043,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 9,
+   "val_accuracy": 0.8753158160687216,
+   "val_f1": 0.34233602435933763,
+   "train_seconds": 69.84850820000429,
+   "global_hash": "625b4ba84a1fa222aa93fe3f84c6ef2ba42f65aaae99420b057178db09118222",
+   "aggregate_seconds": 0.0030671000022266526,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 10,
+   "val_accuracy": 0.8754168772107125,
+   "val_f1": 0.34662302008600626,
+   "train_seconds": 69.97624269999142,
+   "global_hash": "2b39c3c10af84183316a8e36937913e6b66e75133a76dca18edc6c06be1c8fc2",
+   "aggregate_seconds": 0.0019504000010783784,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 11,
+   "val_accuracy": 0.875366346639717,
+   "val_f1": 0.3463382248229829,
+   "train_seconds": 69.63468780000039,
+   "global_hash": "87b147423b442849616f938a8abc284962dc37d01fc2aff8fab179a325730bf4",
+   "aggregate_seconds": 0.001517799999419367,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 12,
+   "val_accuracy": 0.8753410813542193,
+   "val_f1": 0.34633462732060183,
+   "train_seconds": 69.83089340000515,
+   "global_hash": "9572bcd0f3607ddebc93828a5d2a675c9232a452578d53705a25c3fe84520cc9",
+   "aggregate_seconds": 0.0013872999988961965,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 13,
+   "val_accuracy": 0.8753158160687216,
+   "val_f1": 0.34233602435933763,
+   "train_seconds": 70.12082109999756,
+   "global_hash": "642a3e0e851249451efd00eaaf3800b6feeeadd2f5a43913c07df22ddc6ace96",
+   "aggregate_seconds": 0.002563699999882374,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 14,
+   "val_accuracy": 0.8753410813542193,
+   "val_f1": 0.34280732276088616,
+   "train_seconds": 69.88538529999641,
+   "global_hash": "16a16e23c99681aed5faead593c50ba1447140751f26de7aa2fce3a53ab99031",
+   "aggregate_seconds": 0.0012150000002293382,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 15,
+   "val_accuracy": 0.8753410813542193,
+   "val_f1": 0.34633462732060183,
+   "train_seconds": 69.93785359999674,
+   "global_hash": "eddbf07b809de9c77fb60564df6f3317986fc48ff6c5c360a665148b7643d5fc",
+   "aggregate_seconds": 0.0017934000024979468,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 16,
+   "val_accuracy": 0.8753916119252148,
+   "val_f1": 0.34376206735361664,
+   "train_seconds": 69.95167710000169,
+   "global_hash": "30d5efa16b81b5ff6673eeebd19b572e1f3707c9723291c682ea7a8cb322fa2f",
+   "aggregate_seconds": 0.004207199999655131,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 17,
+   "val_accuracy": 0.8753410813542193,
+   "val_f1": 0.34280732276088616,
+   "train_seconds": 69.82640199999514,
+   "global_hash": "52f43cc61e11ceca44f97b98c157f012708379da7a4350b6b91be582daeda28b",
+   "aggregate_seconds": 0.0013844999994034879,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 18,
+   "val_accuracy": 0.8754421424962102,
+   "val_f1": 0.3447333626551368,
+   "train_seconds": 70.0750354999982,
+   "global_hash": "f181401b047a06365d6bcc8d93a51536401b554601d6d6ef0ea12e7c3d85b50c",
+   "aggregate_seconds": 0.0012124000022595283,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 19,
+   "val_accuracy": 0.8753410813542193,
+   "val_f1": 0.34280732276088616,
+   "train_seconds": 70.61013250000542,
+   "global_hash": "5db088d0448924a8af784ec92d38ae03b1580622e69faf5ec8afc04486d7ff4e",
+   "aggregate_seconds": 0.001441500000510132,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 20,
+   "val_accuracy": 0.8753410813542193,
+   "val_f1": 0.3451787109231568,
+   "train_seconds": 71.8275300000023,
+   "global_hash": "25d6211160c50c12f70f41eb280868c3d3641a86c31c640c143a1ac3675f7d6e",
+   "aggregate_seconds": 0.0013046999993093777,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 21,
+   "val_accuracy": 0.8753158160687216,
+   "val_f1": 0.34470530525039733,
+   "train_seconds": 71.91522970000369,
+   "global_hash": "219f0a1ca7d5edc38580296c6153b56c017f1b39ae034330f169edf4e25841f1",
+   "aggregate_seconds": 0.001043000000208849,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 22,
+   "val_accuracy": 0.8753410813542193,
+   "val_f1": 0.34280732276088616,
+   "train_seconds": 72.01727230000324,
+   "global_hash": "19f7b1b71ade0f21a47aa84259ce76748d5ee7b50aa26281b9eb602a7f91f1e6",
+   "aggregate_seconds": 0.0009793000026547816,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 23,
+   "val_accuracy": 0.8753158160687216,
+   "val_f1": 0.34233602435933763,
+   "train_seconds": 72.80393459999686,
+   "global_hash": "777a3683792d8575a1d9c4dff415581baa09a3be31fb2afccece709e6b923e94",
+   "aggregate_seconds": 0.0014493999988189898,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 24,
+   "val_accuracy": 0.8753410813542193,
+   "val_f1": 0.3451787109231568,
+   "train_seconds": 72.84306360000119,
+   "global_hash": "ea64ae2cb434da380f2fea2732f46345809d611aba988279e8364ac92ec2d091",
+   "aggregate_seconds": 0.0013589000009233132,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 25,
+   "val_accuracy": 0.8753158160687216,
+   "val_f1": 0.34470530525039733,
+   "train_seconds": 74.16123340000195,
+   "global_hash": "30f3dde4992f9d8e7bbe0ef921ff3b32ef6287e0abdb5edd6d58896761d8259b",
+   "aggregate_seconds": 0.0010763999998744112,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 26,
+   "val_accuracy": 0.8753158160687216,
+   "val_f1": 0.34233602435933763,
+   "train_seconds": 75.22109049999199,
+   "global_hash": "3584f78e2d4daed1e1f8609c9704f3497a01dc5f9554e7cd1ddd69e5598966e6",
+   "aggregate_seconds": 0.001232399998116307,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 27,
+   "val_accuracy": 0.8754421424962102,
+   "val_f1": 0.3447333626551368,
+   "train_seconds": 74.79954870000074,
+   "global_hash": "6718463721134fda1c2d21be42e75bccd1c214bed97d16d1fb18e2d52f38bddc",
+   "aggregate_seconds": 0.001056500001141103,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 28,
+   "val_accuracy": 0.8753410813542193,
+   "val_f1": 0.34280732276088616,
+   "train_seconds": 75.67634120000366,
+   "global_hash": "d5ef10218d881f495339a0d8530887188708da0b4ca07374e4f1c708bd8450a7",
+   "aggregate_seconds": 0.0011021999998774845,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 29,
+   "val_accuracy": 0.8753410813542193,
+   "val_f1": 0.3451787109231568,
+   "train_seconds": 75.48845430000074,
+   "global_hash": "e198daed202bd97ae750300d2344160b94baa15cc285ae26155fd47f2792672a",
+   "aggregate_seconds": 0.0019995000002381857,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 30,
+   "val_accuracy": 0.8753410813542193,
+   "val_f1": 0.34280732276088616,
+   "train_seconds": 75.07854649999717,
+   "global_hash": "378627d1da3f5d87a41f4d0f3e70e43d90dc24028b44624c6a904e4f5e52e886",
+   "aggregate_seconds": 0.002263200000015786,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 31,
+   "val_accuracy": 0.8753158160687216,
+   "val_f1": 0.34470530525039733,
+   "train_seconds": 75.33300690000033,
+   "global_hash": "0010bead41263ad92fdb1e8363dc2ba97fa484a26ce84f19e7cf260798e114ab",
+   "aggregate_seconds": 0.001752600001054816,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 32,
+   "val_accuracy": 0.8753410813542193,
+   "val_f1": 0.3451787109231568,
+   "train_seconds": 73.99106280000342,
+   "global_hash": "44f1cd653120310eba439119bc6f9c5934e82ff36155d2f720349c11c60da495",
+   "aggregate_seconds": 0.0016996999984257855,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 33,
+   "val_accuracy": 0.8754168772107125,
+   "val_f1": 0.34424561918029184,
+   "train_seconds": 74.93221010000343,
+   "global_hash": "ef0ab9a4ff25c791300fdf4cbddef320c53488988b1703f359e50c83e5ba7b4e",
+   "aggregate_seconds": 0.0011593999988690484,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 34,
+   "val_accuracy": 0.8753158160687216,
+   "val_f1": 0.34233602435933763,
+   "train_seconds": 72.87423159999162,
+   "global_hash": "8a3553f0cb2005d0ed06050d6fca803106d5ecef0dc496eb0f3dfd1a6f54ae9a",
+   "aggregate_seconds": 0.0015192000028037,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 35,
+   "val_accuracy": 0.8753410813542193,
+   "val_f1": 0.34280732276088616,
+   "train_seconds": 72.30939029999718,
+   "global_hash": "569191c23a291a283440ffd485f62c0b58b1acfef85fe565427961799ccf4b16",
+   "aggregate_seconds": 0.0014234999980544671,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 36,
+   "val_accuracy": 0.8753410813542193,
+   "val_f1": 0.34280732276088616,
+   "train_seconds": 72.14124880000236,
+   "global_hash": "eb350f0adc21a4c78f5afc172cb830ba975d3ffda805073bf2d880102ad8bb68",
+   "aggregate_seconds": 0.0014207999993232079,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 37,
+   "val_accuracy": 0.8753410813542193,
+   "val_f1": 0.3451787109231568,
+   "train_seconds": 70.82105989999764,
+   "global_hash": "dad9f261f45a0e9c8b006e325c428853140ffe503c743ae5da93afbc2b2c1fb5",
+   "aggregate_seconds": 0.0017470999991928693,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 38,
+   "val_accuracy": 0.875366346639717,
+   "val_f1": 0.3432826529715054,
+   "train_seconds": 70.57810389999577,
+   "global_hash": "f0dbc1e4f55a0b8859fa93de8170124e5b8449ff40fdef8c8f064fe4e28f72f0",
+   "aggregate_seconds": 0.0013308000015967991,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 39,
+   "val_accuracy": 0.8753410813542193,
+   "val_f1": 0.34280732276088616,
+   "train_seconds": 70.13314259999606,
+   "global_hash": "1d4e329d05dcdf6c44536e2a3334b2b26c47eebae19d4ebb0f64bd89e690debe",
+   "aggregate_seconds": 0.0015800999972270802,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 40,
+   "val_accuracy": 0.8753410813542193,
+   "val_f1": 0.3451787109231568,
+   "train_seconds": 69.82852829999683,
+   "global_hash": "539bde1adb1ada6009c58a4cc68b25420b2d69f8e1c9014f4f8dd52c822a122c",
+   "aggregate_seconds": 0.002790800001093885,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 41,
+   "val_accuracy": 0.8753158160687216,
+   "val_f1": 0.34470530525039733,
+   "train_seconds": 69.7211649000019,
+   "global_hash": "37964072eb4c6e11ca89fcac2c0f6a897b5fa2578fc1d3db5111bfbacb7f1d89",
+   "aggregate_seconds": 0.0017283999986830167,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 42,
+   "val_accuracy": 0.8754168772107125,
+   "val_f1": 0.34424561918029184,
+   "train_seconds": 69.6672497000036,
+   "global_hash": "8859587ceb7f84088c983e96efa932ff386bea7257f984def88592250c4c0b8a",
+   "aggregate_seconds": 0.0011102000025857706,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 43,
+   "val_accuracy": 0.8753916119252148,
+   "val_f1": 0.34376206735361664,
+   "train_seconds": 69.89175790000445,
+   "global_hash": "279811f5b5543b5972fa0f10fc3c6ef2de40777ccfaf6a16afccd34156081f47",
+   "aggregate_seconds": 0.001517299999250099,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 44,
+   "val_accuracy": 0.8753158160687216,
+   "val_f1": 0.34470530525039733,
+   "train_seconds": 69.67063899999994,
+   "global_hash": "b1a0c024eb43e39909547a3df6c67f20398e7c1ad7c4f2f17e273a8579c67151",
+   "aggregate_seconds": 0.00155550000272342,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 45,
+   "val_accuracy": 0.875366346639717,
+   "val_f1": 0.3456560979240667,
+   "train_seconds": 70.0712382999991,
+   "global_hash": "19016ae8e19edde8bf2954e6fe837d83fc9b25b4c791c0476d2403cb47f5f5f2",
+   "aggregate_seconds": 0.0014947000017855316,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 46,
+   "val_accuracy": 0.8753410813542193,
+   "val_f1": 0.34280732276088616,
+   "train_seconds": 70.1267270999997,
+   "global_hash": "91bad70298373f7a4d34a4c2bca88e63345a2bbbf9d4714c0da1ecefa37d4a28",
+   "aggregate_seconds": 0.0015767000004416332,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 47,
+   "val_accuracy": 0.8753410813542193,
+   "val_f1": 0.3451787109231568,
+   "train_seconds": 70.07010159999845,
+   "global_hash": "29143a36d3fcce1752426b509e78a0087620280a48f2185a404965fc484b13f0",
+   "aggregate_seconds": 0.0013247999995655846,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 48,
+   "val_accuracy": 0.8753410813542193,
+   "val_f1": 0.3451787109231568,
+   "train_seconds": 70.12050499999896,
+   "global_hash": "46a09e1a686c0d6f995f283c70770f0ce9ac547867166ed2fd5ffb788e72df00",
+   "aggregate_seconds": 0.0014174999996612314,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 49,
+   "val_accuracy": 0.8753410813542193,
+   "val_f1": 0.34280732276088616,
+   "train_seconds": 70.05114830000457,
+   "global_hash": "7b95260a11977795805987e6519aae7c4a51f6ee127ed5d90d5bba7cfded6797",
+   "aggregate_seconds": 0.0013184000017645303,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  },
+  {
+   "round": 50,
+   "val_accuracy": 0.875366346639717,
+   "val_f1": 0.3432826529715054,
+   "train_seconds": 69.63978889999999,
+   "global_hash": "2f8299ba2ac2f175106d6e8154450a83e82c06c4f1a14cfc63da261f3ba7c3df",
+   "aggregate_seconds": 0.0019151999986206647,
+   "coordination_seconds": 0.0,
+   "bytes": 2698400,
+   "aggregator": "server"
+  }
+ ],
+ "seconds": {
+  "total": 3562.456078999985,
+  "train": 3562.3717477999853,
+  "aggregate": 0.08433119999972405,
+  "coordination": 0.0,
+  "wall": 3788.9492567000016
+ },
+ "trained_with": [
+  "fl",
+  "sl"
+ ],
+ "bytes_exchanged": 134920000,
+ "final_hash": "2f8299ba2ac2f175106d6e8154450a83e82c06c4f1a14cfc63da261f3ba7c3df",
+ "coordinator": {
+  "topology": "star",
+  "aggregator": "server"
+ },
+ "cross": {
+  "edge": {
+   "accuracy": 0.24351824170386482,
+   "precision": 0.08837038150198563,
+   "recall": 0.19450418375633893,
+   "f1": 0.1171708949797543,
+   "auc": 0.38978775393920356,
+   "fpr": 0.9990925925925926,
+   "fnr": 0.29872334488291513,
+   "confusion": [
+    [
+     49,
+     43917,
+     0,
+     10034
+    ],
+    [
+     12741,
+     23350,
+     0,
+     362
+    ],
+    [
+     101,
+     1244,
+     0,
+     3572
+    ],
+    [
+     4,
+     1406,
+     0,
+     223
+    ]
+   ],
+   "n": 97003
+  },
+  "cic": {
+   "accuracy": 0.6859244485905148,
+   "precision": 0.24161083604737443,
+   "recall": 0.1933342011628916,
+   "f1": 0.20723641689008732,
+   "auc": 0.631449884581133,
+   "fpr": 0.9343478260869565,
+   "fnr": 0.19593012389925352,
+   "confusion": [
+    [
+     151,
+     2110,
+     0,
+     39
+    ],
+    [
+     17739,
+     63819,
+     0,
+     8622
+    ],
+    [
+     77,
+     671,
+     0,
+     13
+    ],
+    [
+     6,
+     14,
+     0,
+     0
+    ]
+   ],
+   "n": 93261
+  }
+ },
+ "rows_budget": 500000,
+ "flush_denormal": true,
+ "finished": "2026-10-22T04:17:34"
+}

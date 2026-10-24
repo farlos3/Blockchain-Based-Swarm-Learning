@@ -310,7 +310,7 @@ def train(fed: Federation, model_name: str, algorithm: str, coordinators: list[C
             "architecture": c.name, "rounds": rounds, "seed": seed, "device": device,
             "hyper": hyper.__dict__, "learning_rate": lr,
             "classes": list(fed.classes), "n_features": fed.n_features, "features": fed.features,
-            "source": fed.source, "rows_drawn": fed.rows, "sources": fed.sources,
+            "rows_drawn": fed.rows, "sources": fed.sources,
             "release_rows": fed.source_rows,
             "clients": [{"key": cl.key, "train": cl.n_train, "val": len(cl.y_val), "test": len(cl.y_test),
                          "local_steps": local_steps(cl.n_train, hyper)} for cl in fed.clients],

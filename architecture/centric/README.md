@@ -7,10 +7,8 @@ in IoT networks", *Scientific Reports* 16, 2683 (2026)** ([doi:10.1038/s41598-02
 เป็น Swarm Learning (ไม่มี server, leader หมุนเวียน, ทุกขั้นบันทึกและตรวจบน Hyperledger Fabric)
 รันทั้งสองแบบด้วย seed และข้อมูลชุดเดียวกัน แล้วเทียบผล
 
-| ชุดการทดลอง | ข้อมูล | ผล |
-|---|---|---|
-| `results/full-500k/` | **ฉบับเต็มของทั้งสามชุด** จากแหล่งที่เปเปอร์ให้ลิงก์ สุ่ม 500,000 แถวต่อ scenario ตามสัดส่วนจริง | [`REPORT.md`](results/full-500k/REPORT.md) |
-| `results/subset-50k/` | รอบแรก: มิเรอร์ฉบับเล็กบน Hugging Face (ไม่มี TII) สุ่ม 50,000 แถว | [`REPORT.md`](results/subset-50k/REPORT.md) — ขาด SL 3 run (ดูท้ายไฟล์) |
+ข้อมูลเป็น**ฉบับเต็มของทั้งสามชุดเท่านั้น** จากแหล่งที่เปเปอร์ให้ลิงก์ ไม่มีมิเรอร์ย่อหรือทางลัดอื่น
+สุ่ม 500,000 แถวต่อ scenario ตามสัดส่วนจริงของแต่ละชุด (ดูเหตุผลในข้อ 4) ผลอยู่ที่ [`results/full-500k/REPORT.md`](results/full-500k/REPORT.md)
 
 ---
 
@@ -77,11 +75,10 @@ client ◀─ global ─ server                    chaincode เลือก lea
 วงรอบอยู่ใน `federation.train()` ครั้งเดียว และรับ coordinator จากข้างนอก (`architectures.py`)
 ทั้งสองแบบจึงต่างกันได้เฉพาะที่ coordinator เท่านั้น
 
-**เทรนครั้งเดียว รวมสองทาง** local training ไม่ขึ้นกับว่าใครเป็นคนรวมโมเดล รอบ 50k รัน FL กับ SL แยกกันทั้งหมด
-แล้วได้ global model เหมือนกันทุกบิต 1,050 / 1,050 รอบ รอบข้อมูลเต็มจึงเทรน client ครั้งเดียวต่อรอบ แล้วส่ง update
-ชุดเดียวกันให้ทั้ง server ของ FL และ swarm ของ SL ไปรวมแยกกัน (SL ผ่าน Fabric ครบทุกขั้นเหมือนเดิม)
-ทุกรอบตรวจว่าทั้งสองได้ global model เดียวกันทุกบิต ถ้าไม่ตรง run จะหยุดทันที ประหยัดเวลาเทรนลงครึ่งหนึ่ง
-ไฟล์ผลยังแยก `fl-*.json` กับ `sl-*.json` และเวลาเทรนในสองไฟล์เป็นตัวเลขเดียวกัน
+**เทรนครั้งเดียว รวมสองทาง** local training ไม่ขึ้นกับว่าใครเป็นคนรวมโมเดล แต่ละรอบจึงเทรน client ครั้งเดียว
+แล้วส่ง update ชุดเดียวกันให้ทั้ง server ของ FL และ swarm ของ SL ไปรวมแยกกัน (SL ผ่าน Fabric ครบทุกขั้นเหมือนเดิม)
+ทุกรอบตรวจว่าทั้งสองได้ global model เดียวกันทุกบิต ถ้าไม่ตรง run จะหยุดทันที (ผลจริง: ตรงกันทุกบิตทุกคู่ ดู REPORT.md หัวข้อ 1)
+วิธีนี้ประหยัดเวลาเทรนลงครึ่งหนึ่งเทียบกับรันแยกกัน ไฟล์ผลยังแยก `fl-*.json` กับ `sl-*.json` และเวลาเทรนในสองไฟล์เป็นตัวเลขเดียวกัน
 
 ### เครือข่าย Fabric
 
@@ -94,7 +91,6 @@ client ◀─ global ─ server                    chaincode เลือก lea
 | `swarm-cic-{lstm,transformer}` | Org1–Org10 | 6 | `cic`, `cic-h` |
 | `swarm-tii-{lstm,transformer}` | Org1–Org5 | 3 | `tii`, `tii-h` |
 | `swarm-combined-{lstm,transformer}` | Org1–Org3 | 2 | `combined` |
-| `swarm-{blood,path}-*` (เดิม) | Org1–Org5 | 3 | การทดลองภาพเดิม |
 
 แต่ละ channel มีเฉพาะ org ของ swarm นั้น majority endorsement จึงหมายถึง majority ของ swarm นั้นเสมอ
 client k ของ scenario คือ `Org{k+1}MSP` · algorithm ทั้งสามของ scenario เดียวกันใช้ channel เดียวกัน
@@ -113,7 +109,7 @@ python -m venv .venv
 
 # 1. ข้อมูล: Edge-IIoTset และ TII-SSRC-23 จาก Kaggle, CIC-IoT2023 จาก Hugging Face
 #    ไม่ต้องล็อกอิน ตรวจขนาดทุกไฟล์ (~3.4 GB ที่ต้องโหลด)
-.venv/Scripts/python.exe data.py download --source full
+.venv/Scripts/python.exe data.py download
 
 # 2. เครือข่าย Fabric 10 orgs (Git Bash)
 cd ../../poc/sl-fabric/network
@@ -145,7 +141,7 @@ cd ../../../architecture/centric
 `run.py` แบ่งงานเป็น lane ตาม (dataset, model) — run ใน lane เดียวกันรันต่อกันเพราะใช้ channel เดียวกัน lane ต่างกันรันขนาน
 lane ของ Transformer ไป GPU (`--gpu-models`, `--gpu-workers`) lane ของ LSTM ใช้ CPU (`--workers`)
 ความคืบหน้าอยู่ใน `results/<ชุด>/logs/` run ที่มีผลแล้วจะข้าม จึงรันต่อหลังหยุดกลางคันได้ (`--force` เพื่อรันใหม่)
-· ตัวเลือกอื่น: `--scenarios`, `--models`, `--algorithms`, `--arch`, `--source`, `--rows`, `--rounds`
+· ตัวเลือกอื่น: `--scenarios`, `--models`, `--algorithms`, `--arch`, `--rows`, `--rounds`
 
 ทดลองสั้นๆ: `.venv/Scripts/python.exe run.py --scenarios edge --models lstm --algorithms fedavg --rows 20000 --rounds 3`
 (ผลไปอยู่ `results/full-20k/`)
@@ -211,9 +207,9 @@ GPU เต็มตั้งแต่โปรเซสเดียว lane ข�
   และการตรวจ hash ซึ่งทดสอบไว้ใน `poc/sl-fabric/README.md` ยังไม่ได้วัดผลต่อความแม่นยำเมื่อมี node โกง
 - **gateway ตัวเดียวถือ identity ของทั้ง 10 org** (ขอบเขตเดโมเดียวกับ `poc/sl-fabric`)
 - **อ่านทันทีหลัง commit อาจยังไม่เห็น** Fabric ตอบ submit เมื่อ peer ของ org ที่ส่งบันทึก block แล้ว
-  แต่ peer ที่ใช้อ่าน (Org1) อาจได้ block นั้นช้ากว่าเล็กน้อย รอบ 50k เจอ 3 ครั้งจากราว 1,500 รอบ
-  (`round N has no aggregation`) — leader ที่อ่าน update ของรอบ และ node ที่ตรวจ aggregation จึงรอจนกว่า block จะมาถึง peer ที่อ่าน
-  (`FabricSwarm._once_visible`) แบบเดียวกับที่ node จริงรอ peer ของตัวเอง ไม่มีการส่ง transaction ซ้ำ
+  แต่ peer ที่ใช้อ่าน (Org1) อาจได้ block นั้นช้ากว่าเล็กน้อย (`round N has no aggregation`) — leader ที่อ่าน update ของรอบ
+  และ node ที่ตรวจ aggregation จึงรอจนกว่า block จะมาถึง peer ที่อ่าน (`FabricSwarm._once_visible`)
+  แบบเดียวกับที่ node จริงรอ peer ของตัวเอง ไม่มีการส่ง transaction ซ้ำ
 
 ## 6. ไฟล์
 
@@ -228,8 +224,3 @@ GPU เต็มตั้งแต่โปรเซสเดียว lane ข�
 | `test_centric.py` | ทดสอบสูตร aggregation, การแบ่งตาม Fig. 3, การถ่วงสัดส่วนของ pool และว่าการแบ่งเหมือนเดิมทุกโปรเซส |
 | `results/<ชุด>/runs/` | ไฟล์ผลของทุก run (อยู่ใน git, เป็นที่มาของ REPORT.md) |
 | `data/` | ไฟล์ดิบและ pool (ไม่อยู่ใน git) |
-
-### ชุด subset-50k ไม่ครบ
-
-ขาด SL 3 run: combined Transformer FedProx/FedNova และ edge-h LSTM FedNova รันซ้ำไม่ได้แล้วเพราะไฟล์มิเรอร์ฉบับเล็กถูกลบจากเครื่อง
-(`python data.py download --source subset` โหลดกลับได้) ผลของรอบนี้ใช้ CPU ล้วน และรัน FL กับ SL แยกกันทั้งหมด

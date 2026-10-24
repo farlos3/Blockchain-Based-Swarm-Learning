@@ -129,31 +129,18 @@ DATASETS = {spec.name: spec for spec in (EDGE, CIC, TII)}
 
 # ---------- raw sources ----------
 
-# Two experiment sets share this code. "full" is each dataset's complete release, which is
-# what the paper trains on. "subset" is the smaller Hugging Face mirrors the first round of
-# runs used (results/subset-50k).
-SOURCES = ("full", "subset")
-
-# Hugging Face mirrors, fetched anonymously and checked against the size the hub reports
+# Every dataset's complete release, which is what the paper trains on — there is no reduced
+# or mirrored stand-in: a run either has the real data or it does not run.
+#
+# CIC-IoT2023 as Neto et al. first released it: 46,686,579 rows and 46 features, the counts
+# the paper gives. UNB's page now hands out a later MERGED_CSV release with 39 features and
+# 45.0M rows instead, so this copy of the original, kept on Hugging Face, is the one that
+# matches the paper. Its two files together are the whole release.
 HF_FILES = {
-    "subset": {
-        "edge/ML-EdgeIIoT-dataset.csv":
-            ("Sunayanajagadesh/ML_EdgeIIoT_dataset", "ML-EdgeIIoT-dataset.csv"),
-        "cic/train.parquet":
-            ("lacg030175/CIC-IoT-2023-neto-subsample", "random/train-00000-of-00001.parquet"),
-        "cic/test.parquet":
-            ("lacg030175/CIC-IoT-2023-neto-subsample", "random/test-00000-of-00001.parquet"),
-    },
-    # CIC-IoT2023 as Neto et al. first released it: 46,686,579 rows and 46 features, the
-    # counts the paper gives. UNB's page now hands out a later MERGED_CSV release with 39
-    # features and 45.0M rows instead, so this copy of the original, kept on Hugging Face,
-    # is the one that matches the paper. Its two files together are the whole release.
-    "full": {
-        "cic-neto/train.parquet":
-            ("lacg030175/CIC-IoT-2023-neto-full", "random/train-00000-of-00001.parquet"),
-        "cic-neto/test.parquet":
-            ("lacg030175/CIC-IoT-2023-neto-full", "random/test-00000-of-00001.parquet"),
-    },
+    "cic-neto/train.parquet":
+        ("lacg030175/CIC-IoT-2023-neto-full", "random/train-00000-of-00001.parquet"),
+    "cic-neto/test.parquet":
+        ("lacg030175/CIC-IoT-2023-neto-full", "random/test-00000-of-00001.parquet"),
 }
 CIC_FULL = [RAW / "cic-neto/train.parquet", RAW / "cic-neto/test.parquet"]
 
@@ -167,7 +154,7 @@ EDGE_FULL = RAW / "edge-full"
 EDGE_PREFIX = "Edge-IIoTset dataset/"
 EDGE_FOLDERS = ("Attack traffic/", "Normal traffic/")   # the per-attack and per-sensor CSVs
 TII_CSV = RAW / "tii" / "data.csv"
-DOWNLOAD_HELP = "run: python data.py download --source full"
+DOWNLOAD_HELP = "run: python data.py download"
 
 # A full release is far too large to hold, so each is read once into a cached pool of at
 # most this many rows per family (see Pool). A federation takes at most its budget from any
@@ -176,20 +163,19 @@ FAMILY_CAP = 1_000_000
 POOLS = RAW / "pools"
 
 
-def download(source: str) -> None:
-    """Fetch every file of one source and verify each against its published size.
+def download() -> None:
+    """Fetch every raw file and verify each against its published size.
 
     A truncated download parses without complaint and silently loses rows, so the size
     check is what makes a finished download trustworthy. A file gets its real name only
     once verified.
     """
-    for target, (repo, path) in HF_FILES[source].items():
+    for target, (repo, path) in HF_FILES.items():
         _fetch(RAW / target, f"https://huggingface.co/datasets/{repo}/resolve/main/{path}",
                _hub_size(repo, path))
-    if source == "full":
-        _fetch(TII_CSV, f"{KAGGLE}/download/{KAGGLE_TII}/{urllib.parse.quote('csv/data.csv', safe='')}",
-               _kaggle_files(KAGGLE_TII)["csv/data.csv"])
-        _download_edge()
+    _fetch(TII_CSV, f"{KAGGLE}/download/{KAGGLE_TII}/{urllib.parse.quote('csv/data.csv', safe='')}",
+           _kaggle_files(KAGGLE_TII)["csv/data.csv"])
+    _download_edge()
 
 
 def _fetch(dest: Path, url: str, expected: int) -> None:
@@ -294,13 +280,8 @@ def _download_edge() -> None:
     marker.write_text(f"{len(wanted)} files, {sum(wanted.values()):,} bytes\n", encoding="utf-8")
 
 
-def available(source: str = "full") -> list[str]:
-    files = {
-        "subset": {"edge": [RAW / "edge/ML-EdgeIIoT-dataset.csv"],
-                   "cic": [RAW / "cic/train.parquet", RAW / "cic/test.parquet"],
-                   "tii": [TII_CSV]},
-        "full": {"edge": [EDGE_FULL / "COMPLETE"], "cic": CIC_FULL, "tii": [TII_CSV]},
-    }[source]
+def available() -> list[str]:
+    files = {"edge": [EDGE_FULL / "COMPLETE"], "cic": CIC_FULL, "tii": [TII_CSV]}
     return [name for name, paths in files.items() if all(p.exists() for p in paths)]
 
 
@@ -389,11 +370,9 @@ TII_COMMON = {BENIGN: BENIGN, "DoS": "DoS", "InfoGather": "Recon", "BruteForce":
 TII_LABELS = ("Label", "Traffic Type", "Traffic Subtype")
 
 
-def load(name: str, source: str) -> Pool:
-    loaders = {("edge", "subset"): _load_edge_ml, ("edge", "full"): _load_edge_full,
-               ("cic", "subset"): _load_cic_subset, ("cic", "full"): _load_cic_full,
-               ("tii", "subset"): _load_tii, ("tii", "full"): _load_tii}
-    return loaders[(name, source)]()
+def load(name: str) -> Pool:
+    loaders = {"edge": _load_edge_full, "cic": _load_cic_full, "tii": _load_tii}
+    return loaders[name]()
 
 
 def _family_sample(chunks: Iterable[pd.DataFrame], cap: int, seed: int) -> tuple[pd.DataFrame, dict[str, int]]:
@@ -449,13 +428,6 @@ def _cached_pool(name: str, read: Callable[[], Iterable[pd.DataFrame]], seed: in
     return pd.read_parquet(cache), json.loads(meta.read_text(encoding="utf-8"))["release"]
 
 
-def _load_edge_ml() -> Pool:
-    df = pd.read_csv(RAW / "edge/ML-EdgeIIoT-dataset.csv", low_memory=False)
-    names = [c for c in df.select_dtypes("number").columns
-             if c != "Attack_label" and c not in EDGE_PORTS]
-    return _edge_pool(df, names)
-
-
 def _load_edge_full() -> Pool:
     files = sorted(p for folder in EDGE_FOLDERS for p in (EDGE_FULL / folder).rglob("*.csv"))
     columns = list(dict.fromkeys(EDGE_NUMERIC + EDGE_PORTS + ("Attack_type",)))
@@ -500,12 +472,6 @@ def _edge_pool(df: pd.DataFrame, names: list[str], release: dict[str, int] | Non
     family = kind.map(EDGE_FAMILY).to_numpy(str)
     return Pool(df[names].to_numpy(np.float32), names, harmonized, family,
                 kind.map(EDGE_COMMON).fillna("").to_numpy(str), release or _counts(family))
-
-
-def _load_cic_subset() -> Pool:
-    df = pd.concat([pd.read_parquet(RAW / "cic/train.parquet"),
-                    pd.read_parquet(RAW / "cic/test.parquet")], ignore_index=True)
-    return _cic_pool(df)
 
 
 def _load_cic_full() -> Pool:
@@ -661,7 +627,6 @@ class Federation:
     clients: list[Client]
     rows: int                              # rows actually drawn, before splitting
     sources: list[str] = field(default_factory=list)
-    source: str = "full"                   # which release of the datasets (SOURCES)
     source_rows: dict[str, int] = field(default_factory=dict)   # size of each release used
 
     @property
@@ -703,8 +668,7 @@ def benign_share(spec: DatasetSpec, pool: Pool) -> float:
     return spec.benign_share if spec.benign_share is not None else pool.release.get(BENIGN, 0) / pool.source_rows
 
 
-def build(scenario: str, rows: int, pools: dict[str, Pool] | None = None,
-          source: str = "full") -> Federation:
+def build(scenario: str, rows: int, pools: dict[str, Pool] | None = None) -> Federation:
     """The clients of one scenario, split and scaled.
 
     edge / cic / tii        in-domain: native features, the dataset's own families
@@ -712,17 +676,17 @@ def build(scenario: str, rows: int, pools: dict[str, Pool] | None = None,
                             trained to be tested on the other datasets
     combined                one client per dataset (Table 2), shared schema, 4 classes
 
-    `pools` caches loaded datasets between calls; it must hold pools of this one source.
+    `pools` caches loaded datasets between calls.
     """
     pools = pools if pools is not None else {}
 
     def get(name: str) -> Pool:
         if name not in pools:
-            pools[name] = load(name, source)
+            pools[name] = load(name)
         return pools[name]
 
     if scenario == "combined":
-        names = [n for n in ("edge", "cic", "tii") if n in available(source)]
+        names = [n for n in ("edge", "cic", "tii") if n in available()]
         if len(names) < 2:
             raise FileNotFoundError("the combined scenario needs at least two datasets")
         specs = [DATASETS[n] for n in names]
@@ -745,7 +709,7 @@ def build(scenario: str, rows: int, pools: dict[str, Pool] | None = None,
                                   spec.seed, spec.name))
             drawn += used
         return Federation(scenario, COMMON_CLASSES, list(HARMONIZED), clients, drawn, names,
-                          source, {n: p.source_rows for n, p in zip(names, sources)})
+                          {n: p.source_rows for n, p in zip(names, sources)})
 
     name = dataset_of(scenario)
     spec, pool = DATASETS[name], get(name)
@@ -765,10 +729,8 @@ def build(scenario: str, rows: int, pools: dict[str, Pool] | None = None,
                                   spec.seed, cspec.key))
     released = {name: pool.source_rows}
     if scenario.endswith("-h"):
-        return Federation(scenario, COMMON_CLASSES, list(HARMONIZED), clients, used, [name],
-                          source, released)
-    return Federation(scenario, spec.families, pool.native_names, clients, used, [name],
-                      source, released)
+        return Federation(scenario, COMMON_CLASSES, list(HARMONIZED), clients, used, [name], released)
+    return Federation(scenario, spec.families, pool.native_names, clients, used, [name], released)
 
 
 def _split(X: np.ndarray, labels: np.ndarray, classes: tuple[str, ...], seed: int, key: str) -> Client:
@@ -796,5 +758,5 @@ def _safe_scale(std: np.ndarray) -> np.ndarray:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Fetch the datasets and check every file's size.")
     parser.add_argument("command", choices=["download"])
-    parser.add_argument("--source", choices=SOURCES, default="full")
-    download(parser.parse_args().source)
+    parser.parse_args()
+    download()

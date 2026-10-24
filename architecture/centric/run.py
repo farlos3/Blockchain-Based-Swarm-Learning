@@ -3,9 +3,9 @@
     python run.py                                   # everything the downloaded data allows
     python run.py --scenarios edge --models lstm --algorithms fedavg --rounds 3
 
-Each experiment set has its own folder, results/<source>-<rows>k/ (results/full-500k for
-the defaults). Every run writes runs/<scenario>/<arch>-<model>-<algorithm>.json there and
-is skipped next time unless --force, so an interrupted grid resumes where it stopped.
+Each row budget has its own folder, results/full-<rows>k/ (results/full-500k for the
+default). Every run writes runs/<scenario>/<arch>-<model>-<algorithm>.json there and is
+skipped next time unless --force, so an interrupted grid resumes where it stopped.
 
 A run trains once per round and hands the same local updates to the FL server and to the
 SL swarm; federation.train checks every round that both arrive at the same global model.
@@ -42,19 +42,19 @@ DEFAULT_ROWS = 500_000
 DEFAULT_ROUNDS = {"combined": 100}
 
 
-def experiment_dir(source: str, rows: int) -> Path:
-    return HERE / "results" / f"{source}-{rows // 1000}k"
+def experiment_dir(rows: int) -> Path:
+    return HERE / "results" / f"full-{rows // 1000}k"
 
 
 def result_path(experiment: Path, scenario: str, arch: str, model: str, algorithm: str) -> Path:
     return experiment / "runs" / scenario / f"{arch}-{model}-{algorithm}.json"
 
 
-def cross_targets(scenario: str, source: str) -> list[str]:
+def cross_targets(scenario: str) -> list[str]:
     """The federations a scenario's model is also tested on (Section 5.3)."""
     if not scenario.endswith("-h"):
         return []
-    return [f"{d}-h" for d in data.available(source) if f"{d}-h" != scenario]
+    return [f"{d}-h" for d in data.available() if f"{d}-h" != scenario]
 
 
 def run_lane(jobs: list[tuple[str, str, str]], archs: list[str], feds: dict[str, data.Federation],
@@ -89,7 +89,7 @@ def run_lane(jobs: list[tuple[str, str, str]], archs: list[str], feds: dict[str,
             # path, so the parent could not unpickle it and would report only a dead worker
             log(f"{scenario}/{model}/{algorithm} failed: {type(exc).__name__}: {exc}")
             raise RuntimeError(f"{scenario}/{model}/{algorithm}: {type(exc).__name__}: {exc}") from None
-        cross = cross_dataset(fed, net, params, [feds[t] for t in cross_targets(scenario, fed.source)])
+        cross = cross_dataset(fed, net, params, [feds[t] for t in cross_targets(scenario)])
         for record in records:
             record.update(cross=cross, rows_budget=rows, flush_denormal=flush_denormal,
                           finished=time.strftime("%Y-%m-%dT%H:%M:%S"))
@@ -145,8 +145,6 @@ def main() -> None:
     parser.add_argument("--models", nargs="+", choices=MODELS, default=list(MODELS))
     parser.add_argument("--algorithms", nargs="+", choices=ALGORITHMS, default=list(ALGORITHMS))
     parser.add_argument("--arch", nargs="+", choices=ARCHITECTURES, default=list(ARCHITECTURES))
-    parser.add_argument("--source", choices=data.SOURCES, default="full",
-                        help="full: each dataset's complete release; subset: the small mirrors")
     parser.add_argument("--rows", type=int, default=DEFAULT_ROWS,
                         help="rows drawn per scenario before splitting (paper: the full datasets)")
     parser.add_argument("--rounds", type=int, help="override 50 / 100 rounds")
@@ -171,13 +169,13 @@ def main() -> None:
     if gpu_models and not torch.cuda.is_available():
         sys.exit("--gpu-models needs a CUDA build of PyTorch: use .venv/Scripts/python.exe (see README)")
 
-    have = data.available(args.source)
+    have = data.available()
     scenarios = args.scenarios or [s for s in data.SCENARIOS
                                    if s == "combined" or data.dataset_of(s) in have]
     missing = [s for s in scenarios if s != "combined" and data.dataset_of(s) not in have]
     if missing:
-        sys.exit(f"no data for {missing}; run: python data.py download --source {args.source}")
-    experiment = experiment_dir(args.source, args.rows)
+        sys.exit(f"no data for {missing}; run: python data.py download")
+    experiment = experiment_dir(args.rows)
 
     lanes: dict[tuple[str, str], list] = {}
     for scenario in scenarios:
@@ -194,9 +192,9 @@ def main() -> None:
         require_channels(lanes, args.gateway)
 
     needed = {s for jobs in lanes.values() for s, *_ in jobs}
-    needed |= {t for s in needed for t in cross_targets(s, args.source)}
+    needed |= {t for s in needed for t in cross_targets(s)}
     pools: dict = {}
-    feds = {s: data.build(s, args.rows, pools, source=args.source) for s in sorted(needed)}
+    feds = {s: data.build(s, args.rows, pools) for s in sorted(needed)}
     del pools
 
     total = sum(len(j) for j in lanes.values())
@@ -209,7 +207,7 @@ def main() -> None:
         # longest lanes first, so the last one to finish is a short one
         for key, jobs in sorted(lanes.items(), key=lambda item: -len(item[1])):
             mine = {s for s, *_ in jobs}
-            mine |= {t for s in mine for t in cross_targets(s, args.source)}
+            mine |= {t for s in mine for t in cross_targets(s)}
             device = "cuda" if key[1] in gpu_models else "cpu"
             pool = gpu if device == "cuda" else cpu
             futures[pool.submit(run_lane, jobs, args.arch, {s: feds[s] for s in mine}, experiment,

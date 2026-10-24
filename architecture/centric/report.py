@@ -109,21 +109,21 @@ def metrics_table(runs: dict, scenario: str) -> str:
     return "\n".join(lines)
 
 
-def ceilings(scenarios: list[str], rows: int, source: str) -> str:
+def ceilings(scenarios: list[str], rows: int) -> str:
     """Not part of the paper: centralized gradient boosting on exactly the same features,
     splits and per-client scaling. It shows how much signal the features carry, which is
     what separates "the federation learned poorly" from "there was little to learn"."""
     from sklearn.ensemble import HistGradientBoostingClassifier
     from sklearn.metrics import accuracy_score, f1_score
 
-    have = data.available(source)
+    have = data.available()
     if any(s != "combined" and data.dataset_of(s) not in have for s in scenarios):
-        return f"_ข้อมูล {source} ที่ใช้รันไม่อยู่ในเครื่องแล้ว จึงคำนวณตารางนี้ไม่ได้_"
+        return "_ข้อมูลที่ใช้รันไม่อยู่ในเครื่องแล้ว จึงคำนวณตารางนี้ไม่ได้_"
     pools: dict = {}
     lines = ["| Scenario | boosting Acc | boosting macro-F1 | majority-class Acc |", "|---|---|---|---|"]
     for s in scenarios:
         # data.build is deterministic: the same budget gives the rows the runs trained on
-        fed = data.build(s, rows, pools, source=source)
+        fed = data.build(s, rows, pools)
         X, y = fed.stacked("train")
         Xt, yt = fed.stacked("test")
         pred = HistGradientBoostingClassifier(max_iter=100, random_state=0).fit(X, y).predict(Xt)
@@ -336,7 +336,7 @@ def fig_confusion(runs: dict) -> Path | None:
     picks = [s for s in ("edge", "cic", "tii", "combined") if (s, "fl", "transformer", "fednova") in runs]
     if not picks:
         return None
-    fig, axes = plt.subplots(1, len(picks), figsize=(3.4 * len(picks), 3.4), facecolor=SURFACE)
+    fig, axes = plt.subplots(1, len(picks), figsize=(3.6 * len(picks), 4.4), facecolor=SURFACE)
     axes = np.atleast_1d(axes)
     for ax, s in zip(axes, picks):
         r = runs[(s, "fl", "transformer", "fednova")]
@@ -344,9 +344,9 @@ def fig_confusion(runs: dict) -> Path | None:
         m = m / np.maximum(m.sum(axis=1, keepdims=True), 1)
         ax.imshow(m, cmap=matplotlib.colors.LinearSegmentedColormap.from_list(
             "blue", ["#ffffff", "#cde2fb", "#6da7ec", "#256abf", "#0d366b"]), vmin=0, vmax=1)
-        names = [c[:6] for c in r["classes"]]
-        ax.set_xticks(range(len(names)), names, rotation=60, fontsize=6, color=INK_2)
-        ax.set_yticks(range(len(names)), names, fontsize=6, color=INK_2)
+        names = r["classes"]              # full names: labels have room via the 90° rotation below
+        ax.set_xticks(range(len(names)), names, rotation=90, fontsize=7, color=INK_2)
+        ax.set_yticks(range(len(names)), names, fontsize=7, color=INK_2)
         for i in range(len(names)):
             for j in range(len(names)):
                 if m[i, j] >= 0.05:
@@ -384,9 +384,7 @@ def main() -> None:
         raise SystemExit(f"no results in {RUNS}; run python run.py first")
     eq_text, same, pairs = equivalence(runs)
     any_run = next(iter(runs.values()))
-    # the first experiment (subset-50k) predates these two fields
-    source = any_run.get("source", "subset")
-    budget = any_run.get("rows_budget", 50_000)
+    budget = any_run["rows_budget"]
     scenarios = [s for s in data.SCENARIOS if any(k[0] == s for k in runs)]
     figs = {name: fn(runs) for name, fn in (("f1", fig_f1), ("time", fig_round_time),
                                              ("conv", fig_convergence), ("conf", fig_confusion))}
@@ -404,9 +402,7 @@ def main() -> None:
         f"> สร้างโดย `python report.py {OUT.relative_to(HERE).as_posix()}` จากไฟล์ใน `runs/` ของโฟลเดอร์นี้ "
         "ทุกตัวเลขในหน้านี้อ่านจากไฟล์ผล ส่วนตัวเลขของเปเปอร์คัดจาก Tables 5–9",
         "",
-        (f"ข้อมูล: ฉบับเต็มของทั้งสามชุด (`--source full`) สุ่ม {budget:,} แถวต่อ scenario ตามสัดส่วนจริงของแต่ละชุด"
-         if source == "full" else
-         f"ข้อมูล: มิเรอร์ฉบับเล็ก (`--source subset`) สุ่ม {budget:,} แถวต่อ scenario"),
+        f"ข้อมูล: ฉบับเต็มของทั้งสามชุดตามเปเปอร์ สุ่ม {budget:,} แถวต่อ scenario ตามสัดส่วนจริงของแต่ละชุด",
         "",
         "## ชุดทดลองที่รัน",
         "",
@@ -436,7 +432,7 @@ def main() -> None:
          "**มีบางคู่ที่ไม่เหมือนกันทุกบิต** — ดูคอลัมน์ FL = SL ในตารางหัวข้อ 2"),
         "",
         ("ชุดนี้เทรน client ครั้งเดียวต่อรอบ แล้วส่ง update ชุดเดียวกันให้ server ของ FL และ swarm ของ SL ไปรวมแยกกัน "
-         "(รอบ subset-50k ที่รันแยกกันทั้งหมดได้ global model ตรงกัน 1,050 / 1,050 รอบ) run จะหยุดทันทีถ้าสองทางได้โมเดลต่างกัน "
+         "ทุกรอบเช็กว่าทั้งสองทางได้ global model เดียวกันทุกบิต run จะหยุดทันทีถ้าไม่ตรงกัน "
          "เวลาเทรนของ FL กับ SL ในหัวข้อ 3 จึงเป็นตัวเลขเดียวกัน ต่างกันที่เวลารวมโมเดลกับเวลาที่รอ Fabric"
          if len(any_run.get("trained_with", [])) > 1 else
          "ชุดนี้รัน FL กับ SL แยกกันทั้งหมด (เทรนแยก, seed เดียวกัน)"),
@@ -459,7 +455,7 @@ def main() -> None:
         "ใช้เป็นเพดานอ้างอิงว่า feature เหล่านี้แยกคลาสได้แค่ไหน — ถ้า federated model ต่ำกว่าเพดานมาก "
         "คือการเรียนแบบกระจายเสียไป ถ้าเพดานเองต่ำ คือข้อมูลมีให้เรียนน้อย",
         "",
-        ceilings(scenarios, budget, source),
+        ceilings(scenarios, budget),
         "",
     ]
     if figs["conf"]:

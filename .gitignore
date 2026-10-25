@@ -133,5 +133,9 @@ architecture/centric/results/**/*.out
 architecture/centric/results/*.log
 architecture/centric/.venv/
 
+# --- Multimodal DDoS swarm replication (architecture/EAI) ---
+# run records are what REPORT.md is built from; data/ and results/logs/ stay out
+!architecture/EAI/results/runs/
+
 # --- Federated dataset candidates (downloaded, not source; see poc/Finding Dataset/Explore.ipynb) ---
 poc/Finding Dataset/data/

@@ -1,0 +1,1840 @@
+{
+ "architecture": "sl",
+ "scenario": 2,
+ "model": "multimodal",
+ "merge": "mean",
+ "variant": "inactive",
+ "weighting": "equal",
+ "on_train_end": "inactive",
+ "hosts": [
+  {
+   "name": "http-icmp",
+   "train": 187362,
+   "val": 20818,
+   "test": 23132,
+   "batches": 14640
+  },
+  {
+   "name": "tcp-syn+udp",
+   "train": 278307,
+   "val": 30923,
+   "test": 34358,
+   "batches": 21750
+  },
+  {
+   "name": "mqtt-publish+mqtt-connect",
+   "train": 329197,
+   "val": 36577,
+   "test": 40643,
+   "batches": 25720
+  }
+ ],
+ "n_features": 125,
+ "n_parameters": 35955,
+ "model_bytes": 143820,
+ "hyper": {
+  "learning_rate": 0.001,
+  "batch": 128,
+  "epochs": 10,
+  "sync_frequency": 1024
+ },
+ "seed": 42,
+ "device": "cuda",
+ "rounds": 27,
+ "merged_rounds": 23,
+ "test": {
+  "loss": 2.9586539268493652,
+  "accuracy": 0.45381268278764536,
+  "precision": 0.4674128330655107,
+  "recall": 0.4991917942168386,
+  "f1": 0.4827799168186512,
+  "confusion": [
+   [
+    19519,
+    28503
+   ],
+   [
+    25096,
+    25015
+   ]
+  ],
+  "by_type": {
+   "Benign": 0.4064595393777852,
+   "DDoS_HTTP": 0.02266172229089411,
+   "DDoS_ICMP": 0.0,
+   "DDoS_TCP": 0.7447063523771474,
+   "DDoS_UDP": 0.0,
+   "MQTT-DDoS-Connect_Flood": 0.9958551335190596,
+   "MQTT-DDoS-Publish_Flood": 0.9904313487241798
+  },
+  "n": 98133
+ },
+ "history": [
+  {
+   "round": 0,
+   "val_accuracy": 0.5948407342440178,
+   "val_loss": 0.6931392947832743,
+   "val_f1": 0.2727076696853959,
+   "val_by_host": [
+    {
+     "accuracy": 0.8090114324142569,
+     "loss": 0.6929431557655334,
+     "f1": 0.7662826240300963
+    },
+    {
+     "accuracy": 0.5110112214209488,
+     "loss": 0.6926828622817993,
+     "f1": 0.046053876727020375
+    },
+    {
+     "accuracy": 0.46449954889684775,
+     "loss": 0.6937918663024902,
+     "f1": 0.005786508299071113
+    }
+   ],
+   "train": [
+    null,
+    null,
+    null
+   ],
+   "contributed": [
+    0,
+    1,
+    2
+   ],
+   "adopted": [
+    0,
+    1,
+    2
+   ],
+   "epochs_done": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "model_hash": "eaa3c9d86c4214b2937b75ab6e59ad4010d2fe46508b11c0d3e77af11e8dc783",
+   "leader": "Org3MSP",
+   "chain_round": 163,
+   "accepted": 3,
+   "merge_seconds": 0.0013319000136107206,
+   "upload_bytes": 287640,
+   "download_bytes": 287640,
+   "verified": true,
+   "ledger_seconds": 4.194897500041407
+  },
+  {
+   "round": 1,
+   "val_accuracy": 0.7560902193884682,
+   "val_loss": 0.7983907386660576,
+   "val_f1": 0.5853870174418372,
+   "val_by_host": [
+    {
+     "accuracy": 0.8021904121433375,
+     "loss": 0.47795557975769043,
+     "f1": 0.755579297245964
+    },
+    {
+     "accuracy": 0.9999676616110985,
+     "loss": 0.09864876419305801,
+     "f1": 0.9999676302074905
+    },
+    {
+     "accuracy": 0.46611258441096864,
+     "loss": 1.8185678720474243,
+     "f1": 0.0006141248720573182
+    }
+   ],
+   "train": [
+    {
+     "loss": 0.034131020307540894,
+     "accuracy": 0.9952239990234375,
+     "batches": 1024
+    },
+    {
+     "loss": 0.02710341475903988,
+     "accuracy": 0.99920654296875,
+     "batches": 1024
+    },
+    {
+     "loss": 0.12938615679740906,
+     "accuracy": 0.965179443359375,
+     "batches": 1024
+    }
+   ],
+   "contributed": [
+    0,
+    1,
+    2
+   ],
+   "adopted": [
+    0,
+    1,
+    2
+   ],
+   "epochs_done": [
+    0.6994535519125683,
+    0.4708045977011494,
+    0.39813374805598756
+   ],
+   "model_hash": "c7a727c88546dd32666fb8f319a97b295548de1fd03892ba6e4f0201198df7ca",
+   "leader": "Org3MSP",
+   "chain_round": 164,
+   "accepted": 3,
+   "merge_seconds": 0.0010009999969042838,
+   "upload_bytes": 287640,
+   "download_bytes": 287640,
+   "verified": true,
+   "ledger_seconds": 4.100588700035587
+  },
+  {
+   "round": 2,
+   "val_accuracy": 0.7580429717638067,
+   "val_loss": 1.2580583517750104,
+   "val_f1": 0.5894223218888843,
+   "val_by_host": [
+    {
+     "accuracy": 0.799404361610145,
+     "loss": 0.764604926109314,
+     "f1": 0.7512805241215009
+    },
+    {
+     "accuracy": 1.0,
+     "loss": 0.036300189793109894,
+     "f1": 1.0
+    },
+    {
+     "accuracy": 0.47472455368127514,
+     "loss": 2.9732699394226074,
+     "f1": 0.016986441545152213
+    }
+   ],
+   "train": [
+    {
+     "loss": 0.003706596263775402,
+     "accuracy": 0.9987942796965859,
+     "batches": 1024
+    },
+    {
+     "loss": 0.0012954262783750892,
+     "accuracy": 0.999847412109375,
+     "batches": 1024
+    },
+    {
+     "loss": 0.09595311433076859,
+     "accuracy": 0.9678802490234375,
+     "batches": 1024
+    }
+   ],
+   "contributed": [
+    0,
+    1,
+    2
+   ],
+   "adopted": [
+    0,
+    1,
+    2
+   ],
+   "epochs_done": [
+    1.3989071038251366,
+    0.9416091954022988,
+    0.7962674961119751
+   ],
+   "model_hash": "2569d413bd51bb97ea611a6074f47f8a7bcfa1e9fb4339737bb97846aa292454",
+   "leader": "Org2MSP",
+   "chain_round": 165,
+   "accepted": 3,
+   "merge_seconds": 0.0019438000163063407,
+   "upload_bytes": 287640,
+   "download_bytes": 287640,
+   "verified": true,
+   "ledger_seconds": 4.148465599981137
+  },
+  {
+   "round": 3,
+   "val_accuracy": 0.7600163781747726,
+   "val_loss": 1.5214484085639317,
+   "val_f1": 0.5901001189976426,
+   "val_by_host": [
+    {
+     "accuracy": 0.7991161494860217,
+     "loss": 0.9148986339569092,
+     "f1": 0.7508341277407055
+    },
+    {
+     "accuracy": 0.9998383080554927,
+     "loss": 0.05775223672389984,
+     "f1": 0.9998381300786687
+    },
+    {
+     "accuracy": 0.4810946769828034,
+     "loss": 3.5916943550109863,
+     "f1": 0.019628099173553716
+    }
+   ],
+   "train": [
+    {
+     "loss": 0.0026440006118177996,
+     "accuracy": 0.9993131972955236,
+     "batches": 1024
+    },
+    {
+     "loss": 0.00033992567277826385,
+     "accuracy": 0.9999465563181884,
+     "batches": 1024
+    },
+    {
+     "loss": 0.08624574539976193,
+     "accuracy": 0.9746743683853097,
+     "batches": 1024
+    }
+   ],
+   "contributed": [
+    0,
+    1,
+    2
+   ],
+   "adopted": [
+    0,
+    1,
+    2
+   ],
+   "epochs_done": [
+    2.098360655737705,
+    1.4124137931034482,
+    1.1944012441679628
+   ],
+   "model_hash": "ab4465af6c0b5f9bed037b744eba261260a08e409009b31f4fec102ca8621ebe",
+   "leader": "Org2MSP",
+   "chain_round": 166,
+   "accepted": 3,
+   "merge_seconds": 0.000901699997484684,
+   "upload_bytes": 287640,
+   "download_bytes": 287640,
+   "verified": true,
+   "ledger_seconds": 4.136091599997599
+  },
+  {
+   "round": 4,
+   "val_accuracy": 0.7616690021118627,
+   "val_loss": 1.4555323428163927,
+   "val_f1": 0.5933163316591713,
+   "val_by_host": [
+    {
+     "accuracy": 0.8031991545777692,
+     "loss": 0.8057428002357483,
+     "f1": 0.7572148148148148
+    },
+    {
+     "accuracy": 0.9998383080554927,
+     "loss": 0.017138274386525154,
+     "f1": 0.9998381405587389
+    },
+    {
+     "accuracy": 0.4819695437023266,
+     "loss": 3.5437159538269043,
+     "f1": 0.022896039603960392
+    }
+   ],
+   "train": [
+    {
+     "loss": 0.0019642142578959465,
+     "accuracy": 0.9995040893554688,
+     "batches": 1024
+    },
+    {
+     "loss": 0.0004913781303912401,
+     "accuracy": 0.999908447265625,
+     "batches": 1024
+    },
+    {
+     "loss": 0.08370629698038101,
+     "accuracy": 0.9764404296875,
+     "batches": 1024
+    }
+   ],
+   "contributed": [
+    0,
+    1,
+    2
+   ],
+   "adopted": [
+    0,
+    1,
+    2
+   ],
+   "epochs_done": [
+    2.797814207650273,
+    1.8832183908045976,
+    1.5925349922239502
+   ],
+   "model_hash": "499d367843681d3b6f93812ccaa70165c1551054f0ac1dcdf169b5c911468662",
+   "leader": "Org1MSP",
+   "chain_round": 167,
+   "accepted": 3,
+   "merge_seconds": 0.002589499985333532,
+   "upload_bytes": 287640,
+   "download_bytes": 287640,
+   "verified": true,
+   "ledger_seconds": 4.156299599970225
+  },
+  {
+   "round": 5,
+   "val_accuracy": 0.8087046310007944,
+   "val_loss": 1.1718809339411866,
+   "val_f1": 0.655652772882361,
+   "val_by_host": [
+    {
+     "accuracy": 0.9430781054856374,
+     "loss": 0.107562355697155,
+     "f1": 0.940094029624387
+    },
+    {
+     "accuracy": 1.0,
+     "loss": 0.0007573241018690169,
+     "f1": 1.0
+    },
+    {
+     "accuracy": 0.4830357875167455,
+     "loss": 3.407323122024536,
+     "f1": 0.026864289022695696
+    }
+   ],
+   "train": [
+    {
+     "loss": 0.0023027031331528014,
+     "accuracy": 0.9992750415897194,
+     "batches": 1024
+    },
+    {
+     "loss": 0.00012574985754533678,
+     "accuracy": 0.9999770955649379,
+     "batches": 1024
+    },
+    {
+     "loss": 0.08063750714063644,
+     "accuracy": 0.9775009155273438,
+     "batches": 1024
+    }
+   ],
+   "contributed": [
+    0,
+    1,
+    2
+   ],
+   "adopted": [
+    0,
+    1,
+    2
+   ],
+   "epochs_done": [
+    3.4972677595628414,
+    2.354022988505747,
+    1.990668740279938
+   ],
+   "model_hash": "9351257c7dc78377afd50e60d295453e331c2099709c87d4b669b069cb099b34",
+   "leader": "Org3MSP",
+   "chain_round": 168,
+   "accepted": 3,
+   "merge_seconds": 0.0007666000165045261,
+   "upload_bytes": 287640,
+   "download_bytes": 287640,
+   "verified": true,
+   "ledger_seconds": 4.132467499934137
+  },
+  {
+   "round": 6,
+   "val_accuracy": 0.6335985317694658,
+   "val_loss": 1.756341000398,
+   "val_f1": 0.38859771273060884,
+   "val_by_host": [
+    {
+     "accuracy": 0.7943606494379863,
+     "loss": 1.2583760023117065,
+     "f1": 0.743422235540905
+    },
+    {
+     "accuracy": 0.6229343854089189,
+     "loss": 0.7830492854118347,
+     "f1": 0.3937818446500988
+    },
+    {
+     "accuracy": 0.4835005604614922,
+     "loss": 3.227597713470459,
+     "f1": 0.028589058000822707
+    }
+   ],
+   "train": [
+    {
+     "loss": 0.0007501315929370748,
+     "accuracy": 0.9998397460356222,
+     "batches": 1024
+    },
+    {
+     "loss": 1.1904035090992693e-05,
+     "accuracy": 1.0,
+     "batches": 1024
+    },
+    {
+     "loss": 0.07014914469241453,
+     "accuracy": 0.980511701372727,
+     "batches": 1024
+    }
+   ],
+   "contributed": [
+    0,
+    1,
+    2
+   ],
+   "adopted": [
+    0,
+    1,
+    2
+   ],
+   "epochs_done": [
+    4.19672131147541,
+    2.8248275862068963,
+    2.3888024883359256
+   ],
+   "model_hash": "a52c8cc33832b90e4badce58d1b1a68e1224d405e381ed8e7fdd94b06912e9b7",
+   "leader": "Org3MSP",
+   "chain_round": 169,
+   "accepted": 3,
+   "merge_seconds": 0.0007959000067785382,
+   "upload_bytes": 287640,
+   "download_bytes": 287640,
+   "verified": true,
+   "ledger_seconds": 4.115956699941307
+  },
+  {
+   "round": 7,
+   "val_accuracy": 0.7890591903013009,
+   "val_loss": 1.7832901278161444,
+   "val_f1": 0.631663864987726,
+   "val_by_host": [
+    {
+     "accuracy": 0.8849072917667403,
+     "loss": 0.37898150086402893,
+     "f1": 0.870974690360797
+    },
+    {
+     "accuracy": 1.0,
+     "loss": 0.00011566252214834094,
+     "f1": 1.0
+    },
+    {
+     "accuracy": 0.4822702791371627,
+     "loss": 4.970773220062256,
+     "f1": 0.024016904602381074
+    }
+   ],
+   "train": [
+    {
+     "loss": 0.00260179559700191,
+     "accuracy": 0.9995269775390625,
+     "batches": 1024
+    },
+    {
+     "loss": 0.0011185511713113362,
+     "accuracy": 0.9995571809221325,
+     "batches": 1024
+    },
+    {
+     "loss": 0.0626797080039978,
+     "accuracy": 0.982391357421875,
+     "batches": 1024
+    }
+   ],
+   "contributed": [
+    0,
+    1,
+    2
+   ],
+   "adopted": [
+    0,
+    1,
+    2
+   ],
+   "epochs_done": [
+    4.896174863387978,
+    3.295632183908046,
+    2.786936236391913
+   ],
+   "model_hash": "d403188fa283ee17455ea7f3c949a4dcc32c774d95ba97a20d38dfd5fdbd15e5",
+   "leader": "Org3MSP",
+   "chain_round": 170,
+   "accepted": 3,
+   "merge_seconds": 0.0016760000144131482,
+   "upload_bytes": 287640,
+   "download_bytes": 287640,
+   "verified": true,
+   "ledger_seconds": 4.152872900012881
+  },
+  {
+   "round": 8,
+   "val_accuracy": 0.6354260436516226,
+   "val_loss": 1.6339086691538494,
+   "val_f1": 0.3949789111210238,
+   "val_by_host": [
+    {
+     "accuracy": 0.7902296089922183,
+     "loss": 1.4663156270980835,
+     "f1": 0.736911862160371
+    },
+    {
+     "accuracy": 0.6315363968567086,
+     "loss": 0.6801749467849731,
+     "f1": 0.4156923076923077
+    },
+    {
+     "accuracy": 0.4845121251059409,
+     "loss": 2.755235433578491,
+     "f1": 0.03233256351039261
+    }
+   ],
+   "train": [
+    {
+     "loss": 0.0010781165519019545,
+     "accuracy": 0.9996642297889227,
+     "batches": 1024
+    },
+    {
+     "loss": 1.8221098798676394e-05,
+     "accuracy": 1.0,
+     "batches": 1024
+    },
+    {
+     "loss": 0.07709440550769536,
+     "accuracy": 0.9803972438631698,
+     "batches": 1024
+    }
+   ],
+   "contributed": [
+    0,
+    1,
+    2
+   ],
+   "adopted": [
+    0,
+    1,
+    2
+   ],
+   "epochs_done": [
+    5.595628415300546,
+    3.7664367816091953,
+    3.1850699844479005
+   ],
+   "model_hash": "0891832bec8336e06de0dfcca00d530f228020449820f5a4eb7c57f897a32cbf",
+   "leader": "Org3MSP",
+   "chain_round": 171,
+   "accepted": 3,
+   "merge_seconds": 0.0007410999969579279,
+   "upload_bytes": 287640,
+   "download_bytes": 287640,
+   "verified": true,
+   "ledger_seconds": 4.143037200032268
+  },
+  {
+   "round": 9,
+   "val_accuracy": 0.7922357362933928,
+   "val_loss": 1.9434594664514104,
+   "val_f1": 0.6357623892260317,
+   "val_by_host": [
+    {
+     "accuracy": 0.8956672110673456,
+     "loss": 0.2798224985599518,
+     "f1": 0.8844312014472704
+    },
+    {
+     "accuracy": 1.0,
+     "loss": 8.301001798827201e-06,
+     "f1": 1.0
+    },
+    {
+     "accuracy": 0.4810399978128332,
+     "loss": 5.5505475997924805,
+     "f1": 0.022855966230824667
+    }
+   ],
+   "train": [
+    {
+     "loss": 0.003153522740815564,
+     "accuracy": 0.999343721860167,
+     "batches": 1024
+    },
+    {
+     "loss": 0.0013284173912928075,
+     "accuracy": 0.9995342764870705,
+     "batches": 1024
+    },
+    {
+     "loss": 0.05699287727475166,
+     "accuracy": 0.983917236328125,
+     "batches": 1024
+    }
+   ],
+   "contributed": [
+    0,
+    1,
+    2
+   ],
+   "adopted": [
+    0,
+    1,
+    2
+   ],
+   "epochs_done": [
+    6.295081967213115,
+    4.237241379310345,
+    3.583203732503888
+   ],
+   "model_hash": "61a145cc054500848be9840ba0ffed25967879d78a0eb958db931c83d4a6cdd9",
+   "leader": "Org2MSP",
+   "chain_round": 172,
+   "accepted": 3,
+   "merge_seconds": 0.0012009999481961131,
+   "upload_bytes": 287640,
+   "download_bytes": 287640,
+   "verified": true,
+   "ledger_seconds": 4.186846900032833
+  },
+  {
+   "round": 10,
+   "val_accuracy": 0.7576294424837031,
+   "val_loss": 1.4035873686273892,
+   "val_f1": 0.5893350191747497,
+   "val_by_host": [
+    {
+     "accuracy": 0.7958977807666443,
+     "loss": 1.0912457704544067,
+     "f1": 0.7458276006460488
+    },
+    {
+     "accuracy": 0.9934353070530026,
+     "loss": 0.11306735128164291,
+     "f1": 0.99338568309928
+    },
+    {
+     "accuracy": 0.4835552396314624,
+     "loss": 3.006448984146118,
+     "f1": 0.02879177377892031
+    }
+   ],
+   "train": [
+    {
+     "loss": 0.0009349582833237946,
+     "accuracy": 0.9998245239257812,
+     "batches": 1024
+    },
+    {
+     "loss": 7.1017157097230665e-06,
+     "accuracy": 1.0,
+     "batches": 1024
+    },
+    {
+     "loss": 0.07689666748046875,
+     "accuracy": 0.9822463989257812,
+     "batches": 1024
+    }
+   ],
+   "contributed": [
+    0,
+    1,
+    2
+   ],
+   "adopted": [
+    0,
+    1,
+    2
+   ],
+   "epochs_done": [
+    6.994535519125683,
+    4.708045977011494,
+    3.981337480559876
+   ],
+   "model_hash": "4b6dbaef64d06903176a792e16f2c77062f8ab9931a432cc95bc4c80d61ed117",
+   "leader": "Org1MSP",
+   "chain_round": 173,
+   "accepted": 3,
+   "merge_seconds": 0.0007994999759830534,
+   "upload_bytes": 287640,
+   "download_bytes": 287640,
+   "verified": true,
+   "ledger_seconds": 4.142438000009861
+  },
+  {
+   "round": 11,
+   "val_accuracy": 0.8269831905082753,
+   "val_loss": 1.4424136806349754,
+   "val_f1": 0.6749542600459427,
+   "val_by_host": [
+    {
+     "accuracy": 0.9978864444230954,
+     "loss": 0.015374381095170975,
+     "f1": 0.9978969505783387
+    },
+    {
+     "accuracy": 1.0,
+     "loss": 2.8987622499698773e-05,
+     "f1": 1.0
+    },
+    {
+     "accuracy": 0.4830631271017306,
+     "loss": 4.311837673187256,
+     "f1": 0.026965829559489504
+    }
+   ],
+   "train": [
+    {
+     "loss": 0.002126885301742476,
+     "accuracy": 0.9995268692480274,
+     "batches": 1024
+    },
+    {
+     "loss": 0.00022294555025187572,
+     "accuracy": 0.9999694607532505,
+     "batches": 1024
+    },
+    {
+     "loss": 0.057774905626206574,
+     "accuracy": 0.9839454266594432,
+     "batches": 1024
+    }
+   ],
+   "contributed": [
+    0,
+    1,
+    2
+   ],
+   "adopted": [
+    0,
+    1,
+    2
+   ],
+   "epochs_done": [
+    7.693989071038251,
+    5.178850574712643,
+    4.379471228615863
+   ],
+   "model_hash": "9aea9616100c9fb853ed34a5eb4662f415911b4d3dfdf5808289bd1b4972dada",
+   "leader": "Org1MSP",
+   "chain_round": 174,
+   "accepted": 3,
+   "merge_seconds": 0.0013667999883182347,
+   "upload_bytes": 287640,
+   "download_bytes": 287640,
+   "verified": true,
+   "ledger_seconds": 4.151219800056424
+  },
+  {
+   "round": 12,
+   "val_accuracy": 0.828063564634023,
+   "val_loss": 0.9308811132796109,
+   "val_f1": 0.677091503137909,
+   "val_by_host": [
+    {
+     "accuracy": 0.9999519646459795,
+     "loss": 0.00193194136954844,
+     "f1": 0.9999523014548056
+    },
+    {
+     "accuracy": 1.0,
+     "loss": 0.0005953267682343721,
+     "f1": 1.0
+    },
+    {
+     "accuracy": 0.4842387292560899,
+     "loss": 2.79011607170105,
+     "f1": 0.03132220795892169
+    }
+   ],
+   "train": [
+    {
+     "loss": 0.00037845131773114725,
+     "accuracy": 0.9999313197295524,
+     "batches": 1024
+    },
+    {
+     "loss": 6.698487140965881e-06,
+     "accuracy": 1.0,
+     "batches": 1024
+    },
+    {
+     "loss": 0.06616338342428207,
+     "accuracy": 0.9824600219726562,
+     "batches": 1024
+    }
+   ],
+   "contributed": [
+    0,
+    1,
+    2
+   ],
+   "adopted": [
+    0,
+    1,
+    2
+   ],
+   "epochs_done": [
+    8.39344262295082,
+    5.649655172413793,
+    4.777604976671851
+   ],
+   "model_hash": "94ca125e4908d0a92abe943e00a8768106453622e40b53456f76dd64f46c9a1e",
+   "leader": "Org3MSP",
+   "chain_round": 175,
+   "accepted": 3,
+   "merge_seconds": 0.0015368000022135675,
+   "upload_bytes": 287640,
+   "download_bytes": 287640,
+   "verified": true,
+   "ledger_seconds": 4.147997399966698
+  },
+  {
+   "round": 13,
+   "val_accuracy": 0.8280909042190082,
+   "val_loss": 1.1525671805526752,
+   "val_f1": 0.6771925750031951,
+   "val_by_host": [
+    {
+     "accuracy": 0.9999519646459795,
+     "loss": 0.0011578245321288705,
+     "f1": 0.9999523014548056
+    },
+    {
+     "accuracy": 1.0,
+     "loss": 0.000130686501506716,
+     "f1": 1.0
+    },
+    {
+     "accuracy": 0.4843207480110452,
+     "loss": 3.4564130306243896,
+     "f1": 0.03162542355477975
+    }
+   ],
+   "train": [
+    {
+     "loss": 4.283612003071117e-05,
+     "accuracy": 1.0,
+     "batches": 1024
+    },
+    {
+     "loss": 5.903041439487293e-06,
+     "accuracy": 1.0,
+     "batches": 1024
+    },
+    {
+     "loss": 0.0523543253969768,
+     "accuracy": 0.9852960252722182,
+     "batches": 1024
+    }
+   ],
+   "contributed": [
+    0,
+    1,
+    2
+   ],
+   "adopted": [
+    0,
+    1,
+    2
+   ],
+   "epochs_done": [
+    9.092896174863387,
+    6.120459770114943,
+    5.175738724727839
+   ],
+   "model_hash": "4b8f608c9b1a8610b71dc3cad229fc58178c0ae4e07488b01760078850ebd3da",
+   "leader": "Org3MSP",
+   "chain_round": 176,
+   "accepted": 3,
+   "merge_seconds": 0.0008163999882526696,
+   "upload_bytes": 287640,
+   "download_bytes": 287640,
+   "verified": true,
+   "ledger_seconds": 4.116626899980474
+  },
+  {
+   "round": 14,
+   "val_accuracy": 0.8281546965839733,
+   "val_loss": 1.1519691478315508,
+   "val_f1": 0.6774282883217327,
+   "val_by_host": [
+    {
+     "accuracy": 0.9999519646459795,
+     "loss": 0.0006831766804680228,
+     "f1": 0.9999523014548056
+    },
+    {
+     "accuracy": 1.0,
+     "loss": 0.00013946609396953136,
+     "f1": 1.0
+    },
+    {
+     "accuracy": 0.4845121251059409,
+     "loss": 3.455084800720215,
+     "f1": 0.03233256351039261
+    }
+   ],
+   "train": [
+    {
+     "loss": 0.0006403724546544254,
+     "accuracy": 0.9999847412109375,
+     "batches": 1024
+    },
+    {
+     "loss": 1.7816470290199504e-06,
+     "accuracy": 1.0,
+     "batches": 1024
+    },
+    {
+     "loss": 0.05041706934571266,
+     "accuracy": 0.9867935180664062,
+     "batches": 1024
+    }
+   ],
+   "contributed": [
+    0,
+    1,
+    2
+   ],
+   "adopted": [
+    0,
+    1,
+    2
+   ],
+   "epochs_done": [
+    9.792349726775956,
+    6.591264367816092,
+    5.573872472783826
+   ],
+   "model_hash": "f67ed5b62b01f0a3f5acb07ec6009a75d7e457cfbe54838d6c6a57463557834d",
+   "leader": "Org3MSP",
+   "chain_round": 177,
+   "accepted": 3,
+   "merge_seconds": 0.001243299979250878,
+   "upload_bytes": 287640,
+   "download_bytes": 287640,
+   "verified": true,
+   "ledger_seconds": 4.144757699978072
+  },
+  {
+   "round": 15,
+   "val_accuracy": 0.8284007528488394,
+   "val_loss": 1.2054522504671088,
+   "val_f1": 0.6783358840027703,
+   "val_by_host": [
+    {
+     "accuracy": 0.9999519646459795,
+     "loss": 0.0007294212118722498,
+     "f1": 0.9999523014548056
+    },
+    {
+     "accuracy": 1.0,
+     "loss": 0.00010566080163698643,
+     "f1": 1.0
+    },
+    {
+     "accuracy": 0.4852502939005386,
+     "loss": 3.6155216693878174,
+     "f1": 0.03505535055350554
+    }
+   ],
+   "train": [
+    {
+     "loss": 4.427887138703019e-05,
+     "accuracy": 1.0,
+     "batches": 304
+    },
+    {
+     "loss": 1.468183212864802e-06,
+     "accuracy": 1.0,
+     "batches": 1024
+    },
+    {
+     "loss": 0.049284834414720535,
+     "accuracy": 0.9872970581054688,
+     "batches": 1024
+    }
+   ],
+   "contributed": [
+    0,
+    1,
+    2
+   ],
+   "adopted": [
+    0,
+    1,
+    2
+   ],
+   "epochs_done": [
+    10.0,
+    7.062068965517241,
+    5.9720062208398135
+   ],
+   "model_hash": "38fd5602cb242a2f29e1fd2a5f3847175ebc5c1b9131c499c510f303ad5d3dfb",
+   "leader": "Org1MSP",
+   "chain_round": 178,
+   "accepted": 3,
+   "merge_seconds": 0.0007924000383354723,
+   "upload_bytes": 287640,
+   "download_bytes": 287640,
+   "verified": true,
+   "ledger_seconds": 4.188548300007824
+  },
+  {
+   "round": 16,
+   "val_accuracy": 0.8103286955981485,
+   "val_loss": 1.0148851970831554,
+   "val_f1": 0.6704896345980988,
+   "val_by_host": [
+    {
+     "accuracy": 0.9453838024786243,
+     "loss": 0.2216939926147461,
+     "f1": 0.9426597407837006
+    },
+    {
+     "accuracy": 0.9874203667173301,
+     "loss": 0.11962345242500305,
+     "f1": 0.9872479921324373
+    },
+    {
+     "accuracy": 0.49818191759849084,
+     "loss": 2.703338146209717,
+     "f1": 0.08156117087815863
+    }
+   ],
+   "train": [
+    null,
+    {
+     "loss": 9.198121802000969e-07,
+     "accuracy": 1.0,
+     "batches": 1024
+    },
+    {
+     "loss": 0.05073750502540003,
+     "accuracy": 0.9871273454251334,
+     "batches": 1024
+    }
+   ],
+   "contributed": [
+    1,
+    2
+   ],
+   "adopted": [
+    1,
+    2
+   ],
+   "epochs_done": [
+    10.0,
+    7.5328735632183905,
+    6.370139968895801
+   ],
+   "model_hash": "f1a159e1ffbb756978286b33e5e857985b5278f8716219456975adef867af1a9",
+   "leader": "Org3MSP",
+   "chain_round": 179,
+   "accepted": 2,
+   "merge_seconds": 0.0009140000329352915,
+   "upload_bytes": 143820,
+   "download_bytes": 143820,
+   "verified": true,
+   "ledger_seconds": 4.134957199974451
+  },
+  {
+   "round": 17,
+   "val_accuracy": 0.7703633836556362,
+   "val_loss": 3.559743448688986,
+   "val_f1": 0.6056188661727004,
+   "val_by_host": [
+    {
+     "accuracy": 0.8298587760591796,
+     "loss": 1.2083982229232788,
+     "f1": 0.7967171717171717
+    },
+    {
+     "accuracy": 1.0,
+     "loss": 2.521109649933351e-07,
+     "f1": 1.0
+    },
+    {
+     "accuracy": 0.4812313749077289,
+     "loss": 9.470831871032715,
+     "f1": 0.02013942680092951
+    }
+   ],
+   "train": [
+    null,
+    {
+     "loss": 0.0009974439476208377,
+     "accuracy": 0.9998396689545652,
+     "batches": 1024
+    },
+    {
+     "loss": 0.043104298412799835,
+     "accuracy": 0.9884262084960938,
+     "batches": 1024
+    }
+   ],
+   "contributed": [
+    1,
+    2
+   ],
+   "adopted": [
+    1,
+    2
+   ],
+   "epochs_done": [
+    10.0,
+    8.00367816091954,
+    6.768273716951788
+   ],
+   "model_hash": "fe7be89ce1c91434b48479ede3408448bb654c314f31f672392e3ea98b62d1d3",
+   "leader": "Org2MSP",
+   "chain_round": 180,
+   "accepted": 2,
+   "merge_seconds": 0.0010130000300705433,
+   "upload_bytes": 143820,
+   "download_bytes": 143820,
+   "verified": true,
+   "ledger_seconds": 4.094267699983902
+  },
+  {
+   "round": 18,
+   "val_accuracy": 0.5372709205686347,
+   "val_loss": 2.033556958039602,
+   "val_f1": 0.14856599039090226,
+   "val_by_host": [
+    {
+     "accuracy": 0.4964453838024786,
+     "loss": 2.436229705810547,
+     "f1": 0.0
+    },
+    {
+     "accuracy": 0.6313747049122013,
+     "loss": 0.8860331177711487,
+     "f1": 0.4152859707617338
+    },
+    {
+     "accuracy": 0.483992672991224,
+     "loss": 2.7784080505371094,
+     "f1": 0.03041200041097298
+    }
+   ],
+   "train": [
+    null,
+    {
+     "loss": 1.8929850966742379e-06,
+     "accuracy": 1.0,
+     "batches": 1024
+    },
+    {
+     "loss": 0.08911758565713872,
+     "accuracy": 0.9846398022174235,
+     "batches": 1024
+    }
+   ],
+   "contributed": [
+    1,
+    2
+   ],
+   "adopted": [
+    1,
+    2
+   ],
+   "epochs_done": [
+    10.0,
+    8.47448275862069,
+    7.166407465007776
+   ],
+   "model_hash": "df2de5b775f1411dbee64fec9e7e84ec52769275f507bdaca56896164b2b8cd9",
+   "leader": "Org2MSP",
+   "chain_round": 181,
+   "accepted": 2,
+   "merge_seconds": 0.001408900017850101,
+   "upload_bytes": 143820,
+   "download_bytes": 143820,
+   "verified": true,
+   "ledger_seconds": 4.164867399958894
+  },
+  {
+   "round": 19,
+   "val_accuracy": 0.7638707305815714,
+   "val_loss": 1.779379286725695,
+   "val_f1": 0.6024273000053819,
+   "val_by_host": [
+    {
+     "accuracy": 0.8163608415794025,
+     "loss": 1.6493926048278809,
+     "f1": 0.7769935250539578
+    },
+    {
+     "accuracy": 0.9998706464443942,
+     "loss": 0.0008633087854832411,
+     "f1": 0.9998705082550987
+    },
+    {
+     "accuracy": 0.4753807037209175,
+     "loss": 3.6878819465637207,
+     "f1": 0.030417866707089077
+    }
+   ],
+   "train": [
+    null,
+    {
+     "loss": 0.0031722302082926035,
+     "accuracy": 0.99920654296875,
+     "batches": 1024
+    },
+    {
+     "loss": 0.045488908886909485,
+     "accuracy": 0.9877548217773438,
+     "batches": 1024
+    }
+   ],
+   "contributed": [
+    1,
+    2
+   ],
+   "adopted": [
+    1,
+    2
+   ],
+   "epochs_done": [
+    10.0,
+    8.945287356321838,
+    7.564541213063763
+   ],
+   "model_hash": "bb0bc1ad37b79626bf7435d77cb36482eb8fcffe49fda6667e91754347e3faae",
+   "leader": "Org3MSP",
+   "chain_round": 182,
+   "accepted": 2,
+   "merge_seconds": 0.0006642999942414463,
+   "upload_bytes": 143820,
+   "download_bytes": 143820,
+   "verified": true,
+   "ledger_seconds": 4.136844900029246
+  },
+  {
+   "round": 20,
+   "val_accuracy": 0.8052575319433791,
+   "val_loss": 0.6285532346616188,
+   "val_f1": 0.691297457028559,
+   "val_by_host": [
+    {
+     "accuracy": 0.8794792967624171,
+     "loss": 0.4984309673309326,
+     "f1": 0.864062415343772
+    },
+    {
+     "accuracy": 1.0,
+     "loss": 0.02126348949968815,
+     "f1": 1.0
+    },
+    {
+     "accuracy": 0.5362932990677202,
+     "loss": 1.3659652471542358,
+     "f1": 0.2098299557419054
+    }
+   ],
+   "train": [
+    null,
+    {
+     "loss": 0.00014393889120118224,
+     "accuracy": 0.9999770955649379,
+     "batches": 1024
+    },
+    {
+     "loss": 0.052862364798784256,
+     "accuracy": 0.9859085083007812,
+     "batches": 1024
+    }
+   ],
+   "contributed": [
+    1,
+    2
+   ],
+   "adopted": [
+    1,
+    2
+   ],
+   "epochs_done": [
+    10.0,
+    9.416091954022988,
+    7.962674961119752
+   ],
+   "model_hash": "9d108bad295ce398ac1229efffbc70be928f9a497a171a6732ce06ce483d2fbe",
+   "leader": "Org1MSP",
+   "chain_round": 183,
+   "accepted": 2,
+   "merge_seconds": 0.0006496999994851649,
+   "upload_bytes": 287640,
+   "download_bytes": 287640,
+   "verified": true,
+   "ledger_seconds": 4.125909900001716
+  },
+  {
+   "round": 21,
+   "val_accuracy": 0.7789758620356447,
+   "val_loss": 1.501881808352967,
+   "val_f1": 0.6201148759289423,
+   "val_by_host": [
+    {
+     "accuracy": 0.852579498510904,
+     "loss": 0.7717421650886536,
+     "f1": 0.828518746158574
+    },
+    {
+     "accuracy": 1.0,
+     "loss": 0.0005680033937096596,
+     "f1": 1.0
+    },
+    {
+     "accuracy": 0.4843480875960303,
+     "loss": 3.733335256576538,
+     "f1": 0.03182588162825317
+    }
+   ],
+   "train": [
+    null,
+    {
+     "loss": 4.4196473027113825e-05,
+     "accuracy": 1.0,
+     "batches": 1024
+    },
+    {
+     "loss": 0.03806626884137525,
+     "accuracy": 0.9891723195958887,
+     "batches": 1024
+    }
+   ],
+   "contributed": [
+    1,
+    2
+   ],
+   "adopted": [
+    1,
+    2
+   ],
+   "epochs_done": [
+    10.0,
+    9.886896551724139,
+    8.360808709175739
+   ],
+   "model_hash": "884d1f30d9dc9dc4ae9fe34f1f26bc82dd76b8862137247906163225f6d5f940",
+   "leader": "Org1MSP",
+   "chain_round": 184,
+   "accepted": 2,
+   "merge_seconds": 0.0007182999979704618,
+   "upload_bytes": 287640,
+   "download_bytes": 287640,
+   "verified": true,
+   "ledger_seconds": 4.120540099975187
+  },
+  {
+   "round": 22,
+   "val_accuracy": 0.8065988250872929,
+   "val_loss": 0.5817669083674749,
+   "val_f1": 0.7350273551588028,
+   "val_by_host": [
+    {
+     "accuracy": 0.8565183975405899,
+     "loss": 0.5668506026268005,
+     "f1": 0.84538537191366
+    },
+    {
+     "accuracy": 0.9547262555379491,
+     "loss": 0.13301564753055573,
+     "f1": 0.955634427684117
+    },
+    {
+     "accuracy": 0.6085518221833393,
+     "loss": 1.0454344749450684,
+     "f1": 0.4040622658786315
+    }
+   ],
+   "train": [
+    null,
+    {
+     "loss": 3.7499316313176005e-05,
+     "accuracy": 1.0,
+     "batches": 246
+    },
+    {
+     "loss": 0.04544687271118164,
+     "accuracy": 0.9879684448242188,
+     "batches": 1024
+    }
+   ],
+   "contributed": [
+    1,
+    2
+   ],
+   "adopted": [
+    1,
+    2
+   ],
+   "epochs_done": [
+    10.0,
+    10.0,
+    8.758942457231726
+   ],
+   "model_hash": "e3354b019dca7d3436fbbaa0cbcfbf0ba7ca1b18c2b248686d45f251b017ba02",
+   "leader": "Org1MSP",
+   "chain_round": 185,
+   "accepted": 2,
+   "merge_seconds": 0.0009128000237978995,
+   "upload_bytes": 287640,
+   "download_bytes": 287640,
+   "verified": true,
+   "ledger_seconds": 4.181982300069649
+  },
+  {
+   "round": 23,
+   "val_accuracy": 0.41633832837517626,
+   "val_loss": 2.795210204397639,
+   "val_f1": 0.47921021110176,
+   "val_by_host": [
+    {
+     "accuracy": 0.10615813238543569,
+     "loss": 4.143920421600342,
+     "f1": 0.18876972709041764
+    },
+    {
+     "accuracy": 0.14950037189147236,
+     "loss": 4.216780185699463,
+     "f1": 0.25521069324875395
+    },
+    {
+     "accuracy": 0.9933564808486207,
+     "loss": 0.02493000589311123,
+     "f1": 0.9936502129661083
+    }
+   ],
+   "train": [
+    null,
+    null,
+    {
+     "loss": 0.03467790553964808,
+     "accuracy": 0.9901185016748949,
+     "batches": 1024
+    }
+   ],
+   "contributed": [
+    2
+   ],
+   "adopted": [],
+   "epochs_done": [
+    10.0,
+    10.0,
+    9.157076205287714
+   ],
+   "model_hash": "fdf6d02d4da4b290d2ee17e506b35b1fe208f773042c10e8b4a325299b17f9bd",
+   "leader": null,
+   "skipped": "1 contributing < quorum 2",
+   "upload_bytes": 0,
+   "download_bytes": 0,
+   "ledger_seconds": 0.0,
+   "verified": null
+  },
+  {
+   "round": 24,
+   "val_accuracy": 0.4028410240154403,
+   "val_loss": 3.5557087703297534,
+   "val_f1": 0.45493313475724806,
+   "val_by_host": [
+    {
+     "accuracy": 0.06657700067249496,
+     "loss": 5.345491886138916,
+     "f1": 0.11904977785837338
+    },
+    {
+     "accuracy": 0.14820683633541376,
+     "loss": 5.297427654266357,
+     "f1": 0.25174705982614626
+    },
+    {
+     "accuracy": 0.9937392350384121,
+     "loss": 0.024206770583987236,
+     "f1": 0.9940025665872246
+    }
+   ],
+   "train": [
+    null,
+    null,
+    {
+     "loss": 0.024703852832317352,
+     "accuracy": 0.9939498901367188,
+     "batches": 1024
+    }
+   ],
+   "contributed": [
+    2
+   ],
+   "adopted": [],
+   "epochs_done": [
+    10.0,
+    10.0,
+    9.555209953343702
+   ],
+   "model_hash": "491bfdb209fbcb33914ecfd947bc2120d4c9efed6c3c4f2524f0d18122bcc638",
+   "leader": null,
+   "skipped": "1 contributing < quorum 2",
+   "upload_bytes": 0,
+   "download_bytes": 0,
+   "ledger_seconds": 0.0,
+   "verified": null
+  },
+  {
+   "round": 25,
+   "val_accuracy": 0.3781418610509402,
+   "val_loss": 2.7528598147133985,
+   "val_f1": 0.41045896827473954,
+   "val_by_host": [
+    {
+     "accuracy": 0.014987030454414449,
+     "loss": 4.251196384429932,
+     "f1": 0.02184697576798321
+    },
+    {
+     "accuracy": 0.12569931765999418,
+     "loss": 3.984992027282715,
+     "f1": 0.2155292479108635
+    },
+    {
+     "accuracy": 0.9937392350384121,
+     "loss": 0.022391032427549362,
+     "f1": 0.9940006811453721
+    }
+   ],
+   "train": [
+    null,
+    null,
+    {
+     "loss": 0.02312963269650936,
+     "accuracy": 0.9944610595703125,
+     "batches": 1024
+    }
+   ],
+   "contributed": [
+    2
+   ],
+   "adopted": [],
+   "epochs_done": [
+    10.0,
+    10.0,
+    9.953343701399689
+   ],
+   "model_hash": "fbb9e1d641006ecdd97ae257e613034db037fdc5383ca3487aa01d7fd505f0ba",
+   "leader": null,
+   "skipped": "1 contributing < quorum 2",
+   "upload_bytes": 0,
+   "download_bytes": 0,
+   "ledger_seconds": 0.0,
+   "verified": null
+  },
+  {
+   "round": 26,
+   "val_accuracy": 0.37325201573189964,
+   "val_loss": 3.383205270394683,
+   "val_f1": 0.4016057241265298,
+   "val_by_host": [
+    {
+     "accuracy": 0.009174752617926794,
+     "loss": 5.275279521942139,
+     "f1": 0.010742890029255192
+    },
+    {
+     "accuracy": 0.11509232610031368,
+     "loss": 4.85442590713501,
+     "f1": 0.19838293883290367
+    },
+    {
+     "accuracy": 0.9954889684774585,
+     "loss": 0.019910382106900215,
+     "f1": 0.9956913435174305
+    }
+   ],
+   "train": [
+    null,
+    null,
+    {
+     "loss": 0.021605866431381796,
+     "accuracy": 0.9945244768919888,
+     "batches": 120
+    }
+   ],
+   "contributed": [
+    2
+   ],
+   "adopted": [],
+   "epochs_done": [
+    10.0,
+    10.0,
+    10.0
+   ],
+   "model_hash": "84e57bcb80af62806272d6d8145444da976d20af40360613aaed6d5ab53c5463",
+   "leader": null,
+   "skipped": "1 contributing < quorum 2",
+   "upload_bytes": 0,
+   "download_bytes": 0,
+   "ledger_seconds": 0.0,
+   "verified": null
+  }
+ ],
+ "upload_bytes": 6040440,
+ "seconds": {
+  "wall": 190.32053309999174,
+  "ledger": 95.31848179997178
+ },
+ "final_hash": "84e57bcb80af62806272d6d8145444da976d20af40360613aaed6d5ab53c5463",
+ "ledger": {
+  "channel": "swarm-eai2-multimodal",
+  "members": [
+   "Org1MSP",
+   "Org2MSP",
+   "Org3MSP"
+  ],
+  "quorum": 2,
+  "first_ledger_round": 163,
+  "ledger_calls": 154,
+  "ledger_ms": {
+   "submit": 126751.39980006497,
+   "aggregate": 46954.79189988691,
+   "read": 1224.1861998918466
+  },
+  "rejected_updates": 0,
+  "leader_rounds": {
+   "Org3MSP": 11,
+   "Org2MSP": 5,
+   "Org1MSP": 7
+  },
+  "last_ledger_round": 185
+ },
+ "features": [
+  "arp.opcode",
+  "arp.hw.size",
+  "icmp.checksum",
+  "icmp.seq_le",
+  "icmp.unused",
+  "http.content_length",
+  "http.response",
+  "http.tls_port",
+  "tcp.ack",
+  "tcp.ack_raw",
+  "tcp.checksum",
+  "tcp.connection.fin",
+  "tcp.connection.rst",
+  "tcp.connection.syn",
+  "tcp.connection.synack",
+  "tcp.flags",
+  "tcp.flags.ack",
+  "tcp.len",
+  "tcp.seq",
+  "udp.stream",
+  "udp.time_delta",
+  "dns.qry.name",
+  "dns.qry.qu",
+  "dns.qry.type",
+  "dns.retransmission",
+  "dns.retransmit_request",
+  "dns.retransmit_request_in",
+  "mqtt.conflag.cleansess",
+  "mqtt.conflags",
+  "mqtt.hdrflags",
+  "mqtt.len",
+  "mqtt.msg_decoded_as",
+  "mqtt.msgtype",
+  "mqtt.proto_len",
+  "mqtt.topic_len",
+  "mqtt.ver",
+  "mbtcp.len",
+  "mbtcp.trans_id",
+  "mbtcp.unit_id",
+  "http.request.method-0",
+  "http.request.method-0.0",
+  "http.request.method-GET",
+  "http.request.method-M-SEARCH",
+  "http.request.method-PUT",
+  "http.referer-0",
+  "http.referer-0.0",
+  "http.referer-TESTING_PURPOSES_ONLY",
+  "http.request.version-0",
+  "http.request.version-0.0",
+  "http.request.version-HTTP/1.1",
+  "dns.qry.name.len-0",
+  "dns.qry.name.len-0.0",
+  "dns.qry.name.len-0.debian.pool.ntp.org",
+  "dns.qry.name.len-1.debian.pool.ntp.org",
+  "dns.qry.name.len-11",
+  "dns.qry.name.len-13",
+  "dns.qry.name.len-14",
+  "dns.qry.name.len-15",
+  "dns.qry.name.len-16",
+  "dns.qry.name.len-17",
+  "dns.qry.name.len-18",
+  "dns.qry.name.len-19",
+  "dns.qry.name.len-2.debian.pool.ntp.org",
+  "dns.qry.name.len-20",
+  "dns.qry.name.len-21",
+  "dns.qry.name.len-22",
+  "dns.qry.name.len-23",
+  "dns.qry.name.len-24",
+  "dns.qry.name.len-25",
+  "dns.qry.name.len-26",
+  "dns.qry.name.len-27",
+  "dns.qry.name.len-28",
+  "dns.qry.name.len-29",
+  "dns.qry.name.len-3.debian.pool.ntp.org",
+  "dns.qry.name.len-30",
+  "dns.qry.name.len-31",
+  "dns.qry.name.len-33",
+  "dns.qry.name.len-35",
+  "dns.qry.name.len-36",
+  "dns.qry.name.len-37",
+  "dns.qry.name.len-38",
+  "dns.qry.name.len-40",
+  "dns.qry.name.len-41",
+  "dns.qry.name.len-42",
+  "dns.qry.name.len-63",
+  "dns.qry.name.len-72",
+  "dns.qry.name.len-_googlecast._tcp.local",
+  "dns.qry.name.len-null-null.local",
+  "dns.qry.name.len-raspberrypi.local",
+  "mqtt.conack.flags-0",
+  "mqtt.conack.flags-0.0",
+  "mqtt.conack.flags-0x00000000",
+  "mqtt.conack.flags-1461073",
+  "mqtt.conack.flags-1461383",
+  "mqtt.conack.flags-1461589",
+  "mqtt.conack.flags-1471198",
+  "mqtt.conack.flags-1574358",
+  "mqtt.protoname-0",
+  "mqtt.protoname-0.0",
+  "mqtt.protoname-MQTT",
+  "mqtt.topic-/test",
+  "mqtt.topic-0",
+  "mqtt.topic-0.0",
+  "mqtt.topic-BB_f1f6af5bd1cc/app/baby_data",
+  "mqtt.topic-BS_349454F0DBF0/action_list",
+  "mqtt.topic-BS_349454F0DBF0/app/station_data",
+  "mqtt.topic-BS_349454F0DBF0/bind_device",
+  "mqtt.topic-BS_349454F0DBF0/set_baby",
+  "mqtt.topic-EKG_data",
+  "mqtt.topic-EMG_data",
+  "mqtt.topic-GSR_data",
+  "mqtt.topic-Temperature_and_Humidity",
+  "mqtt.topic-airflow_data",
+  "mqtt.topic-baby_position_data",
+  "mqtt.topic-blood_glucose_data",
+  "mqtt.topic-blood_pressure_data",
+  "mqtt.topic-fall_data",
+  "mqtt.topic-heart_rate_data",
+  "mqtt.topic-infusion_data",
+  "mqtt.topic-oxygen_level_data",
+  "mqtt.topic-pulse_ox_data",
+  "mqtt.topic-spirometer_data",
+  "mqtt.topic-temperature_data",
+  "mqtt.topic-uric_data",
+  "mqtt.topic-weight_data"
+ ]
+}

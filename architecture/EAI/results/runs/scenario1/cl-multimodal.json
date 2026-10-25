@@ -1,0 +1,221 @@
+{
+ "architecture": "cl",
+ "scenario": 1,
+ "model": "multimodal",
+ "merge": null,
+ "hosts": [
+  {
+   "name": "http-icmp",
+   "train": 187362,
+   "val": 20818,
+   "test": 23132
+  },
+  {
+   "name": "tcp-syn",
+   "train": 81690,
+   "val": 9077,
+   "test": 10085
+  },
+  {
+   "name": "udp",
+   "train": 196617,
+   "val": 21846,
+   "test": 24273
+  }
+ ],
+ "n_features": 71,
+ "n_parameters": 35955,
+ "model_bytes": 143820,
+ "hyper": {
+  "learning_rate": 0.001,
+  "batch": 128,
+  "epochs": 10,
+  "sync_frequency": 1024
+ },
+ "seed": 42,
+ "device": "cuda",
+ "test": {
+  "loss": 0.0030274451710283756,
+  "accuracy": 0.9999826056705514,
+  "precision": 1.0,
+  "recall": 0.9999652898299202,
+  "f1": 0.999982644613756,
+  "confusion": [
+   [
+    28680,
+    0
+   ],
+   [
+    1,
+    28809
+   ]
+  ],
+  "by_type": {
+   "Benign": 1.0,
+   "DDoS_HTTP": 0.9997939843428101,
+   "DDoS_ICMP": 1.0,
+   "DDoS_TCP": 1.0,
+   "DDoS_UDP": 1.0
+  },
+  "n": 57490
+ },
+ "history": [
+  {
+   "epoch": 1,
+   "train_loss": 0.006791243736833459,
+   "train_accuracy": 0.998924128511883,
+   "val_accuracy": 0.9999806729672793,
+   "val_loss": 0.00490110507234931,
+   "val_f1": 0.9999807169440212
+  },
+  {
+   "epoch": 2,
+   "train_loss": 0.0007888297420032389,
+   "train_accuracy": 0.9999591984864786,
+   "val_accuracy": 1.0,
+   "val_loss": 6.051370178283833e-07,
+   "val_f1": 1.0
+  },
+  {
+   "epoch": 3,
+   "train_loss": 3.9764214606064826e-05,
+   "train_accuracy": 0.9999871153115195,
+   "val_accuracy": 0.9999806729672793,
+   "val_loss": 0.0014189423527568579,
+   "val_f1": 0.9999807169440212
+  },
+  {
+   "epoch": 4,
+   "train_loss": 0.0005576678480860667,
+   "train_accuracy": 0.9999849678634395,
+   "val_accuracy": 1.0,
+   "val_loss": 3.3892804367496865e-06,
+   "val_f1": 1.0
+  },
+  {
+   "epoch": 5,
+   "train_loss": 4.502965417921833e-06,
+   "train_accuracy": 0.99999785255192,
+   "val_accuracy": 1.0,
+   "val_loss": 2.121775644070567e-08,
+   "val_f1": 1.0
+  },
+  {
+   "epoch": 6,
+   "train_loss": 8.016012831737285e-08,
+   "train_accuracy": 1.0,
+   "val_accuracy": 1.0,
+   "val_loss": 5.174400019569703e-09,
+   "val_f1": 1.0
+  },
+  {
+   "epoch": 7,
+   "train_loss": 1.058883961831464e-08,
+   "train_accuracy": 1.0,
+   "val_accuracy": 1.0,
+   "val_loss": 1.173739661020079e-09,
+   "val_f1": 1.0
+  },
+  {
+   "epoch": 8,
+   "train_loss": 6.578195046141466e-09,
+   "train_accuracy": 1.0,
+   "val_accuracy": 1.0,
+   "val_loss": 9.621775598489535e-11,
+   "val_f1": 1.0
+  },
+  {
+   "epoch": 9,
+   "train_loss": 7.515444897584166e-10,
+   "train_accuracy": 1.0,
+   "val_accuracy": 1.0,
+   "val_loss": 1.8497200299227856e-11,
+   "val_f1": 1.0
+  },
+  {
+   "epoch": 10,
+   "train_loss": 2.639385971665526e-10,
+   "train_accuracy": 1.0,
+   "val_accuracy": 1.0,
+   "val_loss": 4.495492689313586e-15,
+   "val_f1": 1.0
+  }
+ ],
+ "seconds": {
+  "wall": 33.418809100054204
+ },
+ "final_hash": "a98d81c51c64f6d998b23f117e3659e289d93afde5a4b12e51437dea2792599d",
+ "features": [
+  "arp.opcode",
+  "arp.hw.size",
+  "icmp.checksum",
+  "icmp.seq_le",
+  "icmp.unused",
+  "http.content_length",
+  "http.response",
+  "http.tls_port",
+  "tcp.ack",
+  "tcp.ack_raw",
+  "tcp.checksum",
+  "tcp.connection.fin",
+  "tcp.connection.rst",
+  "tcp.connection.syn",
+  "tcp.connection.synack",
+  "tcp.flags",
+  "tcp.flags.ack",
+  "tcp.len",
+  "tcp.seq",
+  "udp.stream",
+  "udp.time_delta",
+  "dns.qry.name",
+  "dns.qry.qu",
+  "dns.qry.type",
+  "dns.retransmission",
+  "dns.retransmit_request",
+  "dns.retransmit_request_in",
+  "mqtt.conflag.cleansess",
+  "mqtt.conflags",
+  "mqtt.hdrflags",
+  "mqtt.len",
+  "mqtt.msg_decoded_as",
+  "mqtt.msgtype",
+  "mqtt.proto_len",
+  "mqtt.topic_len",
+  "mqtt.ver",
+  "mbtcp.len",
+  "mbtcp.trans_id",
+  "mbtcp.unit_id",
+  "http.request.method-0",
+  "http.request.method-0.0",
+  "http.request.method-GET",
+  "http.referer-0",
+  "http.referer-0.0",
+  "http.referer-TESTING_PURPOSES_ONLY",
+  "http.request.version-0",
+  "http.request.version-0.0",
+  "http.request.version-HTTP/1.1",
+  "dns.qry.name.len-0",
+  "dns.qry.name.len-0.0",
+  "dns.qry.name.len-0.debian.pool.ntp.org",
+  "dns.qry.name.len-1.debian.pool.ntp.org",
+  "dns.qry.name.len-2.debian.pool.ntp.org",
+  "dns.qry.name.len-3.debian.pool.ntp.org",
+  "dns.qry.name.len-_googlecast._tcp.local",
+  "dns.qry.name.len-null-null.local",
+  "dns.qry.name.len-raspberrypi.local",
+  "mqtt.conack.flags-0",
+  "mqtt.conack.flags-0.0",
+  "mqtt.conack.flags-0x00000000",
+  "mqtt.conack.flags-1461073",
+  "mqtt.conack.flags-1461383",
+  "mqtt.conack.flags-1461589",
+  "mqtt.conack.flags-1471198",
+  "mqtt.conack.flags-1574358",
+  "mqtt.protoname-0",
+  "mqtt.protoname-0.0",
+  "mqtt.protoname-MQTT",
+  "mqtt.topic-0",
+  "mqtt.topic-0.0",
+  "mqtt.topic-Temperature_and_Humidity"
+ ]
+}

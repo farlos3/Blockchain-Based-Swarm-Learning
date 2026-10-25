@@ -212,7 +212,7 @@ run ที่มีผลแล้วจะข้าม จึงรันต่
 - loss ของ mean ต่ำที่สุดใน Scenario 2 (1.01 เทียบกับ 2.32 และ 3.99) และ mean ผันผวนมากกว่าแต่ฟื้นตัวเร็ว เหมือน Figs. 11–12
 
 **ที่ไม่ตรง: Scenario 2 และ 3 ต่ำกว่าเปเปอร์มาก** CL บนข้อมูลชุดเดียวกันได้ 99.85% ข้อมูลจึงแยกได้ ปัญหาอยู่ที่การรวมโมเดลข้าม host:
-host ที่ถือ MQTT DDoS ของ CICIoMT2024 ฝึก local ได้ ~91% ทุกรอบ แต่โมเดลรวมทายทุก packet ของ host นั้นเป็น benign
+host ที่ถือ MQTT DDoS ของ CICIoMT2024 ฝึก local ได้ 94–99% ทุกรอบ (multimodal; packet ~91%) แต่โมเดลรวมทายทุก packet ของ host นั้นเป็น benign
 (val ค้างที่ 0.48 = สัดส่วน benign ของ host นั้น ดู `figures/scenario2-hosts.png`) อัตราตรวจ MQTT DDoS ของ SL เหลือ 0–7%
 ส่วนการโจมตีของ Edge-IIoTset ยังตรวจได้ ~100% เหตุที่น่าจะเป็น: benign ของ Edge-IIoTset ที่เป็น IPv4 เกือบทั้งหมดคือทราฟฟิก MQTT
 ของเซนเซอร์อุณหภูมิ/ความชื้น host ฝั่ง Edge จึงเรียนว่า "packet MQTT = benign" อย่างมั่นใจ สวนกับ host ฝั่ง CICIoMT ที่ต้องแยก
@@ -233,7 +233,8 @@ MQTT flood ออกจาก MQTT ปกติ พอเฉลี่ย weights
 - **การถ่วงน้ำหนักไม่ใช่สาเหตุ** เพิ่มได้แค่ 0–5 จุด MQTT DDoS ยังตรวจได้ 0–18% · coordmedian ของ Scenario 2 ได้ค่าเดิมทุกบิต
   เพราะเมื่อมี 3 node และไม่มี node ไหนถือข้อมูลเกินครึ่ง weighted median ก็คือ median ธรรมดา
 - **inactive กลับด้านปัญหา** รอบท้ายเหลือ node ที่ยังฝึกน้อยกว่า quorum (Scenario 2: 4 รอบ, Scenario 3: 2 รอบ) จึงไม่มีการรวม
-  โมเดลสุดท้ายเป็นของ host MQTT เอง ตรวจ MQTT DDoS ได้ ~99% แต่ทาย benign ของ Edge-IIoTset ถูกแค่ ~40% และลืม ICMP/UDP flood
+  โมเดลสุดท้ายเป็นของ host MQTT เอง ตรวจ MQTT DDoS ได้ ~99% แต่ทาย benign ฝั่ง Edge-IIoTset เป็น attack เกือบหมด
+  (benign รวมทั้งสองชุดถูกแค่ ~40%, val ของ host Edge เหลือ 1–50%) และลืม ICMP/UDP flood
 - **ไม่มีโมเดลรวมไหนรับใช้ทุก host พร้อมกัน** ใน 24 run × ทุกรอบที่ merge ค่า val ของ host ที่แย่ที่สุดสูงสุดแค่ 61.7%
   ฝั่งไหนมีน้ำหนักในการรวมมากกว่าฝั่งนั้นชนะ: weighted median ของสอง node (Scenario 2 รอบ 16–22 แบบถ่วง + inactive)
   เลือกโมเดลของ host MQTT ทั้งก้อน host MQTT ได้ 99.3% แต่ host Edge เหลือ 14–18%

@@ -688,8 +688,12 @@ async function runCheck(kind) {
   const other = config.members.find((m) => m !== leader);
 
   if (kind === "outsider" || kind === "all") {
-    await expectRejection("a node outside the authority set submits",
-      `/nodes/Org9MSP/updates?channel=${channel}`,
+    // an organisation of this network outside the swarm, or, when the swarm already spans
+    // them all, a name the gateway holds no key for
+    const ids = ((await api("/health")).identities || []).sort();
+    const outsider = ids.find((m) => !config.members.includes(m)) || "Org99MSP";
+    await expectRejection(`${outsider}, outside this swarm, submits`,
+      `/nodes/${outsider}/updates?channel=${channel}`,
       { round: probe, weight_hash: HASH, size_bytes: 88, n_samples: 10, model: "probe" });
   }
   if (kind === "closed" || kind === "all") {

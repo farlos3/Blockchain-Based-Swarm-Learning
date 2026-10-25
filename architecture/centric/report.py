@@ -367,6 +367,116 @@ def save(fig, name: str) -> Path:
     return path
 
 
+# ---------- the proof that SL can replace FL ----------
+
+def load_evidence() -> dict:
+    """verify.json, written by verify.py next to runs/; empty if it has not been run."""
+    path = OUT / "verify.json"
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+
+def proof_section(runs: dict, evidence: dict) -> list[str]:
+    """Section 5: the grid's own equality, plus the three checks of verify.py."""
+    missing = lambda part: [f"_ยังไม่ได้ตรวจ: รัน `python verify.py --only {part}`_", ""]
+    checked = lambda part: evidence[part]["checked"].replace("T", " ")
+    out = [
+        "## 5. หลักฐานว่า SL แทน FL ได้",
+        "",
+        "ข้ออ้างมีสามส่วน: SL ให้โมเดลเดียวกับ FL จึงไม่เสียความแม่นยำ · SL รันบน ledger จริง ไม่ได้จำลอง · "
+        "SL บังคับกฎที่ FL ไม่มี ส่วนแรกอ่านจาก `runs/` ส่วนที่เหลือจาก `verify.json` "
+        "(`python verify.py` ตรวจกับเครือข่าย Fabric และไฟล์ผลจริง ใครก็รันซ้ำได้)",
+        "",
+        "### 5.1 ได้โมเดลเดียวกับ FL",
+        "",
+    ]
+    pairs = [(fl, runs[(s, "sl", m, a)]) for (s, arch, m, a), fl in runs.items()
+             if arch == "fl" and (s, "sl", m, a) in runs]
+    rounds = [(x["global_hash"], y["global_hash"]) for fl, sl in pairs for x, y in zip(fl["history"], sl["history"])]
+    out += [f"- **ใน grid:** {sum(fl['final_hash'] == sl['final_hash'] for fl, sl in pairs)}/{len(pairs)} คู่ "
+            f"โมเดลสุดท้ายเหมือนกันทุกบิต และ {sum(a == b for a, b in rounds):,}/{len(rounds):,} รอบ "
+            "แต่ grid เทรนครั้งเดียวแล้วส่ง update ชุดเดียวกันให้ทั้งสองฝั่ง ข้อนี้อย่างเดียวจึงยังแย้งได้ว่า "
+            "\"ส่งของเดียวกันเข้าไปก็ต้องได้ผลเดียวกัน\"", ""]
+    if "independent" in evidence:
+        ind = evidence["independent"]["result"]
+        out += [f"- **เทรนแยกกัน** (ตรวจเมื่อ {checked('independent')}): FL กับ SL เทรนเองตั้งแต่ต้นคนละรอบ "
+                f"ด้วย coordinator ของตัวเองเท่านั้น ครบทุก swarm ทุก algorithm ทั้ง CPU และ GPU "
+                f"→ {sum(p['same_final'] for p in ind)}/{len(ind)} คู่ได้โมเดลเดียวกัน, "
+                f"{sum(p['same_rounds'] for p in ind)}/{sum(p['rounds'] for p in ind)} รอบ", "",
+                "| scenario | model | algorithm | device | rows | รอบที่โมเดลตรงกัน | โมเดลสุดท้ายตรงกัน | FL F1 | SL F1 |",
+                "|---|---|---|---|---|---|---|---|---|"]
+        out += [f"| {p['scenario']} | {NAMES[p['model']]} | {NAMES[p['algorithm']]} | {p['device']} | {p['rows']:,} | "
+                f"{p['same_rounds']}/{p['rounds']} | {'ใช่' if p['same_final'] else '**ไม่**'} | "
+                f"{pct(p['fl_f1'])} | {pct(p['sl_f1'])} |" for p in ind]
+        out += ["", "ตัวเลข F1 ในตารางนี้มาจาก run เล็ก (20,000 แถว 3 รอบ) ใช้ยืนยันว่าเท่ากันเท่านั้น ไม่ใช่ผลการทดลอง", ""]
+    else:
+        out += missing("independent")
+
+    out += ["### 5.2 SL รันบน ledger จริง", ""]
+    if "audit" in evidence:
+        a = evidence["audit"]["result"]
+        out += [f"ตรวจเมื่อ {checked('audit')}: ทุกรอบของ SL ในไฟล์ผล ({a['runs']} run, {a['rounds']:,} รอบ) "
+                f"ต้องผ่าน {len(a['check_names'])} ข้อกับ ledger รวม {a['checks']:,} ข้อ → **ไม่ผ่าน {a['failed']} ข้อ**", ""]
+        out += [f"{i}. {name}" for i, name in enumerate(a["check_names"], 1)]
+        out += ["", "leader หมุนเวียนครบทุก org ไม่มี server กลาง:", "",
+                "| channel | org ใน swarm | org ที่ได้เป็น leader | รอบที่แต่ละ org ปิด (ต่ำสุด–สูงสุด) |", "|---|---|---|---|"]
+        out += [f"| `{ch}` | {r['members']} | {r['leaders']} | {min(r['led'].values())}–{max(r['led'].values())} |"
+                for ch, r in a["rotation"].items()]
+        out += [""]
+        if a["failures"]:
+            out += ["ข้อที่ไม่ผ่าน:", ""] + [f"- {f}" for f in a["failures"]] + [""]
+    else:
+        out += missing("audit")
+
+    out += ["### 5.3 กฎที่ FL ไม่มี", "",
+            "ใน FL server ทำสิ่งเหล่านี้ได้เงียบๆ โดยไม่มีใครตรวจเจอ บน swarm ลองทำผิดกฎจริงทุก channel "
+            "ทุกครั้งต้องถูกปฏิเสธ และ ledger ต้องเหมือนเดิมหลังลอง", ""]
+    if "rules" in evidence:
+        rs = evidence["rules"]["result"]
+        out += [f"ตรวจเมื่อ {checked('rules')}", "",
+                "| channel | org | quorum | ถูกปฏิเสธ | ledger เหมือนเดิม |", "|---|---|---|---|---|"]
+        out += [f"| `{r['channel']}` | {r['members']} | {r['quorum']} | {r['refused']}/{len(r['attempts'])} | "
+                f"{'ใช่' if r['unchanged'] else '**ไม่**'} |" for r in rs]
+        sample = rs[0]
+        out += ["", f"คำตอบจาก chaincode บน `{sample['channel']}`:", "",
+                "| ความพยายาม | ผล | คำตอบ |", "|---|---|---|"]
+        out += [f"| {o['what']} | {'ปฏิเสธ' if o['refused'] else '**ผ่าน**'} | `{o['answer']}` |"
+                for o in sample["attempts"]]
+        out += [""]
+    else:
+        out += missing("rules")
+
+    out += ["### 5.4 ต้นทุนที่เพิ่มขึ้น", ""]
+    ledger, share, saving = [], [], []
+    for s in data.SCENARIOS:
+        for m in MODELS:
+            sls = [runs[(s, "sl", m, a)] for a in ALGORITHMS if (s, "sl", m, a) in runs]
+            fls = [runs[(s, "fl", m, a)] for a in ALGORITHMS if (s, "fl", m, a) in runs]
+            if not sls or not fls:
+                continue
+            wait = statistics.fmean(per_round(r, "coordination_seconds") for r in sls)
+            train = statistics.fmean(per_round(r, "train_seconds") for r in sls)
+            ledger.append(wait)
+            share.append(wait / (train + wait))
+            fl_b = statistics.fmean(r["bytes_exchanged"] for r in fls)
+            sl_b = statistics.fmean(r["bytes_exchanged"] for r in sls)
+            saving.append(1 - sl_b / fl_b)
+    if ledger:
+        out += [f"- เวลารอ ledger {min(ledger):.1f}–{max(ledger):.1f} วินาทีต่อรอบ คิดเป็น "
+                f"{100 * min(share):.0f}–{100 * max(share):.0f}% ของเวลาทั้งรอบ (รายละเอียดในหัวข้อ 3)",
+                f"- traffic ต่อรอบของ SL น้อยกว่า FL {100 * min(saving):.0f}–{100 * max(saving):.0f}% "
+                "เพราะ leader ไม่ต้องส่ง update ของตัวเอง แลกกับ transaction บน ledger รอบละ client + 1 รายการ", ""]
+
+    out += ["### 5.5 สิ่งที่หลักฐานนี้ยังไม่ได้พิสูจน์", "",
+            "- ทุก node อยู่ในโปรเซสเดียว การส่ง weights แบบ peer-to-peer เป็นการส่งในหน่วยความจำ "
+            "ledger, ลายเซ็นของแต่ละ org และ endorsement เป็นของจริง แต่การขนส่งโมเดลผ่าน network ยังไม่ได้วัด (นับเป็น bytes ไว้)",
+            "- hash พิสูจน์ได้ว่า node ส่งอะไร ไม่ได้พิสูจน์ว่าส่งของดี node ที่ส่ง weights ที่ถูกวางยามาก็ยังผ่าน "
+            "ยังไม่ได้ทำ robust aggregation",
+            "- SL ได้โมเดลเดียวกับ FL ทุกบิต จึงอ่อนต่อข้อมูล non-IID เท่ากับ FL",
+            "- gateway ตัวเดียวถือ identity ทั้ง 10 org, orderer ตัวเดียว และทุกอย่างรันบนเครื่องเดียว",
+            ""]
+    return out
+
+
 # ---------- the report ----------
 
 def main() -> None:
@@ -484,7 +594,9 @@ def main() -> None:
         "ทดสอบกับ test split ของแต่ละชุด",
         "",
         cross_table(runs),
+        "",
     ]
+    parts += proof_section(runs, load_evidence())
     (OUT / "REPORT.md").write_text("\n".join(parts) + "\n", encoding="utf-8")
     print(f"wrote {OUT / 'REPORT.md'} from {len(runs)} runs; figures in {FIGS}")
 

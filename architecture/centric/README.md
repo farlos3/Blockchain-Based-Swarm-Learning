@@ -79,6 +79,8 @@ client ◀─ global ─ server                    chaincode เลือก lea
 แล้วส่ง update ชุดเดียวกันให้ทั้ง server ของ FL และ swarm ของ SL ไปรวมแยกกัน (SL ผ่าน Fabric ครบทุกขั้นเหมือนเดิม)
 ทุกรอบตรวจว่าทั้งสองได้ global model เดียวกันทุกบิต ถ้าไม่ตรง run จะหยุดทันที (ผลจริง: ตรงกันทุกบิตทุกคู่ ดู REPORT.md หัวข้อ 1)
 วิธีนี้ประหยัดเวลาเทรนลงครึ่งหนึ่งเทียบกับรันแยกกัน ไฟล์ผลยังแยก `fl-*.json` กับ `sl-*.json` และเวลาเทรนในสองไฟล์เป็นตัวเลขเดียวกัน
+แต่ข้อนี้อย่างเดียวยังแย้งได้ว่า "ส่งของเดียวกันเข้าไปก็ต้องได้ผลเดียวกัน" `verify.py` จึงเทรน FL กับ SL แยกกันจริงอีกชุด
+ตรวจทุกรอบของ SL กับ ledger และลองทำผิดกฎบนทุก channel (REPORT.md หัวข้อ 5 "หลักฐานว่า SL แทน FL ได้")
 
 ### เครือข่าย Fabric
 
@@ -119,8 +121,34 @@ cd ../../poc/sl-fabric/network
 # 3. ทดลอง แล้วสร้างรายงาน
 cd ../../../architecture/centric
 .venv/Scripts/python.exe run.py --flush-denormal --workers 4   # ~10-11 ชม. บน RTX 3060 Laptop + i5-12500H
+
+# 4. หลักฐานว่า SL แทน FL ได้ (เครือข่ายต้องรันอยู่) → results/full-500k/verify.json
+#    --only independent | audit | rules เพื่อรันบางส่วน ส่วนที่ไม่ได้รันในไฟล์จะคงไว้
+.venv/Scripts/python.exe verify.py
 .venv/Scripts/python.exe report.py results/full-500k
 ```
+
+| ส่วนของ `verify.py` | ทำอะไร |
+|---|---|
+| `independent` | เทรน FL แล้วเทรน SL ใหม่ทั้งหมดแยกกัน 8 คู่ (ทุก swarm, ทุก algorithm, ทั้ง CPU และ GPU, 20,000 แถว 3 รอบ) global model ต้องเท่ากันทุกรอบ |
+| `audit` | ทุกรอบของ SL ในไฟล์ผล: hash บน ledger ตรงกับไฟล์, ตรงกับ FL, ผู้ปิดรอบคือ leader ที่คำนวณซ้ำเองจากสูตรเลือกตั้ง, update ครบทุก client, `n_samples` ตรงกับข้อมูลจริง |
+| `rules` | ลองทำผิดกฎ 5 แบบบนทุก channel (org นอก swarm ส่ง update, ส่งเข้ารอบที่ปิดแล้ว, คนที่ไม่ใช่ leader ปิดรอบ, ปิดรอบโดยไม่มี update, แก้ global model ของรอบที่ปิดแล้ว) ทุกครั้งต้องถูกปฏิเสธและ ledger ต้องเหมือนเดิม |
+
+### หน้าเว็บสำหรับทดสอบ
+
+```bash
+.venv/Scripts/python.exe web.py        # เปิด http://127.0.0.1:8901
+```
+
+หน้าเดียวที่มีผลการทดลองเต็มเทียบ FL / SL / เปเปอร์ และปุ่มรันทั้งสามส่วนของ `verify.py`
+ส่วน "เทรนแยก" เลือก scenario, โมเดล, algorithm, จำนวนแถว (5,000–500,000) และจำนวนรอบ (1–20) ได้เอง
+แล้วดู hash ของ global model ฝั่ง FL กับ SL เทียบกันทีละรอบ พร้อมเลขรอบบน chain
+
+- ต้องมีเครือข่าย Fabric รันอยู่ · รันได้ทีละงาน (กดซ้อนจะได้ข้อความว่ากำลังทำอะไรอยู่)
+- การเทรนจากหน้าเว็บเขียนรอบลง ledger จริงเหมือน run ปกติ แต่ไม่บันทึกลง `verify.json` (ตั้งค่าเองได้ จึงไม่ใช่ชุดหลักฐาน)
+  ส่วน audit กับ rules ที่กดจากหน้าเว็บบันทึกลง `verify.json` เหมือนรันจาก command line
+- block และรอบบน ledger ดูได้ที่ monitor ของ gateway (http://127.0.0.1:8899) ซึ่งมีปุ่มลองทำผิดกฎของตัวเองเช่นกัน
+- รันบน localhost เท่านั้นและไม่มีการยืนยันตัวตน (ขอบเขตเดโมเดียวกับ gateway)
 
 ### เลือกโมเดล
 
@@ -204,7 +232,8 @@ GPU เต็มตั้งแต่โปรเซสเดียว lane ข�
   ที่ต่างกันจริงระหว่างสองแบบคือ `coordination_seconds` ซึ่งเป็นเวลารอ Fabric ล้วนๆ
 - **ทุก node ซื่อสัตย์** การทดลองตามเปเปอร์ไม่มี node ที่โกง SL จึงให้โมเดลเดียวกับ FL ทุกบิต
   สิ่งที่ SL ป้องกันได้แต่ FL ไม่ได้ (server แก้โมเดลเงียบๆ, ส่ง weights ไม่ตรงกับที่ประกาศ, ปิดรอบแทนคนอื่น) อยู่ในกฎของ chaincode
-  และการตรวจ hash ซึ่งทดสอบไว้ใน `poc/sl-fabric/README.md` ยังไม่ได้วัดผลต่อความแม่นยำเมื่อมี node โกง
+  และการตรวจ hash ซึ่ง `verify.py rules` ลองทำผิดจริงบนทุก channel ของการทดลองนี้ (REPORT.md หัวข้อ 5.3)
+  แต่ hash พิสูจน์ได้แค่ว่า node ส่งอะไร ไม่ใช่ว่าส่งของดี ยังไม่ได้ทำ robust aggregation และยังไม่ได้วัดผลต่อความแม่นยำเมื่อมี node โกง
 - **gateway ตัวเดียวถือ identity ของทั้ง 10 org** (ขอบเขตเดโมเดียวกับ `poc/sl-fabric`)
 - **อ่านทันทีหลัง commit อาจยังไม่เห็น** Fabric ตอบ submit เมื่อ peer ของ org ที่ส่งบันทึก block แล้ว
   แต่ peer ที่ใช้อ่าน (Org1) อาจได้ block นั้นช้ากว่าเล็กน้อย (`round N has no aggregation`) — leader ที่อ่าน update ของรอบ
@@ -221,6 +250,9 @@ GPU เต็มตั้งแต่โปรเซสเดียว lane ข�
 | `architectures.py` | `CentralServer` (FL) และ `FabricSwarm` (SL บน Fabric ผ่าน `poc/sl-fabric/client/ledger.py`) |
 | `run.py` | รัน grid ขนานตาม lane, cross-dataset test, เขียน `results/<ชุด>/runs/<scenario>/<arch>-<model>-<algorithm>.json` |
 | `report.py` | `REPORT.md` และรูปใน `figures/` ของชุดการทดลอง |
+| `verify.py` | หลักฐานว่า SL แทน FL ได้: เทรนแยก, audit กับ ledger, ลองทำผิดกฎ → `verify.json` |
+| `web.py`, `web/index.html` | หน้าเว็บทดสอบ (http://127.0.0.1:8901) ที่รัน `verify.py` จากปุ่ม |
 | `test_centric.py` | ทดสอบสูตร aggregation, การแบ่งตาม Fig. 3, การถ่วงสัดส่วนของ pool และว่าการแบ่งเหมือนเดิมทุกโปรเซส |
 | `results/<ชุด>/runs/` | ไฟล์ผลของทุก run (อยู่ใน git, เป็นที่มาของ REPORT.md) |
+| `results/<ชุด>/verify.json` | ผลของ `verify.py` แต่ละส่วนพร้อมเวลาที่ตรวจ (หัวข้อ 5 ของ REPORT.md อ่านจากไฟล์นี้) |
 | `data/` | ไฟล์ดิบและ pool (ไม่อยู่ใน git) |

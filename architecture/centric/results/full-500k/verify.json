@@ -1,0 +1,727 @@
+{
+ "audit": {
+  "checked": "2026-10-25T02:46:37",
+  "result": {
+   "runs": 42,
+   "rounds": 2400,
+   "checks": 12000,
+   "check_names": [
+    "hash \u0e02\u0e2d\u0e07 global model \u0e1a\u0e19 ledger \u0e15\u0e23\u0e07\u0e01\u0e31\u0e1a\u0e43\u0e19\u0e44\u0e1f\u0e25\u0e4c\u0e1c\u0e25",
+    "global model \u0e02\u0e2d\u0e07 SL \u0e15\u0e23\u0e07\u0e01\u0e31\u0e1a\u0e02\u0e2d\u0e07 FL",
+    "\u0e1c\u0e39\u0e49\u0e1b\u0e34\u0e14\u0e23\u0e2d\u0e1a\u0e04\u0e37\u0e2d leader \u0e17\u0e35\u0e48\u0e04\u0e33\u0e19\u0e27\u0e13\u0e0b\u0e49\u0e33\u0e40\u0e2d\u0e07\u0e08\u0e32\u0e01\u0e2a\u0e39\u0e15\u0e23 sha256(\"round-N:members\") mod \u0e08\u0e33\u0e19\u0e27\u0e19\u0e2a\u0e21\u0e32\u0e0a\u0e34\u0e01 (\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49\u0e2d\u0e48\u0e32\u0e19\u0e04\u0e33\u0e15\u0e2d\u0e1a\u0e08\u0e32\u0e01 ledger)",
+    "update \u0e02\u0e2d\u0e07\u0e17\u0e38\u0e01 client \u0e2d\u0e22\u0e39\u0e48\u0e1a\u0e19 chain",
+    "n_samples \u0e1a\u0e19 chain \u0e15\u0e23\u0e07\u0e01\u0e31\u0e1a\u0e08\u0e33\u0e19\u0e27\u0e19\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e08\u0e23\u0e34\u0e07\u0e02\u0e2d\u0e07 client \u0e19\u0e31\u0e49\u0e19"
+   ],
+   "failed": 0,
+   "failures": [],
+   "rotation": {
+    "swarm-cic-lstm": {
+     "members": 10,
+     "leaders": 10,
+     "led": {
+      "Org10MSP": 33,
+      "Org8MSP": 23,
+      "Org9MSP": 28,
+      "Org6MSP": 32,
+      "Org7MSP": 32,
+      "Org5MSP": 33,
+      "Org4MSP": 39,
+      "Org2MSP": 28,
+      "Org1MSP": 29,
+      "Org3MSP": 23
+     }
+    },
+    "swarm-cic-transformer": {
+     "members": 10,
+     "leaders": 10,
+     "led": {
+      "Org8MSP": 26,
+      "Org7MSP": 37,
+      "Org9MSP": 32,
+      "Org6MSP": 33,
+      "Org1MSP": 28,
+      "Org10MSP": 32,
+      "Org2MSP": 26,
+      "Org5MSP": 30,
+      "Org3MSP": 23,
+      "Org4MSP": 33
+     }
+    },
+    "swarm-combined-lstm": {
+     "members": 3,
+     "leaders": 3,
+     "led": {
+      "Org1MSP": 101,
+      "Org2MSP": 84,
+      "Org3MSP": 115
+     }
+    },
+    "swarm-combined-transformer": {
+     "members": 3,
+     "leaders": 3,
+     "led": {
+      "Org1MSP": 100,
+      "Org3MSP": 100,
+      "Org2MSP": 100
+     }
+    },
+    "swarm-edge-lstm": {
+     "members": 6,
+     "leaders": 6,
+     "led": {
+      "Org2MSP": 58,
+      "Org3MSP": 44,
+      "Org4MSP": 50,
+      "Org1MSP": 58,
+      "Org6MSP": 46,
+      "Org5MSP": 44
+     }
+    },
+    "swarm-edge-transformer": {
+     "members": 6,
+     "leaders": 6,
+     "led": {
+      "Org6MSP": 52,
+      "Org2MSP": 55,
+      "Org4MSP": 51,
+      "Org3MSP": 43,
+      "Org1MSP": 51,
+      "Org5MSP": 48
+     }
+    },
+    "swarm-tii-lstm": {
+     "members": 5,
+     "leaders": 5,
+     "led": {
+      "Org3MSP": 58,
+      "Org5MSP": 62,
+      "Org1MSP": 62,
+      "Org4MSP": 51,
+      "Org2MSP": 67
+     }
+    },
+    "swarm-tii-transformer": {
+     "members": 5,
+     "leaders": 5,
+     "led": {
+      "Org5MSP": 59,
+      "Org4MSP": 58,
+      "Org2MSP": 61,
+      "Org1MSP": 65,
+      "Org3MSP": 57
+     }
+    }
+   }
+  }
+ },
+ "rules": {
+  "checked": "2026-10-25T02:46:38",
+  "result": [
+   {
+    "channel": "swarm-edge-lstm",
+    "members": 6,
+    "quorum": 4,
+    "attempts": [
+     {
+      "what": "Org10MSP \u0e0b\u0e36\u0e48\u0e07\u0e44\u0e21\u0e48\u0e2d\u0e22\u0e39\u0e48\u0e43\u0e19 swarm \u0e19\u0e35\u0e49 \u0e2a\u0e48\u0e07 update",
+      "refused": true,
+      "answer": "no combination of peers can be derived which satisfy the endorsement policy: No metadata was found for chaincode sl-ledger in channel swarm-edge-lstm"
+     },
+     {
+      "what": "Org1MSP \u0e2a\u0e48\u0e07 update \u0e40\u0e02\u0e49\u0e32\u0e23\u0e2d\u0e1a 713 \u0e17\u0e35\u0e48\u0e1b\u0e34\u0e14\u0e44\u0e1b\u0e41\u0e25\u0e49\u0e27",
+      "refused": true,
+      "answer": "round 713 is already aggregated, no further updates accepted"
+     },
+     {
+      "what": "Org2MSP \u0e1b\u0e34\u0e14\u0e23\u0e2d\u0e1a 100713 \u0e17\u0e31\u0e49\u0e07\u0e17\u0e35\u0e48 leader \u0e04\u0e37\u0e2d Org1MSP",
+      "refused": true,
+      "answer": "round 100713 belongs to Org1MSP, Org2MSP cannot aggregate it"
+     },
+     {
+      "what": "Org1MSP (leader) \u0e1b\u0e34\u0e14\u0e23\u0e2d\u0e1a 100713 \u0e42\u0e14\u0e22\u0e44\u0e21\u0e48\u0e21\u0e35 update \u0e40\u0e25\u0e22",
+      "refused": true,
+      "answer": "round 100713 has 0 updates, quorum is 4"
+     },
+     {
+      "what": "Org5MSP (leader \u0e02\u0e2d\u0e07\u0e23\u0e2d\u0e1a 713) \u0e41\u0e01\u0e49 global model \u0e02\u0e2d\u0e07\u0e23\u0e2d\u0e1a\u0e19\u0e31\u0e49\u0e19",
+      "refused": true,
+      "answer": "round 713 already has an aggregation"
+     }
+    ],
+    "refused": 5,
+    "finished_rounds_before": 711,
+    "finished_rounds_after": 711,
+    "probe_updates_after": 0,
+    "closed_round": 713,
+    "closed_hash_kept": true,
+    "unchanged": true
+   },
+   {
+    "channel": "swarm-edge-transformer",
+    "members": 6,
+    "quorum": 4,
+    "attempts": [
+     {
+      "what": "Org10MSP \u0e0b\u0e36\u0e48\u0e07\u0e44\u0e21\u0e48\u0e2d\u0e22\u0e39\u0e48\u0e43\u0e19 swarm \u0e19\u0e35\u0e49 \u0e2a\u0e48\u0e07 update",
+      "refused": true,
+      "answer": "no combination of peers can be derived which satisfy the endorsement policy: No metadata was found for chaincode sl-ledger in channel swarm-edge-transformer"
+     },
+     {
+      "what": "Org1MSP \u0e2a\u0e48\u0e07 update \u0e40\u0e02\u0e49\u0e32\u0e23\u0e2d\u0e1a 637 \u0e17\u0e35\u0e48\u0e1b\u0e34\u0e14\u0e44\u0e1b\u0e41\u0e25\u0e49\u0e27",
+      "refused": true,
+      "answer": "round 637 is already aggregated, no further updates accepted"
+     },
+     {
+      "what": "Org1MSP \u0e1b\u0e34\u0e14\u0e23\u0e2d\u0e1a 100637 \u0e17\u0e31\u0e49\u0e07\u0e17\u0e35\u0e48 leader \u0e04\u0e37\u0e2d Org6MSP",
+      "refused": true,
+      "answer": "round 100637 belongs to Org6MSP, Org1MSP cannot aggregate it"
+     },
+     {
+      "what": "Org6MSP (leader) \u0e1b\u0e34\u0e14\u0e23\u0e2d\u0e1a 100637 \u0e42\u0e14\u0e22\u0e44\u0e21\u0e48\u0e21\u0e35 update \u0e40\u0e25\u0e22",
+      "refused": true,
+      "answer": "round 100637 has 0 updates, quorum is 4"
+     },
+     {
+      "what": "Org5MSP (leader \u0e02\u0e2d\u0e07\u0e23\u0e2d\u0e1a 637) \u0e41\u0e01\u0e49 global model \u0e02\u0e2d\u0e07\u0e23\u0e2d\u0e1a\u0e19\u0e31\u0e49\u0e19",
+      "refused": true,
+      "answer": "round 637 already has an aggregation"
+     }
+    ],
+    "refused": 5,
+    "finished_rounds_before": 637,
+    "finished_rounds_after": 637,
+    "probe_updates_after": 0,
+    "closed_round": 637,
+    "closed_hash_kept": true,
+    "unchanged": true
+   },
+   {
+    "channel": "swarm-cic-lstm",
+    "members": 10,
+    "quorum": 6,
+    "attempts": [
+     {
+      "what": "Org99MSP \u0e0b\u0e36\u0e48\u0e07\u0e44\u0e21\u0e48\u0e2d\u0e22\u0e39\u0e48\u0e43\u0e19 swarm \u0e19\u0e35\u0e49 \u0e2a\u0e48\u0e07 update",
+      "refused": true,
+      "answer": "no identity loaded for \"Org99MSP\""
+     },
+     {
+      "what": "Org10MSP \u0e2a\u0e48\u0e07 update \u0e40\u0e02\u0e49\u0e32\u0e23\u0e2d\u0e1a 711 \u0e17\u0e35\u0e48\u0e1b\u0e34\u0e14\u0e44\u0e1b\u0e41\u0e25\u0e49\u0e27",
+      "refused": true,
+      "answer": "round 711 is already aggregated, no further updates accepted"
+     },
+     {
+      "what": "Org10MSP \u0e1b\u0e34\u0e14\u0e23\u0e2d\u0e1a 100711 \u0e17\u0e31\u0e49\u0e07\u0e17\u0e35\u0e48 leader \u0e04\u0e37\u0e2d Org6MSP",
+      "refused": true,
+      "answer": "round 100711 belongs to Org6MSP, Org10MSP cannot aggregate it"
+     },
+     {
+      "what": "Org6MSP (leader) \u0e1b\u0e34\u0e14\u0e23\u0e2d\u0e1a 100711 \u0e42\u0e14\u0e22\u0e44\u0e21\u0e48\u0e21\u0e35 update \u0e40\u0e25\u0e22",
+      "refused": true,
+      "answer": "round 100711 has 0 updates, quorum is 6"
+     },
+     {
+      "what": "Org6MSP (leader \u0e02\u0e2d\u0e07\u0e23\u0e2d\u0e1a 711) \u0e41\u0e01\u0e49 global model \u0e02\u0e2d\u0e07\u0e23\u0e2d\u0e1a\u0e19\u0e31\u0e49\u0e19",
+      "refused": true,
+      "answer": "round 711 already has an aggregation"
+     }
+    ],
+    "refused": 5,
+    "finished_rounds_before": 711,
+    "finished_rounds_after": 711,
+    "probe_updates_after": 0,
+    "closed_round": 711,
+    "closed_hash_kept": true,
+    "unchanged": true
+   },
+   {
+    "channel": "swarm-cic-transformer",
+    "members": 10,
+    "quorum": 6,
+    "attempts": [
+     {
+      "what": "Org99MSP \u0e0b\u0e36\u0e48\u0e07\u0e44\u0e21\u0e48\u0e2d\u0e22\u0e39\u0e48\u0e43\u0e19 swarm \u0e19\u0e35\u0e49 \u0e2a\u0e48\u0e07 update",
+      "refused": true,
+      "answer": "no identity loaded for \"Org99MSP\""
+     },
+     {
+      "what": "Org10MSP \u0e2a\u0e48\u0e07 update \u0e40\u0e02\u0e49\u0e32\u0e23\u0e2d\u0e1a 704 \u0e17\u0e35\u0e48\u0e1b\u0e34\u0e14\u0e44\u0e1b\u0e41\u0e25\u0e49\u0e27",
+      "refused": true,
+      "answer": "round 704 is already aggregated, no further updates accepted"
+     },
+     {
+      "what": "Org10MSP \u0e1b\u0e34\u0e14\u0e23\u0e2d\u0e1a 100704 \u0e17\u0e31\u0e49\u0e07\u0e17\u0e35\u0e48 leader \u0e04\u0e37\u0e2d Org1MSP",
+      "refused": true,
+      "answer": "round 100704 belongs to Org1MSP, Org10MSP cannot aggregate it"
+     },
+     {
+      "what": "Org1MSP (leader) \u0e1b\u0e34\u0e14\u0e23\u0e2d\u0e1a 100704 \u0e42\u0e14\u0e22\u0e44\u0e21\u0e48\u0e21\u0e35 update \u0e40\u0e25\u0e22",
+      "refused": true,
+      "answer": "round 100704 has 0 updates, quorum is 6"
+     },
+     {
+      "what": "Org6MSP (leader \u0e02\u0e2d\u0e07\u0e23\u0e2d\u0e1a 704) \u0e41\u0e01\u0e49 global model \u0e02\u0e2d\u0e07\u0e23\u0e2d\u0e1a\u0e19\u0e31\u0e49\u0e19",
+      "refused": true,
+      "answer": "round 704 already has an aggregation"
+     }
+    ],
+    "refused": 5,
+    "finished_rounds_before": 704,
+    "finished_rounds_after": 704,
+    "probe_updates_after": 0,
+    "closed_round": 704,
+    "closed_hash_kept": true,
+    "unchanged": true
+   },
+   {
+    "channel": "swarm-tii-lstm",
+    "members": 5,
+    "quorum": 3,
+    "attempts": [
+     {
+      "what": "Org10MSP \u0e0b\u0e36\u0e48\u0e07\u0e44\u0e21\u0e48\u0e2d\u0e22\u0e39\u0e48\u0e43\u0e19 swarm \u0e19\u0e35\u0e49 \u0e2a\u0e48\u0e07 update",
+      "refused": true,
+      "answer": "no combination of peers can be derived which satisfy the endorsement policy: No metadata was found for chaincode sl-ledger in channel swarm-tii-lstm"
+     },
+     {
+      "what": "Org1MSP \u0e2a\u0e48\u0e07 update \u0e40\u0e02\u0e49\u0e32\u0e23\u0e2d\u0e1a 414 \u0e17\u0e35\u0e48\u0e1b\u0e34\u0e14\u0e44\u0e1b\u0e41\u0e25\u0e49\u0e27",
+      "refused": true,
+      "answer": "round 414 is already aggregated, no further updates accepted"
+     },
+     {
+      "what": "Org2MSP \u0e1b\u0e34\u0e14\u0e23\u0e2d\u0e1a 100414 \u0e17\u0e31\u0e49\u0e07\u0e17\u0e35\u0e48 leader \u0e04\u0e37\u0e2d Org1MSP",
+      "refused": true,
+      "answer": "round 100414 belongs to Org1MSP, Org2MSP cannot aggregate it"
+     },
+     {
+      "what": "Org1MSP (leader) \u0e1b\u0e34\u0e14\u0e23\u0e2d\u0e1a 100414 \u0e42\u0e14\u0e22\u0e44\u0e21\u0e48\u0e21\u0e35 update \u0e40\u0e25\u0e22",
+      "refused": true,
+      "answer": "round 100414 has 0 updates, quorum is 3"
+     },
+     {
+      "what": "Org4MSP (leader \u0e02\u0e2d\u0e07\u0e23\u0e2d\u0e1a 414) \u0e41\u0e01\u0e49 global model \u0e02\u0e2d\u0e07\u0e23\u0e2d\u0e1a\u0e19\u0e31\u0e49\u0e19",
+      "refused": true,
+      "answer": "round 414 already has an aggregation"
+     }
+    ],
+    "refused": 5,
+    "finished_rounds_before": 414,
+    "finished_rounds_after": 414,
+    "probe_updates_after": 0,
+    "closed_round": 414,
+    "closed_hash_kept": true,
+    "unchanged": true
+   },
+   {
+    "channel": "swarm-tii-transformer",
+    "members": 5,
+    "quorum": 3,
+    "attempts": [
+     {
+      "what": "Org10MSP \u0e0b\u0e36\u0e48\u0e07\u0e44\u0e21\u0e48\u0e2d\u0e22\u0e39\u0e48\u0e43\u0e19 swarm \u0e19\u0e35\u0e49 \u0e2a\u0e48\u0e07 update",
+      "refused": true,
+      "answer": "no combination of peers can be derived which satisfy the endorsement policy: No metadata was found for chaincode sl-ledger in channel swarm-tii-transformer"
+     },
+     {
+      "what": "Org1MSP \u0e2a\u0e48\u0e07 update \u0e40\u0e02\u0e49\u0e32\u0e23\u0e2d\u0e1a 348 \u0e17\u0e35\u0e48\u0e1b\u0e34\u0e14\u0e44\u0e1b\u0e41\u0e25\u0e49\u0e27",
+      "refused": true,
+      "answer": "round 348 is already aggregated, no further updates accepted"
+     },
+     {
+      "what": "Org1MSP \u0e1b\u0e34\u0e14\u0e23\u0e2d\u0e1a 100348 \u0e17\u0e31\u0e49\u0e07\u0e17\u0e35\u0e48 leader \u0e04\u0e37\u0e2d Org3MSP",
+      "refused": true,
+      "answer": "round 100348 belongs to Org3MSP, Org1MSP cannot aggregate it"
+     },
+     {
+      "what": "Org3MSP (leader) \u0e1b\u0e34\u0e14\u0e23\u0e2d\u0e1a 100348 \u0e42\u0e14\u0e22\u0e44\u0e21\u0e48\u0e21\u0e35 update \u0e40\u0e25\u0e22",
+      "refused": true,
+      "answer": "round 100348 has 0 updates, quorum is 3"
+     },
+     {
+      "what": "Org1MSP (leader \u0e02\u0e2d\u0e07\u0e23\u0e2d\u0e1a 348) \u0e41\u0e01\u0e49 global model \u0e02\u0e2d\u0e07\u0e23\u0e2d\u0e1a\u0e19\u0e31\u0e49\u0e19",
+      "refused": true,
+      "answer": "round 348 already has an aggregation"
+     }
+    ],
+    "refused": 5,
+    "finished_rounds_before": 348,
+    "finished_rounds_after": 348,
+    "probe_updates_after": 0,
+    "closed_round": 348,
+    "closed_hash_kept": true,
+    "unchanged": true
+   },
+   {
+    "channel": "swarm-combined-lstm",
+    "members": 3,
+    "quorum": 2,
+    "attempts": [
+     {
+      "what": "Org10MSP \u0e0b\u0e36\u0e48\u0e07\u0e44\u0e21\u0e48\u0e2d\u0e22\u0e39\u0e48\u0e43\u0e19 swarm \u0e19\u0e35\u0e49 \u0e2a\u0e48\u0e07 update",
+      "refused": true,
+      "answer": "no combination of peers can be derived which satisfy the endorsement policy: No metadata was found for chaincode sl-ledger in channel swarm-combined-lstm"
+     },
+     {
+      "what": "Org1MSP \u0e2a\u0e48\u0e07 update \u0e40\u0e02\u0e49\u0e32\u0e23\u0e2d\u0e1a 829 \u0e17\u0e35\u0e48\u0e1b\u0e34\u0e14\u0e44\u0e1b\u0e41\u0e25\u0e49\u0e27",
+      "refused": true,
+      "answer": "round 829 is already aggregated, no further updates accepted"
+     },
+     {
+      "what": "Org1MSP \u0e1b\u0e34\u0e14\u0e23\u0e2d\u0e1a 100829 \u0e17\u0e31\u0e49\u0e07\u0e17\u0e35\u0e48 leader \u0e04\u0e37\u0e2d Org2MSP",
+      "refused": true,
+      "answer": "round 100829 belongs to Org2MSP, Org1MSP cannot aggregate it"
+     },
+     {
+      "what": "Org2MSP (leader) \u0e1b\u0e34\u0e14\u0e23\u0e2d\u0e1a 100829 \u0e42\u0e14\u0e22\u0e44\u0e21\u0e48\u0e21\u0e35 update \u0e40\u0e25\u0e22",
+      "refused": true,
+      "answer": "round 100829 has 0 updates, quorum is 2"
+     },
+     {
+      "what": "Org1MSP (leader \u0e02\u0e2d\u0e07\u0e23\u0e2d\u0e1a 829) \u0e41\u0e01\u0e49 global model \u0e02\u0e2d\u0e07\u0e23\u0e2d\u0e1a\u0e19\u0e31\u0e49\u0e19",
+      "refused": true,
+      "answer": "round 829 already has an aggregation"
+     }
+    ],
+    "refused": 5,
+    "finished_rounds_before": 829,
+    "finished_rounds_after": 829,
+    "probe_updates_after": 0,
+    "closed_round": 829,
+    "closed_hash_kept": true,
+    "unchanged": true
+   },
+   {
+    "channel": "swarm-combined-transformer",
+    "members": 3,
+    "quorum": 2,
+    "attempts": [
+     {
+      "what": "Org10MSP \u0e0b\u0e36\u0e48\u0e07\u0e44\u0e21\u0e48\u0e2d\u0e22\u0e39\u0e48\u0e43\u0e19 swarm \u0e19\u0e35\u0e49 \u0e2a\u0e48\u0e07 update",
+      "refused": true,
+      "answer": "no combination of peers can be derived which satisfy the endorsement policy: No metadata was found for chaincode sl-ledger in channel swarm-combined-transformer"
+     },
+     {
+      "what": "Org1MSP \u0e2a\u0e48\u0e07 update \u0e40\u0e02\u0e49\u0e32\u0e23\u0e2d\u0e1a 475 \u0e17\u0e35\u0e48\u0e1b\u0e34\u0e14\u0e44\u0e1b\u0e41\u0e25\u0e49\u0e27",
+      "refused": true,
+      "answer": "round 475 is already aggregated, no further updates accepted"
+     },
+     {
+      "what": "Org1MSP \u0e1b\u0e34\u0e14\u0e23\u0e2d\u0e1a 100475 \u0e17\u0e31\u0e49\u0e07\u0e17\u0e35\u0e48 leader \u0e04\u0e37\u0e2d Org3MSP",
+      "refused": true,
+      "answer": "round 100475 belongs to Org3MSP, Org1MSP cannot aggregate it"
+     },
+     {
+      "what": "Org3MSP (leader) \u0e1b\u0e34\u0e14\u0e23\u0e2d\u0e1a 100475 \u0e42\u0e14\u0e22\u0e44\u0e21\u0e48\u0e21\u0e35 update \u0e40\u0e25\u0e22",
+      "refused": true,
+      "answer": "round 100475 has 0 updates, quorum is 2"
+     },
+     {
+      "what": "Org2MSP (leader \u0e02\u0e2d\u0e07\u0e23\u0e2d\u0e1a 475) \u0e41\u0e01\u0e49 global model \u0e02\u0e2d\u0e07\u0e23\u0e2d\u0e1a\u0e19\u0e31\u0e49\u0e19",
+      "refused": true,
+      "answer": "round 475 already has an aggregation"
+     }
+    ],
+    "refused": 5,
+    "finished_rounds_before": 475,
+    "finished_rounds_after": 475,
+    "probe_updates_after": 0,
+    "closed_round": 475,
+    "closed_hash_kept": true,
+    "unchanged": true
+   }
+  ]
+ },
+ "independent": {
+  "checked": "2026-10-25T02:33:33",
+  "result": [
+   {
+    "scenario": "edge",
+    "model": "lstm",
+    "algorithm": "fedavg",
+    "device": "cpu",
+    "rows": 20000,
+    "rounds": 3,
+    "channel": "swarm-edge-lstm",
+    "same_rounds": 3,
+    "same_final": true,
+    "fl_f1": 0.37400633780791126,
+    "sl_f1": 0.37400633780791126,
+    "per_round": [
+     {
+      "round": 1,
+      "fl": "e82fb96b016fcc2c21e129792a21811515da58645f3d0918147cf1de98ed5cbb",
+      "sl": "e82fb96b016fcc2c21e129792a21811515da58645f3d0918147cf1de98ed5cbb",
+      "same": true,
+      "chain_round": 711
+     },
+     {
+      "round": 2,
+      "fl": "e5e530a6b07cce8260494ead5bd65e3694a74f7305ceecfb83808716bd631477",
+      "sl": "e5e530a6b07cce8260494ead5bd65e3694a74f7305ceecfb83808716bd631477",
+      "same": true,
+      "chain_round": 712
+     },
+     {
+      "round": 3,
+      "fl": "ebc1ff9657fa07b218a7ab4579c123045397a35c1b71569c69d6f359da20b9b0",
+      "sl": "ebc1ff9657fa07b218a7ab4579c123045397a35c1b71569c69d6f359da20b9b0",
+      "same": true,
+      "chain_round": 713
+     }
+    ]
+   },
+   {
+    "scenario": "edge",
+    "model": "transformer",
+    "algorithm": "fedprox",
+    "device": "cuda",
+    "rows": 20000,
+    "rounds": 3,
+    "channel": "swarm-edge-transformer",
+    "same_rounds": 3,
+    "same_final": true,
+    "fl_f1": 0.4778042853491747,
+    "sl_f1": 0.4778042853491747,
+    "per_round": [
+     {
+      "round": 1,
+      "fl": "63cc981657d6812b8f97c241254dd5c05807489d816b4069e91c53cc6b0c53f5",
+      "sl": "63cc981657d6812b8f97c241254dd5c05807489d816b4069e91c53cc6b0c53f5",
+      "same": true,
+      "chain_round": 633
+     },
+     {
+      "round": 2,
+      "fl": "ac35ba5b8322565a67c10ae66e1f733c31173d26d666e2b018d4e45a2fd0975f",
+      "sl": "ac35ba5b8322565a67c10ae66e1f733c31173d26d666e2b018d4e45a2fd0975f",
+      "same": true,
+      "chain_round": 634
+     },
+     {
+      "round": 3,
+      "fl": "6076958c80d8836917c9f2db0ec70415b3949594538e811dab327c5c4ca36f3a",
+      "sl": "6076958c80d8836917c9f2db0ec70415b3949594538e811dab327c5c4ca36f3a",
+      "same": true,
+      "chain_round": 635
+     }
+    ]
+   },
+   {
+    "scenario": "cic",
+    "model": "lstm",
+    "algorithm": "fednova",
+    "device": "cpu",
+    "rows": 20000,
+    "rounds": 3,
+    "channel": "swarm-cic-lstm",
+    "same_rounds": 3,
+    "same_final": true,
+    "fl_f1": 0.42478690814350323,
+    "sl_f1": 0.42478690814350323,
+    "per_round": [
+     {
+      "round": 1,
+      "fl": "59c824b44f04847ebdce42e632060ce7d8e98302710fe7f928c1468d419fc925",
+      "sl": "59c824b44f04847ebdce42e632060ce7d8e98302710fe7f928c1468d419fc925",
+      "same": true,
+      "chain_round": 709
+     },
+     {
+      "round": 2,
+      "fl": "34115939a3948637a611625d7e22506db7ca6f8b434447abed5493827f051c27",
+      "sl": "34115939a3948637a611625d7e22506db7ca6f8b434447abed5493827f051c27",
+      "same": true,
+      "chain_round": 710
+     },
+     {
+      "round": 3,
+      "fl": "d9b1ecacb6c29cc37e97e44dcfb72232bde62ed5db136c518cf04a7543ef5eb2",
+      "sl": "d9b1ecacb6c29cc37e97e44dcfb72232bde62ed5db136c518cf04a7543ef5eb2",
+      "same": true,
+      "chain_round": 711
+     }
+    ]
+   },
+   {
+    "scenario": "cic",
+    "model": "transformer",
+    "algorithm": "fedavg",
+    "device": "cuda",
+    "rows": 20000,
+    "rounds": 3,
+    "channel": "swarm-cic-transformer",
+    "same_rounds": 3,
+    "same_final": true,
+    "fl_f1": 0.5120029067706768,
+    "sl_f1": 0.5120029067706768,
+    "per_round": [
+     {
+      "round": 1,
+      "fl": "e14e955e8bfab12dec6d63cf2067d051d826dad61fa91f105c7e85ee6a14433a",
+      "sl": "e14e955e8bfab12dec6d63cf2067d051d826dad61fa91f105c7e85ee6a14433a",
+      "same": true,
+      "chain_round": 702
+     },
+     {
+      "round": 2,
+      "fl": "282a5e258cefb85e4da148dbcb77ff3970f8d057e36a443e9584c153499e5a3d",
+      "sl": "282a5e258cefb85e4da148dbcb77ff3970f8d057e36a443e9584c153499e5a3d",
+      "same": true,
+      "chain_round": 703
+     },
+     {
+      "round": 3,
+      "fl": "c8227e39e18b84097007d1e337de3754a887042098d6228ea39a2a76f9b07098",
+      "sl": "c8227e39e18b84097007d1e337de3754a887042098d6228ea39a2a76f9b07098",
+      "same": true,
+      "chain_round": 704
+     }
+    ]
+   },
+   {
+    "scenario": "tii",
+    "model": "lstm",
+    "algorithm": "fedprox",
+    "device": "cpu",
+    "rows": 20000,
+    "rounds": 3,
+    "channel": "swarm-tii-lstm",
+    "same_rounds": 3,
+    "same_final": true,
+    "fl_f1": 0.4898763655211492,
+    "sl_f1": 0.4898763655211492,
+    "per_round": [
+     {
+      "round": 1,
+      "fl": "ab2e7e628dacd441dd7b69cd8223687b4d641ca0242b4c14292d6d3575e7d804",
+      "sl": "ab2e7e628dacd441dd7b69cd8223687b4d641ca0242b4c14292d6d3575e7d804",
+      "same": true,
+      "chain_round": 412
+     },
+     {
+      "round": 2,
+      "fl": "40d148af8cd0df5f6ece5ae2e03a6a4780eb8050fc25f523a80a6fac8367f3dc",
+      "sl": "40d148af8cd0df5f6ece5ae2e03a6a4780eb8050fc25f523a80a6fac8367f3dc",
+      "same": true,
+      "chain_round": 413
+     },
+     {
+      "round": 3,
+      "fl": "50fffc76b65604d47804471bbecd4e8288ccb41db728e0a67ff6b14ec45258d4",
+      "sl": "50fffc76b65604d47804471bbecd4e8288ccb41db728e0a67ff6b14ec45258d4",
+      "same": true,
+      "chain_round": 414
+     }
+    ]
+   },
+   {
+    "scenario": "tii",
+    "model": "transformer",
+    "algorithm": "fednova",
+    "device": "cuda",
+    "rows": 20000,
+    "rounds": 3,
+    "channel": "swarm-tii-transformer",
+    "same_rounds": 3,
+    "same_final": true,
+    "fl_f1": 0.7997169792453562,
+    "sl_f1": 0.7997169792453562,
+    "per_round": [
+     {
+      "round": 1,
+      "fl": "2898c8239e20237881c9d4adc568cf5f4bb7d7033c0884fc962ec50bd5f3c6f6",
+      "sl": "2898c8239e20237881c9d4adc568cf5f4bb7d7033c0884fc962ec50bd5f3c6f6",
+      "same": true,
+      "chain_round": 346
+     },
+     {
+      "round": 2,
+      "fl": "83400d7b38e7e8c88d250d708d4a8d21ed8c40ac7e49c163f8a43f0c242f5356",
+      "sl": "83400d7b38e7e8c88d250d708d4a8d21ed8c40ac7e49c163f8a43f0c242f5356",
+      "same": true,
+      "chain_round": 347
+     },
+     {
+      "round": 3,
+      "fl": "728c3c818302e17df44f474320837b120a48dd8658a2f9b11c3db7881f5e62fe",
+      "sl": "728c3c818302e17df44f474320837b120a48dd8658a2f9b11c3db7881f5e62fe",
+      "same": true,
+      "chain_round": 348
+     }
+    ]
+   },
+   {
+    "scenario": "combined",
+    "model": "lstm",
+    "algorithm": "fedavg",
+    "device": "cpu",
+    "rows": 20000,
+    "rounds": 3,
+    "channel": "swarm-combined-lstm",
+    "same_rounds": 3,
+    "same_final": true,
+    "fl_f1": 0.2564233152860991,
+    "sl_f1": 0.2564233152860991,
+    "per_round": [
+     {
+      "round": 1,
+      "fl": "adc10c19c9e99515e188e0cb114a5df6246fbecf55cd3a7815a2f50c6b6a7bbe",
+      "sl": "adc10c19c9e99515e188e0cb114a5df6246fbecf55cd3a7815a2f50c6b6a7bbe",
+      "same": true,
+      "chain_round": 827
+     },
+     {
+      "round": 2,
+      "fl": "d32fe4d67b86a51fae2224d715e36d5ef4eef5519b2d2b7e58a5e828476ecd16",
+      "sl": "d32fe4d67b86a51fae2224d715e36d5ef4eef5519b2d2b7e58a5e828476ecd16",
+      "same": true,
+      "chain_round": 828
+     },
+     {
+      "round": 3,
+      "fl": "3df9d5dfef8d4a6aad98da1765690a9fff2c96a33f2501999d122007d4869e9e",
+      "sl": "3df9d5dfef8d4a6aad98da1765690a9fff2c96a33f2501999d122007d4869e9e",
+      "same": true,
+      "chain_round": 829
+     }
+    ]
+   },
+   {
+    "scenario": "combined",
+    "model": "transformer",
+    "algorithm": "fedprox",
+    "device": "cuda",
+    "rows": 20000,
+    "rounds": 3,
+    "channel": "swarm-combined-transformer",
+    "same_rounds": 3,
+    "same_final": true,
+    "fl_f1": 0.2654101160669229,
+    "sl_f1": 0.2654101160669229,
+    "per_round": [
+     {
+      "round": 1,
+      "fl": "88f3b110912e3148e37a95b73847603d019eec4ad93d90619d7d000f676daca6",
+      "sl": "88f3b110912e3148e37a95b73847603d019eec4ad93d90619d7d000f676daca6",
+      "same": true,
+      "chain_round": 473
+     },
+     {
+      "round": 2,
+      "fl": "02c0931c0f8ab779e8979a27c94f54ad6c2564465c90678e74dee24a33a24aa7",
+      "sl": "02c0931c0f8ab779e8979a27c94f54ad6c2564465c90678e74dee24a33a24aa7",
+      "same": true,
+      "chain_round": 474
+     },
+     {
+      "round": 3,
+      "fl": "c66ea71dd91bbe6b5cda6eb0e823f6bfedb3bde7d69fa8a2c8fc1c1b80b5a827",
+      "sl": "c66ea71dd91bbe6b5cda6eb0e823f6bfedb3bde7d69fa8a2c8fc1c1b80b5a827",
+      "same": true,
+      "chain_round": 475
+     }
+    ]
+   }
+  ]
+ }
+}

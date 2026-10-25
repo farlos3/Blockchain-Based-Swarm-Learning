@@ -185,3 +185,89 @@ macro-F1 (%) เฉลี่ยสาม algorithm · แถว = ชุดท�
 | TII-SSRC-23 | 11.7 | 20.7 | 42.4 |
 | **Combined** | 15.2 | 43.7 | 22.7 |
 
+
+## 5. หลักฐานว่า SL แทน FL ได้
+
+ข้ออ้างมีสามส่วน: SL ให้โมเดลเดียวกับ FL จึงไม่เสียความแม่นยำ · SL รันบน ledger จริง ไม่ได้จำลอง · SL บังคับกฎที่ FL ไม่มี ส่วนแรกอ่านจาก `runs/` ส่วนที่เหลือจาก `verify.json` (`python verify.py` ตรวจกับเครือข่าย Fabric และไฟล์ผลจริง ใครก็รันซ้ำได้)
+
+### 5.1 ได้โมเดลเดียวกับ FL
+
+- **ใน grid:** 42/42 คู่ โมเดลสุดท้ายเหมือนกันทุกบิต และ 2,400/2,400 รอบ แต่ grid เทรนครั้งเดียวแล้วส่ง update ชุดเดียวกันให้ทั้งสองฝั่ง ข้อนี้อย่างเดียวจึงยังแย้งได้ว่า "ส่งของเดียวกันเข้าไปก็ต้องได้ผลเดียวกัน"
+
+- **เทรนแยกกัน** (ตรวจเมื่อ 2026-10-25 02:33:33): FL กับ SL เทรนเองตั้งแต่ต้นคนละรอบ ด้วย coordinator ของตัวเองเท่านั้น ครบทุก swarm ทุก algorithm ทั้ง CPU และ GPU → 8/8 คู่ได้โมเดลเดียวกัน, 24/24 รอบ
+
+| scenario | model | algorithm | device | rows | รอบที่โมเดลตรงกัน | โมเดลสุดท้ายตรงกัน | FL F1 | SL F1 |
+|---|---|---|---|---|---|---|---|---|
+| edge | LSTM | FedAvg | cpu | 20,000 | 3/3 | ใช่ | 37.4 | 37.4 |
+| edge | Transformer | FedProx | cuda | 20,000 | 3/3 | ใช่ | 47.8 | 47.8 |
+| cic | LSTM | FedNova | cpu | 20,000 | 3/3 | ใช่ | 42.5 | 42.5 |
+| cic | Transformer | FedAvg | cuda | 20,000 | 3/3 | ใช่ | 51.2 | 51.2 |
+| tii | LSTM | FedProx | cpu | 20,000 | 3/3 | ใช่ | 49.0 | 49.0 |
+| tii | Transformer | FedNova | cuda | 20,000 | 3/3 | ใช่ | 80.0 | 80.0 |
+| combined | LSTM | FedAvg | cpu | 20,000 | 3/3 | ใช่ | 25.6 | 25.6 |
+| combined | Transformer | FedProx | cuda | 20,000 | 3/3 | ใช่ | 26.5 | 26.5 |
+
+ตัวเลข F1 ในตารางนี้มาจาก run เล็ก (20,000 แถว 3 รอบ) ใช้ยืนยันว่าเท่ากันเท่านั้น ไม่ใช่ผลการทดลอง
+
+### 5.2 SL รันบน ledger จริง
+
+ตรวจเมื่อ 2026-10-25 02:46:37: ทุกรอบของ SL ในไฟล์ผล (42 run, 2,400 รอบ) ต้องผ่าน 5 ข้อกับ ledger รวม 12,000 ข้อ → **ไม่ผ่าน 0 ข้อ**
+
+1. hash ของ global model บน ledger ตรงกับในไฟล์ผล
+2. global model ของ SL ตรงกับของ FL
+3. ผู้ปิดรอบคือ leader ที่คำนวณซ้ำเองจากสูตร sha256("round-N:members") mod จำนวนสมาชิก (ไม่ได้อ่านคำตอบจาก ledger)
+4. update ของทุก client อยู่บน chain
+5. n_samples บน chain ตรงกับจำนวนข้อมูลจริงของ client นั้น
+
+leader หมุนเวียนครบทุก org ไม่มี server กลาง:
+
+| channel | org ใน swarm | org ที่ได้เป็น leader | รอบที่แต่ละ org ปิด (ต่ำสุด–สูงสุด) |
+|---|---|---|---|
+| `swarm-cic-lstm` | 10 | 10 | 23–39 |
+| `swarm-cic-transformer` | 10 | 10 | 23–37 |
+| `swarm-combined-lstm` | 3 | 3 | 84–115 |
+| `swarm-combined-transformer` | 3 | 3 | 100–100 |
+| `swarm-edge-lstm` | 6 | 6 | 44–58 |
+| `swarm-edge-transformer` | 6 | 6 | 43–55 |
+| `swarm-tii-lstm` | 5 | 5 | 51–67 |
+| `swarm-tii-transformer` | 5 | 5 | 57–65 |
+
+### 5.3 กฎที่ FL ไม่มี
+
+ใน FL server ทำสิ่งเหล่านี้ได้เงียบๆ โดยไม่มีใครตรวจเจอ บน swarm ลองทำผิดกฎจริงทุก channel ทุกครั้งต้องถูกปฏิเสธ และ ledger ต้องเหมือนเดิมหลังลอง
+
+ตรวจเมื่อ 2026-10-25 02:46:38
+
+| channel | org | quorum | ถูกปฏิเสธ | ledger เหมือนเดิม |
+|---|---|---|---|---|
+| `swarm-edge-lstm` | 6 | 4 | 5/5 | ใช่ |
+| `swarm-edge-transformer` | 6 | 4 | 5/5 | ใช่ |
+| `swarm-cic-lstm` | 10 | 6 | 5/5 | ใช่ |
+| `swarm-cic-transformer` | 10 | 6 | 5/5 | ใช่ |
+| `swarm-tii-lstm` | 5 | 3 | 5/5 | ใช่ |
+| `swarm-tii-transformer` | 5 | 3 | 5/5 | ใช่ |
+| `swarm-combined-lstm` | 3 | 2 | 5/5 | ใช่ |
+| `swarm-combined-transformer` | 3 | 2 | 5/5 | ใช่ |
+
+คำตอบจาก chaincode บน `swarm-edge-lstm`:
+
+| ความพยายาม | ผล | คำตอบ |
+|---|---|---|
+| Org10MSP ซึ่งไม่อยู่ใน swarm นี้ ส่ง update | ปฏิเสธ | `no combination of peers can be derived which satisfy the endorsement policy: No metadata was found for chaincode sl-ledger in channel swarm-edge-lstm` |
+| Org1MSP ส่ง update เข้ารอบ 713 ที่ปิดไปแล้ว | ปฏิเสธ | `round 713 is already aggregated, no further updates accepted` |
+| Org2MSP ปิดรอบ 100713 ทั้งที่ leader คือ Org1MSP | ปฏิเสธ | `round 100713 belongs to Org1MSP, Org2MSP cannot aggregate it` |
+| Org1MSP (leader) ปิดรอบ 100713 โดยไม่มี update เลย | ปฏิเสธ | `round 100713 has 0 updates, quorum is 4` |
+| Org5MSP (leader ของรอบ 713) แก้ global model ของรอบนั้น | ปฏิเสธ | `round 713 already has an aggregation` |
+
+### 5.4 ต้นทุนที่เพิ่มขึ้น
+
+- เวลารอ ledger 2.5–4.2 วินาทีต่อรอบ คิดเป็น 2–6% ของเวลาทั้งรอบ (รายละเอียดในหัวข้อ 3)
+- traffic ต่อรอบของ SL น้อยกว่า FL 10–33% เพราะ leader ไม่ต้องส่ง update ของตัวเอง แลกกับ transaction บน ledger รอบละ client + 1 รายการ
+
+### 5.5 สิ่งที่หลักฐานนี้ยังไม่ได้พิสูจน์
+
+- ทุก node อยู่ในโปรเซสเดียว การส่ง weights แบบ peer-to-peer เป็นการส่งในหน่วยความจำ ledger, ลายเซ็นของแต่ละ org และ endorsement เป็นของจริง แต่การขนส่งโมเดลผ่าน network ยังไม่ได้วัด (นับเป็น bytes ไว้)
+- hash พิสูจน์ได้ว่า node ส่งอะไร ไม่ได้พิสูจน์ว่าส่งของดี node ที่ส่ง weights ที่ถูกวางยามาก็ยังผ่าน ยังไม่ได้ทำ robust aggregation
+- SL ได้โมเดลเดียวกับ FL ทุกบิต จึงอ่อนต่อข้อมูล non-IID เท่ากับ FL
+- gateway ตัวเดียวถือ identity ทั้ง 10 org, orderer ตัวเดียว และทุกอย่างรันบนเครื่องเดียว
+
